@@ -61,7 +61,8 @@ namespace Aiv.Fast2D
 			this.UpdateUV ();
 		}
 
-		public void UpdateVertex() {
+		public void UpdateVertex ()
+		{
 			if (this.v == null)
 				return;
 			this.Bind ();
@@ -70,7 +71,8 @@ namespace Aiv.Fast2D
 			GL.BufferData<float> (BufferTarget.ArrayBuffer, (IntPtr)(this.v.Length * sizeof(float)), this.v, BufferUsageHint.DynamicDraw);
 		}
 
-		public void UpdateUV() {
+		public void UpdateUV ()
+		{
 			if (this.uv == null)
 				return;
 			this.Bind ();
@@ -87,8 +89,12 @@ namespace Aiv.Fast2D
 		// here we update translations, scaling and rotations
 		private void ApplyMatrix ()
 		{
-			Matrix4 mvp = Matrix4.CreateTranslation (this.position.X, this.position.Y, 0) * Matrix4.CreateRotationZ (this.rotation) *
-			              Matrix4.CreateScale (this.scale.X, this.scale.Y, 1) * Context.currentWindow.OrthoMatrix;
+			// WARNING !!! OpenTK uses row-major while OpenGL uses column-major
+			Matrix4 m = Matrix4.CreateScale (this.scale.X, this.scale.Y, 1) *
+			            Matrix4.CreateRotationZ (this.rotation) *
+			            Matrix4.CreateTranslation (this.position.X, this.position.Y, 0);
+			Matrix4 mvp = m * Context.currentWindow.OrthoMatrix;
+			              
 			// pass the matrix to the shader
 			this.shader.SetUniform ("mvp", mvp);
 		}

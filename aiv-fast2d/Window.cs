@@ -100,10 +100,10 @@ namespace Aiv.Fast2D
 		{
 			this.aspectRatio = (float)width / (float)height;
 
-			// TODO support offcenter matrix for unit-based development
+			// TODO support centered matrix for unit-based development
 			//this.orthoMatrix = Matrix4.CreateOrthographic ((float)width, (float)height, -1, 1);
 
-			this.orthoMatrix = Matrix4.CreateOrthographicOffCenter (0, (float)width, (float) height, 0, -1, 1);
+			this.orthoMatrix = Matrix4.CreateOrthographicOffCenter (0, (float)width, (float)height, 0, -1, 1);
 
 			this.width = width;
 			this.height = height;
@@ -118,7 +118,7 @@ namespace Aiv.Fast2D
 			this.scaleY = this.window.Height / this.height;
 
 			// setup viewport
-			GL.Viewport (0, 0, width, height);
+			this.SetViewport (0, 0, width, height);
 			// required for updating context !
 			this.window.Context.Update (this.window.WindowInfo);
 			GL.Clear (ClearBufferMask.ColorBufferBit);
@@ -172,14 +172,14 @@ namespace Aiv.Fast2D
 		public int mouseX {
 			get {
 				Point p = new Point (this._mouseState.X, this._mouseState.Y);
-				return (int)((float)this.window.PointToClient(p).X/this.scaleX);
+				return (int)((float)this.window.PointToClient (p).X / this.scaleX);
 			}
 		}
 
 		public int mouseY {
 			get {
 				Point p = new Point (this._mouseState.X, this._mouseState.Y);
-				return (int)((float)this.window.PointToClient(p).Y/this.scaleY);
+				return (int)((float)this.window.PointToClient (p).Y / this.scaleY);
 			}
 		}
 
@@ -208,7 +208,10 @@ namespace Aiv.Fast2D
 
 		public void SetViewport (int x, int y, int width, int height)
 		{
-			GL.Viewport (x, y, width, height);
+			GL.Viewport ((int)(x * this.scaleX),
+				(int)(y * this.scaleY),
+				(int)(width * this.scaleX),
+				(int)(height * this.scaleY));
 		}
 	}
 }
