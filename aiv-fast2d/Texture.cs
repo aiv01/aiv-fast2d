@@ -13,6 +13,8 @@ namespace Aiv.Fast2D
 		private int height;
 		private byte[] bitmap;
 
+		private bool disposed;
+
 		public int Width {
 			get {
 				return this.width;
@@ -46,12 +48,7 @@ namespace Aiv.Fast2D
 
 			this.SetRepeatX (repeatX);
 
-			Console.WriteLine (Context.GetError ());
-
-
 			this.SetRepeatY (repeatY);
-
-			Console.WriteLine (Context.GetError ());
 		}
 
 		public Texture (int width, int height, bool linear = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this (linear, repeatX, repeatY, mipMap)
@@ -140,7 +137,10 @@ namespace Aiv.Fast2D
 
 		public void Dispose ()
 		{
+			if (disposed)
+				return;
 			GL.DeleteTexture (this.textureId);
+			disposed = true;
 		}
 
 		public void SetRepeatX (bool repeat = true)
@@ -181,7 +181,10 @@ namespace Aiv.Fast2D
 
 		~Texture ()
 		{
-			GL.DeleteTexture (this.textureId);
+			if (disposed)
+				return;
+			Context.textureGC.Add (this.textureId);
+			disposed = true;
 		}
 	}
 }

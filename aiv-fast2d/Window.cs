@@ -164,6 +164,36 @@ namespace Aiv.Fast2D
 
 			this.watch.Reset ();
 			this.watch.Start ();
+		
+			// destroy useless resources
+			// use for for avoiding "changing while iterating
+			for(int i=0;i<Context.bufferGC.Count;i++) {
+				int _id = Context.bufferGC[i];
+				Console.WriteLine ("deleting " + _id);
+				GL.DeleteBuffer (_id);
+			}
+			Context.bufferGC.Clear ();
+
+			for(int i=0;i<Context.vaoGC.Count;i++) {
+				int _id = Context.vaoGC[i];
+				Console.WriteLine ("deleting " + _id);
+				GL.DeleteVertexArray (_id);
+			}
+			Context.vaoGC.Clear ();
+
+			for(int i=0;i<Context.textureGC.Count;i++) {
+				int _id = Context.textureGC[i];
+				Console.WriteLine ("deleting " + _id);
+				GL.DeleteTexture (_id);
+			}
+			Context.textureGC.Clear ();
+
+			for(int i=0;i<Context.shaderGC.Count;i++) {
+				int _id = Context.shaderGC[i];
+				Console.WriteLine ("deleting " + _id);
+				GL.DeleteProgram (_id);
+			}
+			Context.shaderGC.Clear ();
 
 			GL.Clear (ClearBufferMask.ColorBufferBit);
 
@@ -213,6 +243,7 @@ namespace Aiv.Fast2D
 				(int)(width * this.scaleX),
 				(int)(height * this.scaleY));
 		}
+			
 	}
 }
 

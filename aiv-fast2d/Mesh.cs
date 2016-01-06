@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Aiv.Fast2D
 {
-	public class Mesh
+	public class Mesh : IDisposable
 	{
 
 		private int vertexArrayId;
@@ -14,6 +14,8 @@ namespace Aiv.Fast2D
 
 		private int vBufferId;
 		private int uvBufferId;
+
+		private bool disposed;
 
 		public Shader shader;
 
@@ -109,11 +111,25 @@ namespace Aiv.Fast2D
 
 		}
 
-		~Mesh ()
+		public void Dispose ()
 		{
+			if (disposed)
+				return;
 			GL.DeleteBuffer (this.vBufferId);
 			GL.DeleteBuffer (this.uvBufferId);
 			GL.DeleteVertexArray (this.vertexArrayId);
+			disposed = true;
+		}
+
+		~Mesh ()
+		{
+			if (disposed)
+				return;
+			Context.bufferGC.Add (this.vBufferId);
+			Context.bufferGC.Add (this.uvBufferId);
+			Context.vaoGC.Add (this.vertexArrayId);
+
+			disposed = true;
 		}
 			
 	}

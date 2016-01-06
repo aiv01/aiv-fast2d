@@ -6,12 +6,14 @@ using System.Collections.Generic;
 
 namespace Aiv.Fast2D
 {
-	public class Shader
+	public class Shader : IDisposable
 	{
 
 		private int programId;
 
 		private Dictionary<string, int> uniformCache;
+
+		private bool disposed;
 
 		public Shader (string vertex, string fragment)
 		{
@@ -70,8 +72,19 @@ namespace Aiv.Fast2D
 			GL.Uniform1 (uid, n);
 		}
 
-		~Shader() {
+		public void Dispose ()
+		{
+			if (disposed)
+				return;
 			GL.DeleteProgram (this.programId);
+			disposed = true;
+		}
+
+		~Shader() {
+			if (disposed)
+				return;
+			Context.shaderGC.Add (this.programId);
+			disposed = true;
 		}
 	}
 }
