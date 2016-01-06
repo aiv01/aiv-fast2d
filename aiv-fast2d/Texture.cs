@@ -88,10 +88,10 @@ namespace Aiv.Fast2D
 					for (int x = 0; x < _image.Width; x++) {
 						int position = (y * _image.Width * 4) + (x * 4);
 						// bgra -> rgba
-						byte b = bitmap[position];
+						byte b = bitmap [position];
 						byte r = bitmap [position + 2];
 						bitmap [position] = r;
-						bitmap [position+2] = b;
+						bitmap [position + 2] = b;
 					}
 				}
 			}
@@ -177,6 +177,11 @@ namespace Aiv.Fast2D
 				GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
 				GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
 			}
+		}
+
+		~Texture ()
+		{
+			GL.DeleteTexture (this.textureId);
 		}
 	}
 }

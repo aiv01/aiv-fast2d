@@ -67,8 +67,11 @@ namespace Aiv.Fast2D
 		{
 			this.Use ();
 			int uid = this.GetUniform (name);
-			Console.WriteLine ("UID = " + uid);
 			GL.Uniform1 (uid, n);
+		}
+
+		~Shader() {
+			GL.DeleteProgram (this.programId);
 		}
 	}
 }

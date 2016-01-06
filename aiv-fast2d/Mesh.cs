@@ -108,6 +108,13 @@ namespace Aiv.Fast2D
 			GL.DrawArrays (PrimitiveType.Triangles, 0, this.v.Length / 2);
 
 		}
+
+		~Mesh ()
+		{
+			GL.DeleteBuffer (this.vBufferId);
+			GL.DeleteBuffer (this.uvBufferId);
+			GL.DeleteVertexArray (this.vertexArrayId);
+		}
 			
 	}
 }
