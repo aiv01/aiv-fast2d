@@ -22,6 +22,8 @@ namespace Aiv.Fast2D
 		public Vector2 position = Vector2.Zero;
 		public Vector2 scale = Vector2.One;
 
+		public Vector2 pivot = Vector2.Zero;
+
 		private float rotation;
 
 		public float Rotation {
@@ -92,9 +94,14 @@ namespace Aiv.Fast2D
 		private void ApplyMatrix ()
 		{
 			// WARNING !!! OpenTK uses row-major while OpenGL uses column-major
-			Matrix4 m = Matrix4.CreateScale (this.scale.X, this.scale.Y, 1) *
-			            Matrix4.CreateRotationZ (this.rotation) *
-			            Matrix4.CreateTranslation (this.position.X, this.position.Y, 0);
+			Matrix4 m =
+				
+				Matrix4.CreateTranslation (-this.pivot.X, -this.pivot.Y, 0) *
+				Matrix4.CreateScale (this.scale.X, this.scale.Y, 1) *
+				Matrix4.CreateRotationZ (this.rotation) *
+				// here we do not re-add the pivot, so translation is pivot based too
+				Matrix4.CreateTranslation (this.position.X, this.position.Y, 0);
+			
 			Matrix4 mvp = m * Context.currentWindow.OrthoMatrix;
 			              
 			// pass the matrix to the shader

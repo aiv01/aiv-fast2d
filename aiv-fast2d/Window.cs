@@ -114,8 +114,8 @@ namespace Aiv.Fast2D
 				fullScreen ? GameWindowFlags.Fullscreen : GameWindowFlags.FixedWindow,
 				DisplayDevice.Default, 3, 3, OpenTK.Graphics.GraphicsContextFlags.Default);
 
-			this.scaleX = this.window.Width / this.width;
-			this.scaleY = this.window.Height / this.height;
+			this.scaleX = (float)this.window.Width / (float)this.width;
+			this.scaleY = (float)this.window.Height / (float)this.height;
 
 			// setup viewport
 			this.SetViewport (0, 0, width, height);
@@ -167,29 +167,29 @@ namespace Aiv.Fast2D
 		
 			// destroy useless resources
 			// use for for avoiding "changing while iterating
-			for(int i=0;i<Context.bufferGC.Count;i++) {
-				int _id = Context.bufferGC[i];
+			for (int i = 0; i < Context.bufferGC.Count; i++) {
+				int _id = Context.bufferGC [i];
 				Console.WriteLine ("deleting " + _id);
 				GL.DeleteBuffer (_id);
 			}
 			Context.bufferGC.Clear ();
 
-			for(int i=0;i<Context.vaoGC.Count;i++) {
-				int _id = Context.vaoGC[i];
+			for (int i = 0; i < Context.vaoGC.Count; i++) {
+				int _id = Context.vaoGC [i];
 				Console.WriteLine ("deleting " + _id);
 				GL.DeleteVertexArray (_id);
 			}
 			Context.vaoGC.Clear ();
 
-			for(int i=0;i<Context.textureGC.Count;i++) {
-				int _id = Context.textureGC[i];
+			for (int i = 0; i < Context.textureGC.Count; i++) {
+				int _id = Context.textureGC [i];
 				Console.WriteLine ("deleting " + _id);
 				GL.DeleteTexture (_id);
 			}
 			Context.textureGC.Clear ();
 
-			for(int i=0;i<Context.shaderGC.Count;i++) {
-				int _id = Context.shaderGC[i];
+			for (int i = 0; i < Context.shaderGC.Count; i++) {
+				int _id = Context.shaderGC [i];
 				Console.WriteLine ("deleting " + _id);
 				GL.DeleteProgram (_id);
 			}
