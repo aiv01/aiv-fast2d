@@ -24,6 +24,8 @@ namespace Aiv.Fast2D
 
 		public Vector2 pivot = Vector2.Zero;
 
+		public Camera camera;
+
 		private float rotation;
 
 		public float Rotation {
@@ -101,7 +103,13 @@ namespace Aiv.Fast2D
 				Matrix4.CreateRotationZ (this.rotation) *
 				// here we do not re-add the pivot, so translation is pivot based too
 				Matrix4.CreateTranslation (this.position.X, this.position.Y, 0);
-			
+
+			if (this.camera != null) {
+				m *= this.camera.Matrix ();
+			} else if (Context.mainCamera != null) {
+				m *= Context.mainCamera.Matrix ();
+			}
+
 			Matrix4 mvp = m * Context.currentWindow.OrthoMatrix;
 			              
 			// pass the matrix to the shader
