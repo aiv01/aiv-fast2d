@@ -48,5 +48,45 @@ will return the left axis status of the first joystick.
 It means you can move an object in one step:
 
 ```cs
+// move the player with the left analog
 player.position = window.JoystickAxisLeft(0) * window.deltaTime * speed;
+
+// move the camera with the right one
+camera.position = window.JoystickAxisRight(0) * window.deltaTime * cameraSpeed;
 ```
+
+DPAD
+----
+
+This is the directional pad. Each of the directions is a bool set to true when the button is pressed:
+
+```cs
+// this time we use the second joystick attached to the system (if available)
+bool isGoingUp = window.JoystickUp(1);
+bool isGoingDown = window.JoystickDown(1);
+bool isGoingLeft = window.JoystickLeft(1);
+bool isGoingRight = window.JoystickRight(1);
+```
+
+Buttons
+-------
+
+The same as DPAD but for the classic 4 buttons (a,b,x,y).
+
+```cs
+bool pressA = window.JoystickA(0);
+bool pressB = window.JoystickB(0);
+bool pressC = window.JoystickC(0);
+bool pressC = window.JoystickD(0);
+```
+
+Supported Hardware
+------------------
+
+On windows you can use Xbox 360 and Xbox one controllers without additional drivers.
+
+For PS3/PS4 controllers you need this driver: https://github.com/nefarius/ScpToolkit#installation-how-to
+
+Cheap USB controllers should work out of the box
+
+On Mac PS3/PS4 controllers are automatically supported, while for Xbox 360/One you need this driver: https://github.com/360Controller/360Controller/releases
