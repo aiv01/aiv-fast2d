@@ -377,6 +377,27 @@ namespace Aiv.Fast2D
 			GamePad.SetVibration (index, left, right);
 		}
 
+		public bool JoystickA(int index) {
+			return GamePad.GetState (index).Buttons.A == ButtonState.Pressed;
+		}
+
+		public bool JoystickB(int index) {
+			return GamePad.GetState (index).Buttons.B == ButtonState.Pressed;
+		}
+
+		public bool JoystickX(int index) {
+			return GamePad.GetState (index).Buttons.X == ButtonState.Pressed;
+		}
+
+		public bool JoystickY(int index) {
+			return GamePad.GetState (index).Buttons.Y == ButtonState.Pressed;
+		}
+
+		public string JoystickDebug (int index)
+		{
+			return GamePad.GetState (index).ToString();
+		}
+
 		public void SetViewport (int x, int y, int width, int height)
 		{
 			GL.Viewport ((int)(x * this.scaleX),
