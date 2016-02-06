@@ -28,22 +28,22 @@ void main(){
 		private static Shader spriteShader = new Shader (spriteVertexShader, spriteFragmentShader);
 
 
-		private int width;
-		private int height;
+		private float width;
+		private float height;
 
-		public int Width {
+		public float Width {
 			get {
 				return this.width;
 			}
 		}
 
-		public int Height {
+		public float Height {
 			get {
 				return this.height;
 			}
 		}
 
-		public Sprite (int width, int height) : base (spriteShader)
+		public Sprite (float width, float height) : base (spriteShader)
 		{
 			this.width = width;
 			this.height = height;
@@ -84,7 +84,7 @@ void main(){
 			this.DrawTexture (tex, x, y, tex.Width, tex.Height);
 		}
 
-		public void DrawTexture (Texture tex)
+		new public void DrawTexture (Texture tex)
 		{
 			this.DrawTexture (tex, 0, 0, tex.Width, tex.Height);
 		}

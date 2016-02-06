@@ -88,11 +88,17 @@ namespace Aiv.Fast2D
 	public class Window
 	{
 		private Matrix4 orthoMatrix;
-		private float aspectRatio;
+		private float _aspectRatio;
 
 		public Matrix4 OrthoMatrix {
 			get {
 				return this.orthoMatrix;
+			}
+		}
+
+		public float aspectRatio {
+			get {
+				return this._aspectRatio;
 			}
 		}
 
@@ -108,6 +114,22 @@ namespace Aiv.Fast2D
 		public int Height {
 			get {
 				return this.height;
+			}
+		}
+
+		public float orthoWidth {
+			get {
+				if (Context.orthographicSize > 0)
+					return Context.orthographicSize * 2 * this._aspectRatio;
+				return this.Width;
+			}
+		}
+
+		public float orthoHeight {
+			get {
+				if (Context.orthographicSize > 0)
+					return Context.orthographicSize * 2;
+				return this.Height;
 			}
 		}
 
@@ -146,12 +168,9 @@ namespace Aiv.Fast2D
 				fullScreen ? GameWindowFlags.Fullscreen : GameWindowFlags.FixedWindow,
 				DisplayDevice.Default, 3, 3, OpenTK.Graphics.GraphicsContextFlags.Default);
 
-			FixDimensions (width, height);
+			FixDimensions (width, height, true);
 
-			// required for updating context !
-			this.window.Context.Update (this.window.WindowInfo);
-			GL.Clear (ClearBufferMask.ColorBufferBit);
-			this.window.SwapBuffers ();
+
 
 			this.window.Closed += new EventHandler<EventArgs> (this.Close);
 			this.window.Visible = true;
@@ -172,22 +191,36 @@ namespace Aiv.Fast2D
 			this.opened = false;
 		}
 
-		private void FixDimensions (int width, int height)
+		private void FixDimensions (int width, int height, bool first = false)
 		{
 			this.width = width;
 			this.height = height;
+
+			if (!first) {
+				this.window.Width = (int)(this.width * this.scaleX);
+				this.window.Height = (int)(this.height * this.scaleY);
+			}
 			this.scaleX = (float)this.window.Width / (float)this.width;
 			this.scaleY = (float)this.window.Height / (float)this.height;
 
-			this.aspectRatio = (float)width / (float)height;
+			this.window.Location = new Point (0, 0);
 
-			// TODO support centered matrix for unit-based development
-			//this.orthoMatrix = Matrix4.CreateOrthographic ((float)width, (float)height, -1, 1);
+			this._aspectRatio = (float)width / (float)height;
 
-			this.orthoMatrix = Matrix4.CreateOrthographicOffCenter (0, (float)width, (float)height, 0, -1, 1);
+			// use units instead of pixels ?
+			if (Context.orthographicSize > 0) {
+				this.orthoMatrix = Matrix4.CreateOrthographic (Context.orthographicSize * 2f * this._aspectRatio, -Context.orthographicSize * 2f, -1, 1);
+			} else {
+				this.orthoMatrix = Matrix4.CreateOrthographicOffCenter (0, (float)width, (float)height, 0, -1, 1);
+			}
 
 			// setup viewport
 			this.SetViewport (0, 0, width, height);
+
+			// required for updating context !
+			this.window.Context.Update (this.window.WindowInfo);
+			GL.Clear (ClearBufferMask.ColorBufferBit);
+			this.window.SwapBuffers ();
 		}
 
 		public bool SetResolution (Vector2 newResolution)
@@ -196,6 +229,8 @@ namespace Aiv.Fast2D
 				if (resolution.Width == newResolution.X && resolution.Height == newResolution.Y) {
 					DisplayDevice.Default.ChangeResolution (resolution);
 					this.FixDimensions (resolution.Width, resolution.Height);
+					Console.WriteLine (resolution.Width + " / " + this.window.Width);
+					Console.WriteLine (resolution.Height + " / " + this.window.Height);
 					return true;
 				}
 			}

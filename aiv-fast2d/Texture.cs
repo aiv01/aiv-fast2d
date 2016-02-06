@@ -27,6 +27,12 @@ namespace Aiv.Fast2D
 			}
 		}
 
+		public float Ratio {
+			get {
+				return (float)this.Width / (float)this.Height;
+			}
+		}
+
 		public byte[] Bitmap {
 			get {
 				return this.bitmap;

@@ -8,6 +8,9 @@ namespace Aiv.Fast2D
 {
 	public static class Context
 	{
+
+		public static float orthographicSize;
+
 		public static Window currentWindow;
 
 		public static Camera mainCamera;
