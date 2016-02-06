@@ -208,8 +208,8 @@ namespace Aiv.Fast2D
 				this.watch.Start ();
 
 
-			this._keyboardState = this.window.Keyboard.GetState ();
-			this._mouseState = this.window.Mouse.GetCursorState ();
+			this._keyboardState = Keyboard.GetState ();
+			this._mouseState = Mouse.GetCursorState ();
 
 			// redraw
 			this.window.SwapBuffers ();
