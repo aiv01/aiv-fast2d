@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
+using OpenTK.Input;
 using System.Collections.Generic;
 
 namespace Aiv.Fast2D
@@ -20,6 +21,8 @@ namespace Aiv.Fast2D
 				return resolutions;
 			}
 		}
+
+
 
 		public static string GetError ()
 		{

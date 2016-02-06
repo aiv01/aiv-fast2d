@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL;
 using System.Diagnostics;
 using OpenTK.Input;
 using System.Drawing;
+using System.Collections.Generic;
 
 namespace Aiv.Fast2D
 {
@@ -139,27 +140,14 @@ namespace Aiv.Fast2D
 
 		public Window (int width, int height, string title, bool fullScreen = false)
 		{
-			this.aspectRatio = (float)width / (float)height;
-
-			// TODO support centered matrix for unit-based development
-			//this.orthoMatrix = Matrix4.CreateOrthographic ((float)width, (float)height, -1, 1);
-
-			this.orthoMatrix = Matrix4.CreateOrthographicOffCenter (0, (float)width, (float)height, 0, -1, 1);
-
-			this.width = width;
-			this.height = height;
-
-
+			
 			// force opengl 3.3 this is a good compromise
 			this.window = new GameWindow (width, height, OpenTK.Graphics.GraphicsMode.Default, title, 
 				fullScreen ? GameWindowFlags.Fullscreen : GameWindowFlags.FixedWindow,
 				DisplayDevice.Default, 3, 3, OpenTK.Graphics.GraphicsContextFlags.Default);
 
-			this.scaleX = (float)this.window.Width / (float)this.width;
-			this.scaleY = (float)this.window.Height / (float)this.height;
+			FixDimensions (width, height);
 
-			// setup viewport
-			this.SetViewport (0, 0, width, height);
 			// required for updating context !
 			this.window.Context.Update (this.window.WindowInfo);
 			GL.Clear (ClearBufferMask.ColorBufferBit);
@@ -184,11 +172,30 @@ namespace Aiv.Fast2D
 			this.opened = false;
 		}
 
+		private void FixDimensions (int width, int height)
+		{
+			this.width = width;
+			this.height = height;
+			this.scaleX = (float)this.window.Width / (float)this.width;
+			this.scaleY = (float)this.window.Height / (float)this.height;
+
+			this.aspectRatio = (float)width / (float)height;
+
+			// TODO support centered matrix for unit-based development
+			//this.orthoMatrix = Matrix4.CreateOrthographic ((float)width, (float)height, -1, 1);
+
+			this.orthoMatrix = Matrix4.CreateOrthographicOffCenter (0, (float)width, (float)height, 0, -1, 1);
+
+			// setup viewport
+			this.SetViewport (0, 0, width, height);
+		}
+
 		public bool SetResolution (Vector2 newResolution)
 		{
 			foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions) {
 				if (resolution.Width == newResolution.X && resolution.Height == newResolution.Y) {
 					DisplayDevice.Default.ChangeResolution (resolution);
+					this.FixDimensions (resolution.Width, resolution.Height);
 					return true;
 				}
 			}
@@ -203,7 +210,6 @@ namespace Aiv.Fast2D
 
 			this._keyboardState = this.window.Keyboard.GetState ();
 			this._mouseState = this.window.Mouse.GetCursorState ();
-
 
 			// redraw
 			this.window.SwapBuffers ();
@@ -286,6 +292,54 @@ namespace Aiv.Fast2D
 		public bool GetKey (KeyCode key)
 		{
 			return this._keyboardState.IsKeyDown ((Key)key);
+		}
+
+		public string[] Joysticks {
+			get {
+				string[] joysticks = new string[4];
+				for (int i = 0; i < 4; i++) {
+					if (GamePad.GetState (i).IsConnected)
+						joysticks [i] = GamePad.GetName (i);
+					else
+						joysticks [i] = null;
+				}
+				return joysticks;
+			}
+		}
+
+		public Vector2 JoystickAxisLeft (int index)
+		{
+			return GamePad.GetState (index).ThumbSticks.Left;
+		}
+
+		public Vector2 JoystickAxisRight (int index)
+		{
+			return GamePad.GetState (index).ThumbSticks.Right;
+		}
+
+		public bool JoystickUp (int index)
+		{
+			return GamePad.GetState (index).DPad.IsUp;
+		}
+
+		public bool JoystickDown (int index)
+		{
+			return GamePad.GetState (index).DPad.IsDown;
+		}
+
+		public bool JoystickRight (int index)
+		{
+			return GamePad.GetState (index).DPad.IsRight;
+		}
+
+		public bool JoystickLeft (int index)
+		{
+			return GamePad.GetState (index).DPad.IsLeft;
+		}
+
+		public void JoystickVibrate (int index, float left, float right)
+		{
+			GamePad.SetVibration (index, left, right);
 		}
 
 		public void SetViewport (int x, int y, int width, int height)
