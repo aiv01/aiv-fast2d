@@ -33,3 +33,20 @@ for(int i=0;i<4;i++) {
     Console.WriteLine(window.JoystickDebug(i);
 }
 ```
+
+Axis
+----
+
+The two axis returns a Vector2 struct
+
+```cs
+Vector2 leftAnalog = window.JoystickAxisLeft(0);
+```
+
+will return the left axis status of the first joystick.
+
+It means you can move an object in one step:
+
+```cs
+player.position = window.JoystickAxisLeft(0) * window.deltaTime * speed;
+```
