@@ -45,6 +45,43 @@ namespace Aiv.Fast2D
 		Down = Key.Down,
 		Left = Key.Left,
 		Right = Key.Right,
+
+		ShiftRight = Key.ShiftRight,
+		ShiftLeft = Key.ShiftLeft,
+
+		Keypad0 = Key.Keypad0,
+		Keypad1 = Key.Keypad1,
+		Keypad2 = Key.Keypad2,
+		Keypad3 = Key.Keypad3,
+		Keypad4 = Key.Keypad4,
+		Keypad5 = Key.Keypad5,
+		Keypad6 = Key.Keypad6,
+		Keypad7 = Key.Keypad7,
+		Keypad8 = Key.Keypad8,
+		Keypad9 = Key.Keypad9,
+
+		Num0 = Key.Number0,
+		Num1 = Key.Number1,
+		Num2 = Key.Number2,
+		Num3 = Key.Number3,
+		Num4 = Key.Number4,
+		Num5 = Key.Number5,
+		Num6 = Key.Number6,
+		Num7 = Key.Number7,
+		Num8 = Key.Number8,
+		Num9 = Key.Number9,
+
+		F1 = Key.F1,
+		F2 = Key.F2,
+		F3 = Key.F3,
+		F4 = Key.F4,
+		F5 = Key.F5,
+		F6 = Key.F6,
+		F7 = Key.F7,
+		F8 = Key.F8,
+		F9 = Key.F9,
+		F10 = Key.F10,
+
 	}
 
 	public class Window
@@ -96,6 +133,10 @@ namespace Aiv.Fast2D
 			}
 		}
 
+		public Window (string title) : this (DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true)
+		{
+		}
+
 		public Window (int width, int height, string title, bool fullScreen = false)
 		{
 			this.aspectRatio = (float)width / (float)height;
@@ -143,14 +184,25 @@ namespace Aiv.Fast2D
 			this.opened = false;
 		}
 
+		public bool SetResolution (Vector2 newResolution)
+		{
+			foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions) {
+				if (resolution.Width == newResolution.X && resolution.Height == newResolution.Y) {
+					DisplayDevice.Default.ChangeResolution (resolution);
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public void Update ()
 		{
 			if (!this.watch.IsRunning)
 				this.watch.Start ();
 
 
-			this._keyboardState = Keyboard.GetState ();
-			this._mouseState = Mouse.GetCursorState ();
+			this._keyboardState = this.window.Keyboard.GetState ();
+			this._mouseState = this.window.Mouse.GetCursorState ();
 
 
 			// redraw
@@ -169,28 +221,28 @@ namespace Aiv.Fast2D
 			// use for for avoiding "changing while iterating
 			for (int i = 0; i < Context.bufferGC.Count; i++) {
 				int _id = Context.bufferGC [i];
-				Console.WriteLine ("deleting " + _id);
+				//Console.WriteLine ("deleting " + _id);
 				GL.DeleteBuffer (_id);
 			}
 			Context.bufferGC.Clear ();
 
 			for (int i = 0; i < Context.vaoGC.Count; i++) {
 				int _id = Context.vaoGC [i];
-				Console.WriteLine ("deleting " + _id);
+				//Console.WriteLine ("deleting " + _id);
 				GL.DeleteVertexArray (_id);
 			}
 			Context.vaoGC.Clear ();
 
 			for (int i = 0; i < Context.textureGC.Count; i++) {
 				int _id = Context.textureGC [i];
-				Console.WriteLine ("deleting " + _id);
+				//Console.WriteLine ("deleting " + _id);
 				GL.DeleteTexture (_id);
 			}
 			Context.textureGC.Clear ();
 
 			for (int i = 0; i < Context.shaderGC.Count; i++) {
 				int _id = Context.shaderGC [i];
-				Console.WriteLine ("deleting " + _id);
+				//Console.WriteLine ("deleting " + _id);
 				GL.DeleteProgram (_id);
 			}
 			Context.shaderGC.Clear ();
