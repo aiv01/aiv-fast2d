@@ -76,8 +76,8 @@ The same as DPAD but for the classic 4 buttons (a,b,x,y).
 ```cs
 bool pressA = window.JoystickA(0);
 bool pressB = window.JoystickB(0);
-bool pressC = window.JoystickC(0);
-bool pressC = window.JoystickD(0);
+bool pressX = window.JoystickX(0);
+bool pressY = window.JoystickY(0);
 ```
 
 Supported Hardware
