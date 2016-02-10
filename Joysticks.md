@@ -49,10 +49,10 @@ It means you can move an object in one step:
 
 ```cs
 // move the player with the left analog
-player.position = window.JoystickAxisLeft(0) * window.deltaTime * speed;
+player.position += window.JoystickAxisLeft(0) * window.deltaTime * speed;
 
 // move the camera with the right one
-camera.position = window.JoystickAxisRight(0) * window.deltaTime * cameraSpeed;
+camera.position += window.JoystickAxisRight(0) * window.deltaTime * cameraSpeed;
 ```
 
 DPAD
