@@ -507,6 +507,21 @@ namespace Aiv.Fast2D
             return GamePad.GetState(index).Buttons.X == ButtonState.Pressed;
         }
 
+        public bool JoystickBack(int index)
+        {
+            return GamePad.GetState(index).Buttons.Back == ButtonState.Pressed;
+        }
+
+        public bool JoystickStart(int index)
+        {
+            return GamePad.GetState(index).Buttons.Start == ButtonState.Pressed;
+        }
+
+        public bool JoystickBigButton(int index)
+        {
+            return GamePad.GetState(index).Buttons.BigButton == ButtonState.Pressed;
+        }
+
         public bool JoystickY(int index)
         {
             return GamePad.GetState(index).Buttons.Y == ButtonState.Pressed;
