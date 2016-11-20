@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Aiv.Fast2D</id>
+    <version>0.9.0</version>
+    <authors>Aiv, 20Tab</authors>
+    <owners>Aiv, 20Tab</owners>
+    <licenseUrl>https://github.com/aiv01/aiv-fast2d/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/aiv01/aiv-fast2d</projectUrl>
+    <iconUrl>https://avatars2.githubusercontent.com/u/15378741</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Hardware accelerated 2d drawing library</description>
+    <releaseNotes>Improved performance, added RenderTexture support and various commodity functions added.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>aiv gaming 2d drawing opengl</tags>
+    <dependencies>
+      <dependency id="OpenTK" version="2.0.0" />
+    </dependencies>
+  </metadata>
+</package>
