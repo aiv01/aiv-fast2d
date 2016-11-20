@@ -10,6 +10,7 @@ namespace Aiv.Fast2D.Example
         {
 
             Window window = new Window(800, 600, "Aiv.Fast2D.Example");
+            window.SetIcon("aiv_fast2d_example.Assets.2.ico");
 
             window.SetCursor(false);
 

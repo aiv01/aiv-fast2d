@@ -6,6 +6,10 @@ using OpenTK.Input;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Runtime;
+using System.Runtime.InteropServices;
+using System.Reflection;
+using System.Linq;
+using System.IO;
 
 namespace Aiv.Fast2D
 {
@@ -266,6 +270,25 @@ namespace Aiv.Fast2D
             GL.ClearColor(Color.Black);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             this.window.SwapBuffers();
+        }
+
+        public void SetIcon(string fileName)
+        {
+            Icon icon = null;
+           
+            Assembly assembly = Assembly.GetEntryAssembly();
+
+            // if the file in included in the resources, load it as stream
+            if (assembly.GetManifestResourceNames().Contains<string>(fileName))
+            {
+                Stream iconStream = assembly.GetManifestResourceStream(fileName);
+                icon = new Icon(iconStream);
+
+            }
+            else {
+                icon = new Icon(fileName);
+            }
+            this.window.Icon = icon;
         }
 
         public void SetFullScreen(bool enable)
