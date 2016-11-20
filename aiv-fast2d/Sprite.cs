@@ -8,6 +8,7 @@ namespace Aiv.Fast2D
 
 		private static string spriteVertexShader = @"
 #version 330 core
+
 layout(location = 0) in vec2 vertex;
 layout(location = 1) in vec2 uv;
 uniform mat4 mvp;
@@ -18,6 +19,7 @@ void main(){
 }";
 		private static string spriteFragmentShader = @"
 #version 330 core
+
 in vec2 uvout;
 out vec4 color;
 uniform sampler2D tex;
@@ -55,18 +57,32 @@ void main(){
 				width, height, 
 				0, height
 			};
-			this.Update ();
+            this.uv = new float[] {
+                0, 1,
+                1, 1,
+                0, 0,
+                1, 1,
+                1, 0,
+                0, 0
+            };
+            this.Update ();
 			this.shader.SetUniform ("tex", 0);
 		}
 
-		public void DrawTexture (Texture tex, int x, int y, int width, int height)
-		{
-			float deltaW = 1f / tex.Width;
+        public void DrawTexture(Texture tex, int x, int y, int width, int height)
+        {
+            float deltaW = 1f / tex.Width;
 			float deltaH = 1f / tex.Height;
 			float left = x * deltaW;
 			float right = (x + width) * deltaW;
 			float top = y * deltaH;
 			float bottom = (y + height) * deltaH;
+            if (tex.flipped)
+            {
+                float tmp = bottom;
+                bottom = top;
+                top = tmp;
+            }
 			this.uv = new float[] {
 				left, top,
 				right, top,
