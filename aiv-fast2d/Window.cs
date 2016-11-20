@@ -268,6 +268,17 @@ namespace Aiv.Fast2D
             this.window.SwapBuffers();
         }
 
+        public void SetFullScreen(bool enable)
+        {
+            this.window.WindowState = enable ? WindowState.Fullscreen : WindowState.Normal;
+            this.FixDimensions(width, height);
+        }
+
+        public void SetCursor(bool enable)
+        {
+            this.window.CursorVisible = enable;
+        }
+
         public void SetClearColor(float r, float g, float b)
         {
             GL.ClearColor(r, g, b, 1);
@@ -281,6 +292,11 @@ namespace Aiv.Fast2D
         public void SetClearColor(Color color)
         {
             GL.ClearColor(color);
+        }
+
+        public bool SetResolution(int screenWidth, int screenHeight)
+        {
+            return SetResolution(new Vector2(screenWidth, screenHeight));
         }
 
         public bool SetResolution(Vector2 newResolution)

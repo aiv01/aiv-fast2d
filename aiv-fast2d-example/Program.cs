@@ -11,6 +11,8 @@ namespace Aiv.Fast2D.Example
 
             Window window = new Window(800, 600, "Aiv.Fast2D.Example");
 
+            window.SetCursor(false);
+
             Texture logoAiv = new Texture("aiv_fast2d_example.Assets.LogoAIV.png");
 
 
@@ -67,6 +69,12 @@ namespace Aiv.Fast2D.Example
 
                 if (window.GetKey(KeyCode.Esc))
                     break;
+
+                if (window.GetKey(KeyCode.F))
+                {
+                    window.SetFullScreen(true);
+                    window.SetResolution(1920, 1080);
+                }
 
                 window.SetClearColor(100, 100, 100);
                 RenderTexture.To(null);
