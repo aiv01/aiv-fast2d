@@ -13,6 +13,7 @@ Aiv.Fast2D supports up to 4 jousticks/gamepad and emulates a subset of XBox 360 
 * B, the b button
 * X, the x button
 * Y, the y button
+* Start, Back and 'Big Button'
 
 
 To get the list of connected joysticks you can call:
@@ -78,6 +79,9 @@ bool pressA = window.JoystickA(0);
 bool pressB = window.JoystickB(0);
 bool pressX = window.JoystickX(0);
 bool pressY = window.JoystickY(0);
+bool pressStart = window.JoystickStart(0);
+bool pressBack = window.JoystickBack(0);
+bool pressBigButton = window.JoystickBigButton(0);
 ```
 
 Supported Hardware
