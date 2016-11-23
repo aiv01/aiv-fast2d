@@ -25,7 +25,7 @@ Sprite sprite = new Sprite(100, 100);
 // move the sprite
 sprite.position = new Vector2(x, y);
 //rotate the sprite on the z axis (in degrees)
-sprite.rotateEuler = 90;
+sprite.EulerRotation = 90;
 // scale a sprite
 sprite.scale = new Vector2(0.5f, 0.5f);
 ```
