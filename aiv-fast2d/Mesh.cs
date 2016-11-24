@@ -147,6 +147,7 @@ namespace Aiv.Fast2D
         public void DrawTexture(int textureId)
         {
             this.Bind();
+            GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, textureId);
             this.shader.Use();
             if (this.shaderSetupHook != null)
@@ -163,6 +164,7 @@ namespace Aiv.Fast2D
         {
             this.Bind();
             // clear current texture
+            GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             this.shader.Use();
             if (hook != null)
