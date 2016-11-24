@@ -56,6 +56,15 @@ namespace Aiv.Fast2D
         public delegate void ShaderSetupHook(Mesh mesh);
         protected ShaderSetupHook shaderSetupHook;
 
+        protected int instances;
+        public int Instances
+        {
+            get
+            {
+                return instances;
+            }
+        }
+
         public Mesh(Shader shader)
         {
             this.vertexArrayId = GL.GenVertexArray();
@@ -69,6 +78,26 @@ namespace Aiv.Fast2D
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.uvBufferId);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
             this.shader = shader;
+        }
+
+        protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0)
+        {
+            int bufferId = GL.GenBuffer();
+            GL.EnableVertexAttribArray(attribArrayId);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
+            GL.VertexAttribPointer(attribArrayId, elementSize, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+            if (divisor > 0)
+            {
+                GL.VertexAttribDivisor(attribArrayId, divisor);
+            }
+            GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsageHint.DynamicDraw);
+            return bufferId;
+        }
+
+        protected void UpdateFloatBuffer(int bufferId, float[] data, int offset = 0)
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
+            GL.BufferSubData<float>(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)), data.Length * sizeof(float), data);
         }
 
         public void Update()
@@ -105,7 +134,7 @@ namespace Aiv.Fast2D
         // here we update translations, scaling and rotations
         private void ApplyMatrix()
         {
-           
+
             // WARNING !!! OpenTK uses row-major while OpenGL uses column-major
             Matrix4 m =
                 Matrix4.CreateTranslation(-this.pivot.X, -this.pivot.Y, 0) *
@@ -140,7 +169,14 @@ namespace Aiv.Fast2D
                 this.shaderSetupHook(this);
             }
             this.ApplyMatrix();
-            GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
+            if (instances <= 1)
+            {
+                GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
+            }
+            else
+            {
+                GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, this.v.Length / 2, instances);
+            }
         }
 
         // fast version of drawtexture without UV re-upload
@@ -155,12 +191,19 @@ namespace Aiv.Fast2D
                 this.shaderSetupHook(this);
             }
             this.ApplyMatrix();
-            GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
+            if (instances <= 1)
+            {
+                GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
+            }
+            else
+            {
+                GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, this.v.Length / 2, instances);
+            }
         }
 
 
         // simple draw without textures (useful for subclasses)
-        public void Draw(ShaderSetupHook hook=null)
+        public void Draw(ShaderSetupHook hook = null)
         {
             this.Bind();
             // clear current texture
@@ -176,7 +219,14 @@ namespace Aiv.Fast2D
                 this.shaderSetupHook(this);
             }
             this.ApplyMatrix();
-            GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
+            if (instances <= 1)
+            {
+                GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
+            }
+            else
+            {
+                GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, this.v.Length / 2, instances);
+            }
         }
 
         public void Dispose()

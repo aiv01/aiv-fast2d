@@ -29,7 +29,15 @@ namespace Aiv.Fast2D.Example
             Sprite ship2 = new Sprite(alien.Width / 10, height);
 
             Sprite square = new Sprite(100, 100);
-            
+
+            InstancedSprite tiles = new InstancedSprite(100, 100, 3);
+            tiles.SetPosition(0, new Vector2(150, 100));
+            tiles.SetPosition(1, new Vector2(200, 200));
+            tiles.SetPosition(2, new Vector2(500, 500));
+
+            tiles.SetScale(0, new Vector2(0.5f, 0.5f));
+            tiles.SetScale(1, new Vector2(1.5f, 1.5f));
+
             RenderTexture screen = new RenderTexture(800, 600);
 
             Sprite monitor = new Sprite(100, 100);
@@ -113,6 +121,10 @@ namespace Aiv.Fast2D.Example
                 ship2.SetAdditiveTint(-1f, 1f, -1f, 0);
                 ship2.DrawTexture(alien, x, y, alien.Width / 10, height);
 
+                Vector2 newPosition = tiles.GetPosition(2) - Vector2.One * 20f * window.deltaTime;
+                tiles.SetPosition(2, newPosition);
+
+                tiles.DrawSolidColor(0, 1, 1, 1);
 
 
                 window.Update();
