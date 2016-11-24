@@ -28,6 +28,8 @@ namespace Aiv.Fast2D.Example
 
             Sprite ship2 = new Sprite(alien.Width / 10, height);
 
+            Sprite square = new Sprite(100, 100);
+            
             RenderTexture screen = new RenderTexture(800, 600);
 
             Sprite monitor = new Sprite(100, 100);
@@ -62,6 +64,9 @@ namespace Aiv.Fast2D.Example
 
                 ship.DrawTexture(alien, x, y, alien.Width / 10, height);
 
+
+                square.DrawSolidColor(1f, 0, 0, 0.5f);
+
                 window.SetClearColor(255, 0, 0);
                 RenderTexture.To(screen);
 
@@ -69,6 +74,8 @@ namespace Aiv.Fast2D.Example
                 logo.position += new Vector2(50f, 0) * window.deltaTime;
                 logo.scale = new Vector2(1f, 1f);
                 logo.DrawTexture(logoAiv);
+
+                
 
                 if (window.GetKey(KeyCode.Esc))
                     break;
@@ -103,6 +110,7 @@ namespace Aiv.Fast2D.Example
                 monitor.DrawTexture(screen);
 
                 ship2.position = new Vector2(300, 300);
+                ship2.SetAdditiveTint(-1f, 1f, -1f, 0);
                 ship2.DrawTexture(alien, x, y, alien.Width / 10, height);
 
 

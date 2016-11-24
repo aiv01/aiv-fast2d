@@ -72,6 +72,13 @@ namespace Aiv.Fast2D
 			GL.Uniform1 (uid, n);
 		}
 
+        public void SetUniform(string name, float n)
+        {
+            this.Use();
+            int uid = this.GetUniform(name);
+            GL.Uniform1(uid, n);
+        }
+
         public void SetUniform(string name, Vector4 value)
         {
             this.Use();

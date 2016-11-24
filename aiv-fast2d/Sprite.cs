@@ -28,12 +28,18 @@ in vec2 uvout;
 uniform vec4 mul_tint;
 uniform vec4 add_tint;
 uniform sampler2D tex;
+uniform float use_texture;
 
 out vec4 color;
 
 void main(){
-        color = texture(tex, uvout) * mul_tint;
-        color += vec4(add_tint.xyz * color.a, add_tint.a);
+        if (use_texture > 0) {
+            color = texture(tex, uvout) * mul_tint;
+            color += vec4(add_tint.xyz * color.a, add_tint.a);
+        }
+        else {
+            color = add_tint;
+        }
 }";
 
         private static Shader spriteShader = new Shader(spriteVertexShader, spriteFragmentShader);
@@ -85,6 +91,7 @@ void main(){
             this.shaderSetupHook = (mesh) =>
             {
                 mesh.shader.SetUniform("tex", 0);
+                mesh.shader.SetUniform("use_texture", 1f);
                 mesh.shader.SetUniform("mul_tint", multiplyTint);
                 mesh.shader.SetUniform("add_tint", additiveTint);
             };
@@ -111,11 +118,6 @@ void main(){
             this.additiveTint = new Vector4(color.R / 255, color.G / 255, color.B / 255, color.A / 255);
         }
 
-        public void SetMultiplyTint(int r, int g, int b, int a)
-        {
-            this.multiplyTint = new Vector4(r / 255, g / 255, b / 255, a / 255);
-        }
-
         public void SetMultiplyTint(float r, float g, float b, float a)
         {
             this.multiplyTint = new Vector4(r, g, b, a);
@@ -126,9 +128,13 @@ void main(){
             this.multiplyTint = color;
         }
 
-        public void SetMultiplyTint(Color color)
+        public void DrawSolidColor(float r, float g, float b, float a)
         {
-            this.multiplyTint = new Vector4(color.R / 255, color.G / 255, color.B / 255, color.A / 255);
+            this.Draw((mesh) =>
+            {
+                mesh.shader.SetUniform("use_texture", -1f);
+                mesh.shader.SetUniform("add_tint", new Vector4(r, g, b, a));
+            });
         }
 
         public void DrawTexture(Texture tex, int x, int y, int width, int height)

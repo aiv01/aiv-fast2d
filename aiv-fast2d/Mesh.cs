@@ -157,6 +157,26 @@ namespace Aiv.Fast2D
             GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
         }
 
+
+        // simple draw without textures (useful for subclasses)
+        public void Draw(ShaderSetupHook hook=null)
+        {
+            this.Bind();
+            // clear current texture
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            this.shader.Use();
+            if (hook != null)
+            {
+                hook(this);
+            }
+            else if (this.shaderSetupHook != null)
+            {
+                this.shaderSetupHook(this);
+            }
+            this.ApplyMatrix();
+            GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
+        }
+
         public void Dispose()
         {
             if (disposed)
