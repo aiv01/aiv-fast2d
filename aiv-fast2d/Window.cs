@@ -297,6 +297,18 @@ namespace Aiv.Fast2D
             this.FixDimensions(width, height);
         }
 
+        public string Title
+        {
+            get
+            {
+                return this.window.Title;
+            }
+            set
+            {
+                this.window.Title = value;
+            }
+        }
+
         public void SetCursor(bool enable)
         {
             this.window.CursorVisible = enable;

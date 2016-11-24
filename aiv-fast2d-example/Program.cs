@@ -38,6 +38,8 @@ namespace Aiv.Fast2D.Example
 
             window.SetClearColor(100, 100, 100);
 
+            int counter = 0;
+
             while (window.opened)
             {
 
@@ -75,6 +77,11 @@ namespace Aiv.Fast2D.Example
                 {
                     window.SetFullScreen(true);
                     window.SetResolution(1920, 1080);
+                }
+
+                if (window.GetKey(KeyCode.T))
+                {
+                    window.Title = string.Format("Counter = {0}", counter++);
                 }
 
                 window.SetClearColor(100, 100, 100);
