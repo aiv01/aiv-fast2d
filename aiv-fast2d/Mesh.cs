@@ -52,6 +52,10 @@ namespace Aiv.Fast2D
             }
         }
 
+        // this is called to set uniform in shaders
+        public delegate void ShaderSetupHook(Mesh mesh);
+        protected ShaderSetupHook shaderSetupHook;
+
         public Mesh(Shader shader)
         {
             this.vertexArrayId = GL.GenVertexArray();
@@ -131,6 +135,10 @@ namespace Aiv.Fast2D
             this.Bind();
             tex.Bind();
             this.shader.Use();
+            if (this.shaderSetupHook != null)
+            {
+                this.shaderSetupHook(this);
+            }
             this.ApplyMatrix();
             GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
         }
@@ -141,6 +149,10 @@ namespace Aiv.Fast2D
             this.Bind();
             GL.BindTexture(TextureTarget.Texture2D, textureId);
             this.shader.Use();
+            if (this.shaderSetupHook != null)
+            {
+                this.shaderSetupHook(this);
+            }
             this.ApplyMatrix();
             GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
         }

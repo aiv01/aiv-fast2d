@@ -84,6 +84,18 @@ namespace Aiv.Fast2D.Example
                     window.Title = string.Format("Counter = {0}", counter++);
                 }
 
+                if (window.GetKey(KeyCode.R))
+                {
+                    ship.SetAdditiveTint(1f, -1f, -1f, 0);
+                    //ship.SetMultiplyTint(2f, 0, 0, 1);
+                }
+
+                if (window.GetKey(KeyCode.N))
+                {
+                    ship.SetAdditiveTint(0, 0, 0, 0);
+                    //ship.SetMultiplyTint(2f, 0, 0, 1);
+                }
+
                 window.SetClearColor(100, 100, 100);
                 RenderTexture.To(null);
 

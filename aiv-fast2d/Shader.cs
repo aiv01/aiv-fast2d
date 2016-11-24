@@ -72,7 +72,14 @@ namespace Aiv.Fast2D
 			GL.Uniform1 (uid, n);
 		}
 
-		public void Dispose ()
+        public void SetUniform(string name, Vector4 value)
+        {
+            this.Use();
+            int uid = this.GetUniform(name);
+            GL.Uniform4(uid, value);
+        }
+
+        public void Dispose ()
 		{
 			if (disposed)
 				return;
