@@ -56,11 +56,12 @@ void main(){
 
         
 
-        public void SetPosition(int instanceId, Vector2 position)
+        public void SetPosition(int instanceId, Vector2 position, bool noUpload=false)
         {
             positionsData[instanceId * 2] = position.X;
             positionsData[instanceId * 2 + 1] = position.Y;
-            UpdateFloatBuffer(positionsBuffer, new float []{ position.X, position.Y }, instanceId * 2);
+            if (!noUpload)
+                UpdateFloatBuffer(positionsBuffer, new float []{ position.X, position.Y }, instanceId * 2);
         }
 
         public Vector2 GetPosition(int instanceId)
@@ -70,11 +71,17 @@ void main(){
             return new Vector2(x, y);
         }
 
-        public void SetScale(int instanceId, Vector2 scale)
+        public void UpdatePositions()
+        {
+            UpdateFloatBuffer(positionsBuffer, positionsData);
+        }
+
+        public void SetScale(int instanceId, Vector2 scale, bool noUpload=false)
         {
             scalesData[instanceId * 2] = scale.X;
             scalesData[instanceId * 2 + 1] = scale.Y;
-            UpdateFloatBuffer(scalesBuffer, new float[] { scale.X, scale.Y }, instanceId * 2);
+            if (!noUpload)
+                UpdateFloatBuffer(scalesBuffer, new float[] { scale.X, scale.Y }, instanceId * 2);
         }
 
         public Vector2 GetScale(int instanceId)
@@ -82,6 +89,11 @@ void main(){
             float x = scalesData[instanceId * 2];
             float y = scalesData[instanceId * 2 + 1];
             return new Vector2(x, y);
+        }
+
+        public void UpdateScales()
+        {
+            UpdateFloatBuffer(scalesBuffer, scalesData);
         }
 
         public InstancedSprite(float width, float height) : base(width, height)

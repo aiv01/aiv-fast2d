@@ -38,6 +38,8 @@ namespace Aiv.Fast2D.Example
             tiles.SetScale(0, new Vector2(0.5f, 0.5f));
             tiles.SetScale(1, new Vector2(1.5f, 1.5f));
 
+            InstancedSprite tiles2 = new InstancedSprite(20, 20, 30);
+
             RenderTexture screen = new RenderTexture(800, 600);
 
             Sprite monitor = new Sprite(100, 100);
@@ -52,6 +54,14 @@ namespace Aiv.Fast2D.Example
 
             while (window.opened)
             {
+
+                for(int i=0;i<tiles2.Instances;i++)
+                {
+                    tiles2.SetPosition(i, new Vector2(20 * i, 20 * i), true);
+                }
+                tiles2.UpdatePositions();
+
+                
 
                 ship.position.Y = 10;
                 ship.position += new Vector2(5f, 0) * window.deltaTime;
@@ -125,6 +135,9 @@ namespace Aiv.Fast2D.Example
                 tiles.SetPosition(2, newPosition);
 
                 tiles.DrawSolidColor(0, 1, 1, 1);
+
+                tiles2.position.X += 30 * window.deltaTime;
+                tiles2.DrawSolidColor(1, 1, 0, 1);
 
 
                 window.Update();
