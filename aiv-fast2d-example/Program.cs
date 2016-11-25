@@ -52,6 +52,9 @@ namespace Aiv.Fast2D.Example
 
             int counter = 0;
 
+            ParticleSystem particleSystem = new ParticleSystem(2, 2, 100);
+            particleSystem.position = new Vector2(400, 200);
+
             while (window.opened)
             {
 
@@ -138,6 +141,8 @@ namespace Aiv.Fast2D.Example
 
                 tiles2.position.X += 30 * window.deltaTime;
                 tiles2.DrawSolidColor(1, 1, 0, 1);
+
+                particleSystem.Update(window);
 
 
                 window.Update();
