@@ -55,6 +55,8 @@ namespace Aiv.Fast2D.Example
             ParticleSystem particleSystem = new ParticleSystem(2, 2, 100);
             particleSystem.position = new Vector2(400, 200);
 
+            Segment line1 = new Segment(150, 150, 400, 400, 3);
+
             while (window.opened)
             {
 
@@ -144,6 +146,8 @@ namespace Aiv.Fast2D.Example
 
                 particleSystem.Update(window);
 
+                line1.Point2 = new Vector2(window.mouseX, window.mouseY);
+                line1.DrawSolidColor(1f, 0f, 1f, 1f);
 
                 window.Update();
             }
