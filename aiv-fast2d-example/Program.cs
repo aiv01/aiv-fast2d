@@ -55,7 +55,11 @@ namespace Aiv.Fast2D.Example
             ParticleSystem particleSystem = new ParticleSystem(2, 2, 100);
             particleSystem.position = new Vector2(400, 200);
 
-            Segment line1 = new Segment(150, 150, 400, 400, 3);
+            Rope rope = new Rope(200, 3);
+            rope.position = new Vector2(400, 200);
+            rope.SetDestination(new Vector2(400, 400));
+
+            ship2.pivot = new Vector2(alien.Width / 20, height / 2);
 
             while (window.opened)
             {
@@ -132,9 +136,7 @@ namespace Aiv.Fast2D.Example
               
                 monitor.DrawTexture(screen);
 
-                ship2.position = new Vector2(300, 300);
-                ship2.SetAdditiveTint(-1f, 1f, -1f, 0);
-                ship2.DrawTexture(alien, x, y, alien.Width / 10, height);
+                
 
                 Vector2 newPosition = tiles.GetPosition(2) - Vector2.One * 20f * window.deltaTime;
                 tiles.SetPosition(2, newPosition);
@@ -146,8 +148,13 @@ namespace Aiv.Fast2D.Example
 
                 particleSystem.Update(window);
 
-                line1.Point2 = new Vector2(window.mouseX, window.mouseY);
-                line1.DrawSolidColor(1f, 0f, 1f, 1f);
+                //rope.SetDestination(window.mousePosition);
+                rope.UpdatePhysics(window);
+                rope.DrawSolidColor(1f, 0f, 1f, 1f);
+
+                ship2.position = rope.position + rope.Point2;
+                ship2.SetAdditiveTint(-1f, 1f, -1f, 0);
+                ship2.DrawTexture(alien, x, y, alien.Width / 10, height);
 
                 window.Update();
             }

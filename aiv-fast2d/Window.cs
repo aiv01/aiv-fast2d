@@ -424,6 +424,14 @@ namespace Aiv.Fast2D
             }
         }
 
+        public Vector2 mousePosition
+        {
+            get
+            {
+                return new Vector2(mouseX, mouseY);
+            }
+        }
+
         public bool mouseLeft
         {
             get
