@@ -54,8 +54,22 @@ namespace Aiv.Fast2D.Example
                 angle -= 0.5f * window.deltaTime;
             }
 
+            if (window.GetKey(KeyCode.Up))
+            {
+                currentLength -= 60 * window.deltaTime;
+                if (currentLength < 10)
+                    currentLength = 10;
+            }
 
-            float angleAccel = -60.0f / currentLength * (float)Math.Sin(angle);
+            if (window.GetKey(KeyCode.Down))
+            {
+                currentLength += 60 * window.deltaTime;
+                if (currentLength > maxLength)
+                    currentLength = maxLength;
+            }
+
+
+            float angleAccel = -9.8f * (float)Math.Sin(angle);
             angleVelocity += angleAccel * window.deltaTime;
 
             angle += angleVelocity * window.deltaTime;

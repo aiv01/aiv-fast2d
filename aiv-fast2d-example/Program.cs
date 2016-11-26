@@ -55,7 +55,7 @@ namespace Aiv.Fast2D.Example
             ParticleSystem particleSystem = new ParticleSystem(2, 2, 100);
             particleSystem.position = new Vector2(400, 200);
 
-            Rope rope = new Rope(200, 3);
+            Rope rope = new Rope(400, 3);
             rope.position = new Vector2(400, 200);
             rope.SetDestination(new Vector2(400, 400));
 
