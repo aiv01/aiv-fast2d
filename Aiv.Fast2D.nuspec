@@ -17,4 +17,7 @@
       <dependency id="OpenTK" version="2.0.0" />
     </dependencies>
   </metadata>
+  <files>
+    <file src="aiv-fast2d/bin/Release/aiv-fast2d.dll" target="lib/net40" />
+  </files>
 </package>
