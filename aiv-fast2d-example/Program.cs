@@ -61,6 +61,8 @@ namespace Aiv.Fast2D.Example
 
             ship2.pivot = new Vector2(alien.Width / 20, height / 2);
 
+            ParticleSystem particleSystem2 = new ParticleSystem(1, 2, 50);
+
             while (window.opened)
             {
 
@@ -155,6 +157,9 @@ namespace Aiv.Fast2D.Example
                 ship2.position = rope.position + rope.Point2;
                 ship2.SetAdditiveTint(-1f, 1f, -1f, 0);
                 ship2.DrawTexture(alien, x, y, alien.Width / 10, height);
+
+                particleSystem2.position = ship2.position;
+                particleSystem2.Update(window);
 
                 window.Update();
             }
