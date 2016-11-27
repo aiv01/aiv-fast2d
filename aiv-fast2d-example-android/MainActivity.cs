@@ -60,8 +60,10 @@ namespace Aiv.Fast2D.Android.Example
 
         private void GameUpdate(Window window)
         {
-           
-
+            if (window.IsTouching)
+            {
+                alien.position = window.TouchPosition;
+            }
             alien.DrawTexture(alienTexture);
 
             particleSystem001.Update(window);

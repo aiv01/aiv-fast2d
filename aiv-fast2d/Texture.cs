@@ -108,7 +108,7 @@ namespace Aiv.Fast2D
         private byte[] LoadImage(string fileName, out int width, out int height)
         {
             byte[] bitmap = null;
-
+            Stream imageStream = null;
 
 #if !__MOBILE__
             Bitmap image = null;
@@ -118,7 +118,11 @@ namespace Aiv.Fast2D
             // if the file in included in the resources, load it as stream
             if (assembly.GetManifestResourceNames().Contains<string>(fileName))
             {
-                Stream imageStream = assembly.GetManifestResourceStream(fileName);
+                imageStream = assembly.GetManifestResourceStream(fileName);
+            }
+
+            if (imageStream != null)
+            {
                 image = new Bitmap(imageStream);
             }
             else {
@@ -168,14 +172,19 @@ namespace Aiv.Fast2D
             }
 #else
             Bitmap image = null;
-            if (fileName.StartsWith("Assets/"))
+            if (imageStream == null)
             {
-                string newFileName = fileName.Substring(7);
-                Stream stream = Context.assets.Open(newFileName);
-                BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-                bitmapOptions.InPreferredConfig = global::Android.Graphics.Bitmap.Config.Argb8888;
-                image = BitmapFactory.DecodeStream(stream, new global::Android.Graphics.Rect(0, 0, 0, 0), bitmapOptions);
+                if (fileName.StartsWith("Assets/"))
+                {
+                    string newFileName = fileName.Substring(7);
+                    imageStream = Context.assets.Open(newFileName);
+                }
             }
+
+            BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+            bitmapOptions.InPreferredConfig = global::Android.Graphics.Bitmap.Config.Argb8888;
+            image = BitmapFactory.DecodeStream(imageStream, new global::Android.Graphics.Rect(0, 0, 0, 0), bitmapOptions);
+            
             width = image.Width;
             height = image.Height;
 

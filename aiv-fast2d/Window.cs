@@ -5,6 +5,7 @@ using OpenTK.Graphics.OpenGL;
 #else
 using OpenTK.Graphics.ES30;
 using OpenTK.Platform.Android;
+using Android.Views;
 #endif
 using System.Diagnostics;
 using OpenTK.Input;
@@ -228,6 +229,42 @@ namespace Aiv.Fast2D
             SetupOpenGL();
         }
 
+        private float touchX;
+        private float touchY;
+
+        public float TouchX
+        {
+            get
+            {
+                return touchX;
+            }
+        }
+
+        public float TouchY
+        {
+            get
+            {
+                return touchY;
+            }
+        }
+
+        public Vector2 TouchPosition
+        {
+            get
+            {
+                return new Vector2(touchX, touchY);
+            }
+        }
+
+        private bool isTouching;
+        public bool IsTouching
+        {
+            get
+            {
+                return isTouching;
+            }
+        }
+
         public Window(AndroidGameView gameView)
         {
             this.window = gameView;
@@ -241,6 +278,24 @@ namespace Aiv.Fast2D
             this.window.Resize += (sender, e) =>
             {
                 this.FixMobileViewport();
+            };
+
+            this.window.Touch += (sender, e) => {
+                switch(e.Event.Action)
+                {
+                    case MotionEventActions.Move:
+                        touchX = e.Event.GetX();
+                        touchY = e.Event.GetY();
+                        break;
+                    case MotionEventActions.Up:
+                        isTouching = false;
+                        break;
+                    case MotionEventActions.Down:
+                        isTouching = true;
+                        break;
+                    default:
+                        break;
+                }
             };
 #endif
 
