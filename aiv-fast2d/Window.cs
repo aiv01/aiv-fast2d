@@ -6,6 +6,8 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Graphics.ES30;
 using OpenTK.Platform.Android;
 using Android.Views;
+using Android.Content;
+using Android.OS;
 #endif
 using System.Diagnostics;
 using OpenTK.Input;
@@ -263,6 +265,18 @@ namespace Aiv.Fast2D
             {
                 return isTouching;
             }
+        }
+
+        public void Vibrate(long amount)
+        {
+            Vibrator vibrator = (Vibrator)this.window.Context.GetSystemService(global::Android.Content.Context.VibratorService);
+            vibrator.Vibrate(amount);
+        }
+
+        public void CancelVibration()
+        {
+            Vibrator vibrator = (Vibrator)this.window.Context.GetSystemService(global::Android.Content.Context.VibratorService);
+            vibrator.Cancel();
         }
 
         public Window(AndroidGameView gameView)

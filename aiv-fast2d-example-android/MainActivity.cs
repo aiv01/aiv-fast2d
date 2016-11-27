@@ -63,6 +63,14 @@ namespace Aiv.Fast2D.Android.Example
             if (window.IsTouching)
             {
                 alien.position = window.TouchPosition;
+                if ((sprite001.position-window.TouchPosition).Length < 100)
+                {
+                    window.Vibrate(1000);
+                }
+            }
+            else
+            {
+                window.CancelVibration();
             }
             alien.DrawTexture(alienTexture);
 
