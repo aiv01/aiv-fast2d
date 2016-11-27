@@ -1,10 +1,15 @@
 ﻿using System;
+#if !__MOBILE__
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
-using System.Runtime.InteropServices;
+#else
+using OpenTK.Graphics.ES30;
+#endif
 using System.Reflection;
-using System.IO;
+using System.Text;
 using System.Linq;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Aiv.Fast2D
 {
@@ -71,6 +76,7 @@ namespace Aiv.Fast2D
 
         public Texture(bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false)
         {
+
             GL.ActiveTexture(TextureUnit.Texture0);
             this.textureId = GL.GenTexture();
 
@@ -97,6 +103,7 @@ namespace Aiv.Fast2D
             this.Update();
         }
 
+#if !__MOBILE__
         private byte[] LoadImage(string fileName, out int width, out int height)
         {
 
@@ -160,6 +167,11 @@ namespace Aiv.Fast2D
 
             return bitmap;
         }
+#else
+        private byte[] LoadImage(string fileName, out int width, out int height) {
+            throw new NotImplementedException();
+        }
+#endif
 
         public Texture(string fileName, bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this(nearest, repeatX, repeatY, mipMap)
         {
@@ -172,7 +184,11 @@ namespace Aiv.Fast2D
             this.Bind();
             if (mipMap == 0)
                 this.bitmap = bitmap;
+#if !__MOBILE__
             GL.TexImage2D<byte>(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba8, this.width / (int)Math.Pow(2, mipMap), this.height / (int)Math.Pow(2, mipMap), 0, PixelFormat.Rgba, PixelType.UnsignedByte, this.bitmap);
+#else
+            GL.TexImage2D(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba, this.width / (int)Math.Pow(2, mipMap), this.height / (int)Math.Pow(2, mipMap), 0, PixelFormat.Rgba, PixelType.UnsignedByte, this.bitmap);
+#endif
         }
 
         public void Update(int mipMap = 0)

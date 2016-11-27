@@ -1,6 +1,8 @@
 ﻿using System;
 using OpenTK;
+#if !__MOBILE__
 using System.Drawing;
+#endif
 
 namespace Aiv.Fast2D
 {
@@ -23,6 +25,8 @@ void main(){
         private static string spriteFragmentShader = @"
 #version 330 core
 
+precision highp float;
+
 in vec2 uvout;
 
 uniform vec4 mul_tint;
@@ -33,7 +37,7 @@ uniform float use_texture;
 out vec4 color;
 
 void main(){
-        if (use_texture > 0) {
+        if (use_texture > 0.0) {
             color = texture(tex, uvout) * mul_tint;
             color += vec4(add_tint.xyz * color.a, add_tint.a);
         }
@@ -88,6 +92,7 @@ void main(){
                 0, 0
             };
             this.Update();
+
             this.shaderSetupHook = (mesh) =>
             {
                 mesh.shader.SetUniform("tex", 0);
@@ -113,10 +118,12 @@ void main(){
             this.additiveTint = color;
         }
 
+#if !__MOBILE__
         public void SetAdditiveTint(Color color)
         {
             this.additiveTint = new Vector4(color.R / 255, color.G / 255, color.B / 255, color.A / 255);
         }
+#endif
 
         public void SetMultiplyTint(float r, float g, float b, float a)
         {

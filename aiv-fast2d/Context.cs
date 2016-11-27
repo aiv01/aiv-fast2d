@@ -1,7 +1,13 @@
 ﻿using System;
+#if !__MOBILE__
 using OpenTK.Graphics.OpenGL;
-using OpenTK;
 using OpenTK.Input;
+#else
+using OpenTK.Graphics.ES30;
+using OpenTK.Platform.Android;
+using Aiv.Fast2D.Android;
+#endif
+using OpenTK;
 using System.Collections.Generic;
 
 namespace Aiv.Fast2D
@@ -11,9 +17,9 @@ namespace Aiv.Fast2D
 
 		public static float orthographicSize;
 
-		public static Window currentWindow;
+        public static Window currentWindow;
 
-		public static Camera mainCamera;
+        public static Camera mainCamera;
 
 		public static List<Vector2> Resolutions {
 			get {
@@ -29,8 +35,12 @@ namespace Aiv.Fast2D
 
 		public static string GetError ()
 		{
-			return GL.GetError ().ToString ();
-		}
+#if !__MOBILE__
+            return GL.GetError ().ToString ();
+#else
+            return GL.GetErrorCode().ToString();
+#endif
+        }
 
 		public static List<int> textureGC = new List<int> ();
 		public static List<int> bufferGC = new List<int> ();

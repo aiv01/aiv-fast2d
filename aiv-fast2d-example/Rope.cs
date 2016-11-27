@@ -7,6 +7,7 @@ using OpenTK;
 
 namespace Aiv.Fast2D.Example
 {
+    // segment subclass adding rope/grapple like physics
     public class Rope : Segment
     {
         private float maxLength;

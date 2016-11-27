@@ -27,6 +27,8 @@ void main(){
         private static string instancedSpriteFragmentShader = @"
 #version 330 core
 
+precision highp float;
+
 in vec2 uvout;
 
 uniform vec4 mul_tint;
@@ -37,7 +39,7 @@ uniform float use_texture;
 out vec4 color;
 
 void main(){
-        if (use_texture > 0) {
+        if (use_texture > 0.0) {
             color = texture(tex, uvout) * mul_tint;
             color += vec4(add_tint.xyz * color.a, add_tint.a);
         }

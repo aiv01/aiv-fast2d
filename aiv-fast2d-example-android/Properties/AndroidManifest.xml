@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="aiv_fast2d_example_android.aiv_fast2d_example_android" android:versionCode="1" android:versionName="1.0">
+  <uses-sdk android:minSdkVersion="16" />
+  <application android:label="Aiv.Fast2D.Android.Example" android:theme="@android:style/Theme.Black.NoTitleBar"></application>
+</manifest>

@@ -1,5 +1,9 @@
 ﻿using System;
+#if !__MOBILE__
 using OpenTK.Graphics.OpenGL;
+#else
+using OpenTK.Graphics.ES30;
+#endif
 using OpenTK;
 using System.Collections.Generic;
 
@@ -17,7 +21,11 @@ namespace Aiv.Fast2D
 
 		public Shader (string vertex, string fragment)
 		{
-			int vertexShaderId = GL.CreateShader (ShaderType.VertexShader);
+#if __MOBILE__
+            vertex = vertex.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
+            fragment = fragment.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
+#endif
+            int vertexShaderId = GL.CreateShader (ShaderType.VertexShader);
 			int fragmentShaderId = GL.CreateShader (ShaderType.FragmentShader);
 
 			GL.ShaderSource (vertexShaderId, vertex);
@@ -26,7 +34,7 @@ namespace Aiv.Fast2D
 			GL.ShaderSource (fragmentShaderId, fragment);
 			GL.CompileShader (fragmentShaderId);
 
-			this.programId = GL.CreateProgram ();
+            this.programId = GL.CreateProgram ();
 			GL.AttachShader (programId, vertexShaderId);
 			GL.AttachShader (programId, fragmentShaderId);
 

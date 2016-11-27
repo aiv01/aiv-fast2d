@@ -7,6 +7,7 @@ using OpenTK;
 
 namespace Aiv.Fast2D.Example
 {
+    // this is a simple sprite subclass implementing a line renderer
     public class Segment : Sprite
     {
         private Vector2 point1;

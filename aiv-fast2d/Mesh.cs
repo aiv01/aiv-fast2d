@@ -1,6 +1,10 @@
 ﻿using System;
 using OpenTK;
+#if !__MOBILE__
 using OpenTK.Graphics.OpenGL;
+#else
+using OpenTK.Graphics.ES30;
+#endif
 
 namespace Aiv.Fast2D
 {
@@ -67,13 +71,29 @@ namespace Aiv.Fast2D
 
         public Mesh(Shader shader)
         {
+#if !__MOBILE__
             this.vertexArrayId = GL.GenVertexArray();
+#else
+            int []tmpStore = new int[1];
+            GL.GenVertexArrays(1, tmpStore);
+            this.vertexArrayId = tmpStore[0];
+#endif
             this.Bind();
+#if !__MOBILE__
             this.vBufferId = GL.GenBuffer();
+#else
+            GL.GenBuffers(1, tmpStore);
+            this.vBufferId = tmpStore[0];
+#endif
             GL.EnableVertexAttribArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.vBufferId);
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+#if !__MOBILE__
             this.uvBufferId = GL.GenBuffer();
+#else
+            GL.GenBuffers(1, tmpStore);
+            this.uvBufferId = tmpStore[0];
+#endif
             GL.EnableVertexAttribArray(1);
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.uvBufferId);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
@@ -82,7 +102,13 @@ namespace Aiv.Fast2D
 
         protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0)
         {
+#if !__MOBILE__
             int bufferId = GL.GenBuffer();
+#else
+            int []tmpStore = new int[1];
+            GL.GenBuffers(1, tmpStore);
+            int bufferId = tmpStore[0];
+#endif
             GL.EnableVertexAttribArray(attribArrayId);
             GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
             GL.VertexAttribPointer(attribArrayId, elementSize, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
@@ -90,14 +116,22 @@ namespace Aiv.Fast2D
             {
                 GL.VertexAttribDivisor(attribArrayId, divisor);
             }
+#if !__MOBILE__
             GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsageHint.DynamicDraw);
+#else
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsage.DynamicDraw);
+#endif
             return bufferId;
         }
 
         protected void UpdateFloatBuffer(int bufferId, float[] data, int offset = 0)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
+#if !__MOBILE__
             GL.BufferSubData<float>(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)), data.Length * sizeof(float), data);
+#else
+            GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)),(IntPtr)(data.Length * sizeof(float)), data);
+#endif
         }
 
         public void Update()
@@ -113,7 +147,11 @@ namespace Aiv.Fast2D
             this.Bind();
             // we use dynamic drawing, could be inefficient for simpler cases, but improves performance in case of complex animations
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.vBufferId);
+#if !__MOBILE__
             GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(this.v.Length * sizeof(float)), this.v, BufferUsageHint.DynamicDraw);
+#else
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(this.v.Length * sizeof(float)), this.v, BufferUsage.DynamicDraw);
+#endif
         }
 
         public void UpdateUV()
@@ -123,7 +161,11 @@ namespace Aiv.Fast2D
             this.Bind();
             // we use dynamic drawing, could be inefficient for simpler cases, but improves performance in case of complex animations
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.uvBufferId);
+#if !__MOBILE__
             GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(this.uv.Length * sizeof(float)), this.uv, BufferUsageHint.DynamicDraw);
+#else
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(this.uv.Length * sizeof(float)), this.uv, BufferUsage.DynamicDraw);
+#endif
         }
 
         public void Bind()
@@ -138,7 +180,11 @@ namespace Aiv.Fast2D
             // WARNING !!! OpenTK uses row-major while OpenGL uses column-major
             Matrix4 m =
                 Matrix4.CreateTranslation(-this.pivot.X, -this.pivot.Y, 0) *
+#if !__MOBILE__
                 Matrix4.CreateScale(this.scale.X, this.scale.Y, 1) *
+#else
+                Matrix4.Scale(this.scale.X, this.scale.Y, 1) *
+#endif
                 Matrix4.CreateRotationZ(this.rotation) *
                 // here we do not re-add the pivot, so translation is pivot based too
                 Matrix4.CreateTranslation(this.position.X, this.position.Y, 0);
@@ -152,6 +198,8 @@ namespace Aiv.Fast2D
             {
                 m *= Context.mainCamera.Matrix();
             }
+
+            Matrix4 foo = Context.currentWindow.OrthoMatrix;
 
             Matrix4 mvp = m * Context.currentWindow.OrthoMatrix;
 
@@ -171,7 +219,11 @@ namespace Aiv.Fast2D
             this.ApplyMatrix();
             if (instances <= 1)
             {
+#if !__MOBILE__
                 GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
+#else
+                GL.DrawArrays(BeginMode.Triangles, 0, this.v.Length / 2);
+#endif
             }
             else
             {
@@ -193,7 +245,11 @@ namespace Aiv.Fast2D
             this.ApplyMatrix();
             if (instances <= 1)
             {
+#if !__MOBILE__
                 GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
+#else
+                GL.DrawArrays(BeginMode.Triangles, 0, this.v.Length / 2);
+#endif
             }
             else
             {
@@ -209,6 +265,7 @@ namespace Aiv.Fast2D
             // clear current texture
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
+            string status0 = Aiv.Fast2D.Context.GetError();
             this.shader.Use();
             if (hook != null)
             {
@@ -218,10 +275,15 @@ namespace Aiv.Fast2D
             {
                 this.shaderSetupHook(this);
             }
+            string status1 = Aiv.Fast2D.Context.GetError();
             this.ApplyMatrix();
             if (instances <= 1)
             {
+#if !__MOBILE__
                 GL.DrawArrays(PrimitiveType.Triangles, 0, this.v.Length / 2);
+#else
+                GL.DrawArrays(BeginMode.Triangles, 0, this.v.Length / 2);
+#endif
             }
             else
             {
@@ -233,9 +295,14 @@ namespace Aiv.Fast2D
         {
             if (disposed)
                 return;
+#if !__MOBILE__
             GL.DeleteBuffer(this.vBufferId);
             GL.DeleteBuffer(this.uvBufferId);
             GL.DeleteVertexArray(this.vertexArrayId);
+#else
+            GL.DeleteBuffers(2, new int[] { this.vBufferId, this.uvBufferId });
+            GL.DeleteVertexArrays(1, new int[] { this.vertexArrayId });
+#endif
             disposed = true;
         }
 

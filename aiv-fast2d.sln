@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aiv-fast2d", "aiv-fast2d\ai
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aiv-fast2d-example", "aiv-fast2d-example\aiv-fast2d-example.csproj", "{051FC68A-81B7-46AA-BADD-BFDEA23E9476}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aiv-fast2d-example-android", "aiv-fast2d-example-android\aiv-fast2d-example-android.csproj", "{374C0B2A-38A3-46CA-BF2B-825C7A119B3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aiv-fast2d-android", "aiv-fast2d-android\aiv-fast2d-android.csproj", "{D932686E-1501-467B-8FDE-4F16137C9876}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,16 @@ Global
 		{051FC68A-81B7-46AA-BADD-BFDEA23E9476}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{051FC68A-81B7-46AA-BADD-BFDEA23E9476}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{051FC68A-81B7-46AA-BADD-BFDEA23E9476}.Release|Any CPU.Build.0 = Release|Any CPU
+		{374C0B2A-38A3-46CA-BF2B-825C7A119B3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{374C0B2A-38A3-46CA-BF2B-825C7A119B3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{374C0B2A-38A3-46CA-BF2B-825C7A119B3A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{374C0B2A-38A3-46CA-BF2B-825C7A119B3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{374C0B2A-38A3-46CA-BF2B-825C7A119B3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{374C0B2A-38A3-46CA-BF2B-825C7A119B3A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{D932686E-1501-467B-8FDE-4F16137C9876}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D932686E-1501-467B-8FDE-4F16137C9876}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D932686E-1501-467B-8FDE-4F16137C9876}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D932686E-1501-467B-8FDE-4F16137C9876}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

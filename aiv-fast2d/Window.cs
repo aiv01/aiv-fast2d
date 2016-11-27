@@ -1,9 +1,16 @@
 ﻿using System;
 using OpenTK;
+#if !__MOBILE__
 using OpenTK.Graphics.OpenGL;
+#else
+using OpenTK.Graphics.ES30;
+using OpenTK.Platform.Android;
+#endif
 using System.Diagnostics;
 using OpenTK.Input;
+#if !__MOBILE__
 using System.Drawing;
+#endif
 using System.Collections.Generic;
 using System.Runtime;
 using System.Runtime.InteropServices;
@@ -14,6 +21,7 @@ using System.IO;
 namespace Aiv.Fast2D
 {
 
+#if !__MOBILE__
     public enum KeyCode
     {
         A = Key.A,
@@ -89,6 +97,7 @@ namespace Aiv.Fast2D
         F10 = Key.F10,
 
     }
+#endif
 
     public class Window
     {
@@ -150,14 +159,17 @@ namespace Aiv.Fast2D
             }
         }
 
+#if !__MOBILE__
         private GameWindow window;
-
         private Stopwatch watch;
 
         public bool opened = true;
 
         private KeyboardState _keyboardState;
         private MouseState _mouseState;
+#else
+        private AndroidGameView window;
+#endif
 
         // used for dpi management
         private float scaleX;
@@ -175,6 +187,7 @@ namespace Aiv.Fast2D
 
         public delegate void GameLoop(Window window);
 
+#if !__MOBILE__
         public Window(string title) : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true)
         {
         }
@@ -201,6 +214,24 @@ namespace Aiv.Fast2D
             this.window.Visible = true;
 
             watch = new Stopwatch();
+#else
+        public Window(AndroidGameView gameView)
+        {
+            this.window = gameView;
+            this.scaleX = 1;
+            this.scaleY = 1;
+            // on mobile refresh is capped to 60hz
+            this._deltaTime = 1f / 60f;
+
+            this.window.Resize += (sender, e) =>
+            {
+                this.width = gameView.Holder.SurfaceFrame.Width();
+                this.height = gameView.Holder.SurfaceFrame.Height();
+                this._aspectRatio = (float)width / (float)height;
+
+                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
+            };
+#endif
 
             // enable alpha blending
             GL.Enable(EnableCap.Blend);
@@ -211,7 +242,9 @@ namespace Aiv.Fast2D
             GL.Disable(EnableCap.CullFace);
             GL.Disable(EnableCap.ScissorTest);
 
+#if !__MOBILE__
             GL.Disable(EnableCap.Multisample);
+#endif
 
             GL.Disable(EnableCap.DepthTest);
 
@@ -221,6 +254,7 @@ namespace Aiv.Fast2D
             GCSettings.LatencyMode = GCLatencyMode.LowLatency;
         }
 
+#if !__MOBILE__
         public void SetVSync(bool enable)
         {
             if (enable)
@@ -297,6 +331,12 @@ namespace Aiv.Fast2D
             this.FixDimensions(width, height);
         }
 
+        public void SetCursor(bool enable)
+        {
+            this.window.CursorVisible = enable;
+        }
+#endif
+
         public string Title
         {
             get
@@ -309,10 +349,7 @@ namespace Aiv.Fast2D
             }
         }
 
-        public void SetCursor(bool enable)
-        {
-            this.window.CursorVisible = enable;
-        }
+       
 
         public void SetClearColor(float r, float g, float b)
         {
@@ -324,6 +361,8 @@ namespace Aiv.Fast2D
             GL.ClearColor(r / 255f, g / 255f, b / 255f, 1);
         }
 
+
+#if !__MOBILE__
         public void SetClearColor(Color color)
         {
             GL.ClearColor(color);
@@ -347,6 +386,7 @@ namespace Aiv.Fast2D
             }
             return false;
         }
+#endif
 
         public void Update()
         {
@@ -361,23 +401,29 @@ namespace Aiv.Fast2D
             for (int i = 0; i < Context.bufferGC.Count; i++)
             {
                 int _id = Context.bufferGC[i];
-                //Console.WriteLine ("deleting " + _id);
+#if !__MOBILE__
                 GL.DeleteBuffer(_id);
+#else
+                GL.DeleteBuffers(1, new int[] { _id });
+#endif
             }
             Context.bufferGC.Clear();
 
             for (int i = 0; i < Context.vaoGC.Count; i++)
             {
                 int _id = Context.vaoGC[i];
-                //Console.WriteLine ("deleting " + _id);
+#if !__MOBILE__
                 GL.DeleteVertexArray(_id);
+#else
+                GL.DeleteVertexArrays(1, new int[] { _id });
+#endif
             }
             Context.vaoGC.Clear();
 
             for (int i = 0; i < Context.textureGC.Count; i++)
             {
                 int _id = Context.textureGC[i];
-                //Console.WriteLine ("deleting " + _id);
+               
                 GL.DeleteTexture(_id);
             }
             Context.textureGC.Clear();
@@ -390,6 +436,7 @@ namespace Aiv.Fast2D
             }
             Context.shaderGC.Clear();
 
+#if !__MOBILE__
             this._keyboardState = Keyboard.GetState();
             this._mouseState = Mouse.GetCursorState();
 
@@ -403,9 +450,15 @@ namespace Aiv.Fast2D
 
             this.watch.Reset();
             this.watch.Start();
+#else
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+#endif
 
         }
 
+
+
+#if !__MOBILE__
         public int mouseX
         {
             get
@@ -455,6 +508,7 @@ namespace Aiv.Fast2D
                 return this._mouseState.IsButtonDown(MouseButton.Middle);
             }
         }
+
 
         public bool GetKey(KeyCode key)
         {
@@ -551,6 +605,7 @@ namespace Aiv.Fast2D
         {
             return GamePad.GetState(index).ToString();
         }
+#endif
 
         public void SetViewport(int x, int y, int width, int height)
         {
