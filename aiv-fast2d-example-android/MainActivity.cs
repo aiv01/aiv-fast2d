@@ -20,6 +20,8 @@ namespace Aiv.Fast2D.Android.Example
     {
         MobileGame view;
         Sprite sprite001;
+        Sprite alien;
+        Texture alienTexture;
 
         ParticleSystem particleSystem001;
 
@@ -48,15 +50,27 @@ namespace Aiv.Fast2D.Android.Example
         {
             window.SetClearColor(0f, 0f, 1f);
             sprite001 = new Sprite(300, 300);
+            sprite001.position = new Vector2(window.Width / 2 - 150, window.Height / 2 - 150);
             particleSystem001 = new ParticleSystem(10, 10, 100);
+            particleSystem001.position = new Vector2(window.Width / 2, window.Height / 2);
+
+            alienTexture = new Texture("Assets/2.png");
+            alien = new Sprite(alienTexture.Width, alienTexture.Height);
         }
 
         private void GameUpdate(Window window)
         {
-            sprite001.position.X += 10f * window.deltaTime;
-            sprite001.DrawSolidColor(0, 1, 0, 1);
+           
+
+            alien.DrawTexture(alienTexture);
 
             particleSystem001.Update(window);
+
+            sprite001.position.X += 10f * window.deltaTime;
+            sprite001.DrawSolidColor(1, 0, 0, 0.5f);
+
+
+
             window.Update();
         }
     }

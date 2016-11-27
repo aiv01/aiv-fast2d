@@ -26,8 +26,6 @@ namespace aiv_fast2d_example_android
 		
 		public static void UpdateIdValues()
 		{
-			global::aiv_fast2d_android.Resource.String.ApplicationName = global::aiv_fast2d_example_android.Resource.String.ApplicationName;
-			global::aiv_fast2d_android.Resource.String.Hello = global::aiv_fast2d_example_android.Resource.String.Hello;
 		}
 		
 		public partial class Attribute

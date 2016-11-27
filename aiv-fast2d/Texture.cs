@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 #else
 using OpenTK.Graphics.ES30;
+using Android.Graphics;
 #endif
 using System.Reflection;
 using System.Text;
@@ -103,12 +104,14 @@ namespace Aiv.Fast2D
             this.Update();
         }
 
-#if !__MOBILE__
+
         private byte[] LoadImage(string fileName, out int width, out int height)
         {
-
-            Bitmap image = null;
             byte[] bitmap = null;
+
+
+#if !__MOBILE__
+            Bitmap image = null;
 
             Assembly assembly = Assembly.GetEntryAssembly();
 
@@ -117,7 +120,6 @@ namespace Aiv.Fast2D
             {
                 Stream imageStream = assembly.GetManifestResourceStream(fileName);
                 image = new Bitmap(imageStream);
-
             }
             else {
                 image = new Bitmap(fileName);
@@ -164,14 +166,46 @@ namespace Aiv.Fast2D
                 }
                 premultiplied = true;
             }
+#else
+            Bitmap image = null;
+            if (fileName.StartsWith("Assets/"))
+            {
+                string newFileName = fileName.Substring(7);
+                Stream stream = Context.assets.Open(newFileName);
+                BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+                bitmapOptions.InPreferredConfig = global::Android.Graphics.Bitmap.Config.Argb8888;
+                image = BitmapFactory.DecodeStream(stream, new global::Android.Graphics.Rect(0, 0, 0, 0), bitmapOptions);
+            }
+            width = image.Width;
+            height = image.Height;
+
+            bitmap = new byte[width * height * 4];
+
+        
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int pixel = image.GetPixel(x, y);
+
+                    byte a = (byte)((pixel >> 24) & 0xff);
+                    byte r = (byte)((pixel >> 16) & 0xff);
+                    byte g = (byte)((pixel >> 8) & 0xff);
+                    byte b = (byte)(pixel & 0xff);
+                    // premultiply;
+                    int position = (y * width * 4) + (x * 4);
+                    bitmap[position] = (byte)(r * (a / 255f));
+                    bitmap[position + 1] = (byte)(g * (a / 255f));
+                    bitmap[position + 2] = (byte)(b * (a / 255f));
+                    bitmap[position + 3] = a;
+
+                }
+            }
+            premultiplied = true;
+#endif
 
             return bitmap;
         }
-#else
-        private byte[] LoadImage(string fileName, out int width, out int height) {
-            throw new NotImplementedException();
-        }
-#endif
 
         public Texture(string fileName, bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this(nearest, repeatX, repeatY, mipMap)
         {
@@ -187,7 +221,7 @@ namespace Aiv.Fast2D
 #if !__MOBILE__
             GL.TexImage2D<byte>(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba8, this.width / (int)Math.Pow(2, mipMap), this.height / (int)Math.Pow(2, mipMap), 0, PixelFormat.Rgba, PixelType.UnsignedByte, this.bitmap);
 #else
-            GL.TexImage2D(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba, this.width / (int)Math.Pow(2, mipMap), this.height / (int)Math.Pow(2, mipMap), 0, PixelFormat.Rgba, PixelType.UnsignedByte, this.bitmap);
+            GL.TexImage2D(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba, this.width / (int)Math.Pow(2, mipMap), this.height / (int)Math.Pow(2, mipMap), 0, OpenTK.Graphics.ES30.PixelFormat.Rgba, PixelType.UnsignedByte, this.bitmap);
 #endif
         }
 

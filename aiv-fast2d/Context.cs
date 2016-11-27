@@ -5,7 +5,7 @@ using OpenTK.Input;
 #else
 using OpenTK.Graphics.ES30;
 using OpenTK.Platform.Android;
-using Aiv.Fast2D.Android;
+using Android.Content.Res;
 #endif
 using OpenTK;
 using System.Collections.Generic;
@@ -21,7 +21,11 @@ namespace Aiv.Fast2D
 
         public static Camera mainCamera;
 
-		public static List<Vector2> Resolutions {
+#if __MOBILE__
+        public static AssetManager assets;
+#endif
+
+        public static List<Vector2> Resolutions {
 			get {
 				List<Vector2> resolutions = new List<Vector2> ();
 				foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions) {

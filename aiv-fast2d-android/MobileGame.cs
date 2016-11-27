@@ -34,6 +34,7 @@ namespace Aiv.Fast2D.Android
         {
             base.OnLoad(e);
 
+            window.FixMobileViewport();
             this.setupDelegate(window);
 
             // Run the render loop
@@ -87,11 +88,9 @@ namespace Aiv.Fast2D.Android
         // This gets called on each frame render
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-
             base.OnRenderFrame(e);
 
             this.updateDelegate(window);
-
         }
 
     }

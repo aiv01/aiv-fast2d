@@ -214,10 +214,25 @@ namespace Aiv.Fast2D
             this.window.Visible = true;
 
             watch = new Stopwatch();
+
+            SetupOpenGL();
 #else
+        public void FixMobileViewport()
+        {
+            this.width = window.Holder.SurfaceFrame.Width();
+            this.height = window.Holder.SurfaceFrame.Height();
+            this._aspectRatio = (float)width / (float)height;
+
+            this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
+
+            SetupOpenGL();
+        }
+
         public Window(AndroidGameView gameView)
         {
             this.window = gameView;
+            // required for accessing assets
+            Context.assets = gameView.Context.Assets;
             this.scaleX = 1;
             this.scaleY = 1;
             // on mobile refresh is capped to 60hz
@@ -225,14 +240,18 @@ namespace Aiv.Fast2D
 
             this.window.Resize += (sender, e) =>
             {
-                this.width = gameView.Holder.SurfaceFrame.Width();
-                this.height = gameView.Holder.SurfaceFrame.Height();
-                this._aspectRatio = (float)width / (float)height;
-
-                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
+                this.FixMobileViewport();
             };
 #endif
 
+            Context.currentWindow = this;
+
+            // more gentle GC
+            GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+        }
+
+        private void SetupOpenGL()
+        {
             // enable alpha blending
             GL.Enable(EnableCap.Blend);
             GL.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
@@ -247,11 +266,6 @@ namespace Aiv.Fast2D
 #endif
 
             GL.Disable(EnableCap.DepthTest);
-
-            Context.currentWindow = this;
-
-            // more gentle GC
-            GCSettings.LatencyMode = GCLatencyMode.LowLatency;
         }
 
 #if !__MOBILE__
