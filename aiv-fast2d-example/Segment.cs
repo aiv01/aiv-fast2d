@@ -67,7 +67,8 @@ namespace Aiv.Fast2D.Example
             // compute line points
             Vector2 lineVector = point2 - point1;
             // get the right vector of the line
-            Vector2 right = new Vector2(-lineVector.Y, lineVector.X).Normalized();
+            Vector2 right = new Vector2(-lineVector.Y, lineVector.X);
+            right.Normalize();
 
             Vector2 leftStart = point1 + right * -lineWidth/2f;
             Vector2 rightStart = point1 + right * lineWidth/2f;

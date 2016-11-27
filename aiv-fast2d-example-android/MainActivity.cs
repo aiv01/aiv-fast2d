@@ -15,6 +15,7 @@ namespace Aiv.Fast2D.Android.Example
 #if __ANDROID_11__
 		,HardwareAccelerated=false
 #endif
+        ,ScreenOrientation = ScreenOrientation.Landscape
         )]
     public class MainActivity : Activity
     {
@@ -24,6 +25,8 @@ namespace Aiv.Fast2D.Android.Example
         Texture alienTexture;
 
         ParticleSystem particleSystem001;
+
+        Segment lineDrawer;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -56,6 +59,8 @@ namespace Aiv.Fast2D.Android.Example
 
             alienTexture = new Texture("Assets/2.png");
             alien = new Sprite(alienTexture.Width, alienTexture.Height);
+
+            lineDrawer = new Segment(0, 0, window.Width, window.Height, 4);
         }
 
         private void GameUpdate(Window window)
@@ -79,7 +84,8 @@ namespace Aiv.Fast2D.Android.Example
             sprite001.position.X += 10f * window.deltaTime;
             sprite001.DrawSolidColor(1, 0, 0, 0.5f);
 
-
+            lineDrawer.Point2 = window.TouchPosition;
+            lineDrawer.DrawSolidColor(1, 1, 0, 1);
 
             window.Update();
         }

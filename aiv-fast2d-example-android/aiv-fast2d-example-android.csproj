@@ -54,6 +54,9 @@
     <Compile Include="..\aiv-fast2d-example\ParticleSystem.cs">
       <Link>ParticleSystem.cs</Link>
     </Compile>
+    <Compile Include="..\aiv-fast2d-example\Segment.cs">
+      <Link>Segment.cs</Link>
+    </Compile>
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

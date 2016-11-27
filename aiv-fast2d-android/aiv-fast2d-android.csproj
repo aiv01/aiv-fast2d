@@ -56,6 +56,9 @@
     <Compile Include="..\aiv-fast2d\Mesh.cs">
       <Link>Mesh.cs</Link>
     </Compile>
+    <Compile Include="..\aiv-fast2d\RenderTexture.cs">
+      <Link>RenderTexture.cs</Link>
+    </Compile>
     <Compile Include="..\aiv-fast2d\Shader.cs">
       <Link>Shader.cs</Link>
     </Compile>
