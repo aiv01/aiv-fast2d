@@ -69,7 +69,32 @@ namespace Aiv.Fast2D
             }
         }
 
-        public Mesh(Shader shader)
+        private static string simpleVertexShader = @"
+#version 330 core
+
+layout(location = 0) in vec2 vertex;
+
+uniform mat4 mvp;
+
+void main(){
+        gl_Position = mvp * vec4(vertex.xy, 0.0, 1.0);
+}";
+        private static string simpleFragmentShader = @"
+#version 330 core
+
+precision highp float;
+
+uniform vec4 color;
+
+out vec4 out_color;
+
+void main(){
+       out_color = color;
+}";
+
+        private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader);
+
+        public Mesh(Shader shader = null)
         {
 #if !__MOBILE__
             this.vertexArrayId = GL.GenVertexArray();
@@ -97,6 +122,8 @@ namespace Aiv.Fast2D
             GL.EnableVertexAttribArray(1);
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.uvBufferId);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+            if (shader == null)
+                shader = simpleShader;
             this.shader = shader;
         }
 
@@ -258,6 +285,18 @@ namespace Aiv.Fast2D
         }
 
 
+        // simply set the 'color' uniform of the shader
+        public void DrawColor(float r, float g, float b, float a)
+        {
+            this.shader.SetUniform("color", new Vector4(r, g, b, a));
+            this.Draw();
+        }
+
+        public void DrawColor(int r, int g, int b, int a)
+        {
+            DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
+        }
+
         // simple draw without textures (useful for subclasses)
         public void Draw(ShaderSetupHook hook = null)
         {
@@ -265,7 +304,7 @@ namespace Aiv.Fast2D
             // clear current texture
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
-            string status0 = Aiv.Fast2D.Context.GetError();
+            
             this.shader.Use();
             if (hook != null)
             {
@@ -275,7 +314,7 @@ namespace Aiv.Fast2D
             {
                 this.shaderSetupHook(this);
             }
-            string status1 = Aiv.Fast2D.Context.GetError();
+            
             this.ApplyMatrix();
             if (instances <= 1)
             {

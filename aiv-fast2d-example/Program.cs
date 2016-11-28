@@ -64,6 +64,10 @@ namespace Aiv.Fast2D.Example
 
             ParticleSystem particleSystem2 = new ParticleSystem(1, 2, 50);
 
+            Mesh triangle = new Mesh();
+            triangle.v = new float[] { 100, 100, 50, 200, 150, 200 };
+            triangle.UpdateVertex();
+
             while (window.opened)
             {
 
@@ -161,6 +165,11 @@ namespace Aiv.Fast2D.Example
 
                 particleSystem2.position = ship2.position;
                 particleSystem2.Update(window);
+
+                triangle.v[4] = window.mouseX;
+                triangle.v[5] = window.mouseY;
+                triangle.UpdateVertex();
+                triangle.DrawColor(1f, 0f, 1f, 1f);
 
                 window.Update();
             }
