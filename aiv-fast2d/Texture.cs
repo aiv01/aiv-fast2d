@@ -264,6 +264,7 @@ namespace Aiv.Fast2D
             if (disposed)
                 return;
             GL.DeleteTexture(this.textureId);
+            Context.Log(string.Format("texture {0} deleted", this.textureId));
             disposed = true;
         }
 

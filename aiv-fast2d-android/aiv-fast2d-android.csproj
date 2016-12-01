@@ -50,6 +50,9 @@
     <Compile Include="..\aiv-fast2d\Context.cs">
       <Link>Context.cs</Link>
     </Compile>
+    <Compile Include="..\aiv-fast2d\ILogger.cs">
+      <Link>ILogger.cs</Link>
+    </Compile>
     <Compile Include="..\aiv-fast2d\InstancedSprite.cs">
       <Link>InstancedSprite.cs</Link>
     </Compile>

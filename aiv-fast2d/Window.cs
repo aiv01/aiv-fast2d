@@ -294,8 +294,9 @@ namespace Aiv.Fast2D
                 this.FixMobileViewport();
             };
 
-            this.window.Touch += (sender, e) => {
-                switch(e.Event.Action)
+            this.window.Touch += (sender, e) =>
+            {
+                switch (e.Event.Action)
                 {
                     case MotionEventActions.Move:
                         touchX = e.Event.GetX();
@@ -440,7 +441,7 @@ namespace Aiv.Fast2D
             }
         }
 
-       
+
 
         public void SetClearColor(float r, float g, float b)
         {
@@ -497,6 +498,7 @@ namespace Aiv.Fast2D
 #else
                 GL.DeleteBuffers(1, new int[] { _id });
 #endif
+                Context.Log(string.Format("buffer {0} deleted", _id));
             }
             Context.bufferGC.Clear();
 
@@ -508,14 +510,16 @@ namespace Aiv.Fast2D
 #else
                 GL.DeleteVertexArrays(1, new int[] { _id });
 #endif
+                Context.Log(string.Format("vertexArray {0} deleted", _id));
             }
             Context.vaoGC.Clear();
 
             for (int i = 0; i < Context.textureGC.Count; i++)
             {
                 int _id = Context.textureGC[i];
-               
+
                 GL.DeleteTexture(_id);
+                Context.Log(string.Format("texture {0} deleted", _id));
             }
             Context.textureGC.Clear();
 
@@ -524,6 +528,7 @@ namespace Aiv.Fast2D
                 int _id = Context.shaderGC[i];
                 //Console.WriteLine ("deleting " + _id);
                 GL.DeleteProgram(_id);
+                Context.Log(string.Format("shader {0} deleted", _id));
             }
             Context.shaderGC.Clear();
 

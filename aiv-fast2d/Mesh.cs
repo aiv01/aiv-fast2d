@@ -366,6 +366,9 @@ void main(){
             GL.DeleteBuffers(2, new int[] { this.vBufferId, this.uvBufferId });
             GL.DeleteVertexArrays(1, new int[] { this.vertexArrayId });
 #endif
+            Context.Log(string.Format("buffer {0} deleted", this.vBufferId));
+            Context.Log(string.Format("buffer {0} deleted", this.uvBufferId));
+            Context.Log(string.Format("vertexArray {0} deleted", this.uvBufferId));
             disposed = true;
         }
 

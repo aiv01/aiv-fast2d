@@ -37,6 +37,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ILogger.cs" />
     <Compile Include="InstancedSprite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderTexture.cs" />

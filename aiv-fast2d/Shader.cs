@@ -99,7 +99,8 @@ namespace Aiv.Fast2D
 			if (disposed)
 				return;
 			GL.DeleteProgram (this.programId);
-			disposed = true;
+            Context.Log(string.Format("shader {0} deleted", this.programId));
+            disposed = true;
 		}
 
 		~Shader() {

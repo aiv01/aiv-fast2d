@@ -7,8 +7,18 @@ namespace Aiv.Fast2D.Example
     class Program
     {
 
+        class ExampleLogger : ILogger
+        {
+            public void Log(string message)
+            {
+                Console.WriteLine("[Aiv.Fast2D.Example - {0}] {1}", DateTime.Now, message);
+            }
+        }
+
         static void Main(string[] args)
         {
+
+            Context.logger = new ExampleLogger();
 
             Window window = new Window(800, 600, "Aiv.Fast2D.Example");
             window.SetIcon("aiv_fast2d_example.Assets.2.ico");
@@ -42,6 +52,9 @@ namespace Aiv.Fast2D.Example
             InstancedSprite tiles2 = new InstancedSprite(20, 20, 30);
 
             RenderTexture screen = new RenderTexture(800, 600);
+
+            RenderTexture fake = new RenderTexture(1, 1);
+            fake.Dispose();
 
             Sprite monitor = new Sprite(100, 100);
             monitor.position = new Vector2(400, 200);

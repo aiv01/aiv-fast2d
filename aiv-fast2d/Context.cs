@@ -21,6 +21,8 @@ namespace Aiv.Fast2D
 
         public static Camera mainCamera;
 
+        public static ILogger logger;
+
 #if __MOBILE__
         public static AssetManager assets;
 #endif
@@ -50,6 +52,13 @@ namespace Aiv.Fast2D
 		public static List<int> bufferGC = new List<int> ();
 		public static List<int> vaoGC = new List<int> ();
 		public static List<int> shaderGC = new List<int> ();
+
+        public static void Log(string message)
+        {
+            if (logger == null)
+                return;
+            logger.Log(message);
+        }
 
 	}
 
