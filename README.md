@@ -1,5 +1,5 @@
 # aiv-fast2d
-Hardware accelerated 2D library
+Hardware accelerated 2D library, used by the first year students of "Accademia Italiana Videogiochi"
 
 ```cs
 // open a window and get a OpenGL context
