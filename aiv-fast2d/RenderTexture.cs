@@ -12,6 +12,14 @@ namespace Aiv.Fast2D
     {
         private int frameBuffer;
 
+        public int FrameBuffer
+        {
+            get
+            {
+                return frameBuffer;
+            }
+        }
+
         public RenderTexture(int width, int height) : base(width, height)
         {
 #if !__MOBILE__
@@ -31,21 +39,6 @@ namespace Aiv.Fast2D
             this.flipped = true;
         }
 
-        public static void To(RenderTexture renderTexture, bool clear = true)
-        {
-            if (renderTexture == null)
-            {
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-                return;
-            }
-            else {
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, renderTexture.frameBuffer);
-            }
-
-            if (clear)
-            {
-                GL.Clear(ClearBufferMask.ColorBufferBit);
-            }
-        }
+       
     }
 }

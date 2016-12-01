@@ -83,6 +83,33 @@ namespace Aiv.Fast2D.Example
             triangle.uv = new float[] { 0.5f, 0.5f, 0, 0, 1, 0 };
             triangle.UpdateUV();
 
+            Mesh farTriangles = new Mesh();
+            farTriangles.v = new float[]
+            {
+                300, 100,
+                200, 200,
+                400, 200,
+
+                400, 400,
+                300, 500,
+                500, 500
+            };
+            farTriangles.UpdateVertex();
+
+
+            
+            Texture alien2 = new Texture("aiv_fast2d_example.Assets.2.png");
+            RenderTexture maskedAlien = new RenderTexture(alien2.Width, alien2.Height);
+            Sprite spriteMask = new Sprite(50, 50);
+
+            Texture circleMask = new Texture("aiv_fast2d_example.Assets.mask_circle.png");
+            Texture circleMask2 = new Texture("aiv_fast2d_example.Assets.mask_circle2.png");
+
+            Sprite maskedObject = new Sprite(alien2.Width, alien2.Height);
+            maskedObject.position = new Vector2(200, 200);
+            Sprite maskedBackground = new Sprite(alien2.Width, alien2.Height);
+
+
             while (window.opened)
             {
 
@@ -117,7 +144,7 @@ namespace Aiv.Fast2D.Example
                 square.DrawSolidColor(1f, 0, 0, 0.5f);
 
                 window.SetClearColor(255, 0, 0);
-                RenderTexture.To(screen);
+                window.RenderTo(screen);
 
                 logo.position.Y = 100;
                 logo.position += new Vector2(50f, 0) * window.deltaTime;
@@ -153,7 +180,7 @@ namespace Aiv.Fast2D.Example
                 }
 
                 window.SetClearColor(100, 100, 100);
-                RenderTexture.To(null);
+                window.RenderTo(null);
 
 
                 monitor.DrawTexture(screen);
@@ -182,6 +209,10 @@ namespace Aiv.Fast2D.Example
                 particleSystem2.Update(window);
 
 
+                
+
+                farTriangles.DrawColor(0f, 0f, 1f, 1f);
+
                 triangle.v[4] = window.mouseX;
                 triangle.v[5] = window.mouseY;
                 triangle.UpdateVertex();
@@ -196,6 +227,25 @@ namespace Aiv.Fast2D.Example
                     triangle.DrawColor(1f, 0f, 1f, 1f);
                     window.SetScissorTest(false);
                 }
+
+                window.SetClearColor(0f, 0f, 0f, 0f);
+                window.RenderTo(maskedAlien);
+               
+                maskedBackground.DrawTexture(alien2);
+                window.SetMaskedBlending();
+                spriteMask.scale = Vector2.One;
+                spriteMask.position = new Vector2(150, 100);
+                spriteMask.DrawTexture(circleMask);
+
+                spriteMask.scale = new Vector2(2f, 2.7f);
+                spriteMask.position = new Vector2(180, 280);
+                spriteMask.DrawTexture(circleMask2);
+
+                window.SetAlphaBlending();
+                window.SetClearColor(0.5f, 0.5f, 0.5f);
+                window.RenderTo(null);
+
+                maskedObject.DrawTexture(maskedAlien);
 
                 window.Update();
             }

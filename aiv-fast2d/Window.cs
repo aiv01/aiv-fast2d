@@ -320,13 +320,27 @@ namespace Aiv.Fast2D
             GCSettings.LatencyMode = GCLatencyMode.LowLatency;
         }
 
-        private void SetupOpenGL()
+        public void SetAlphaBlending()
         {
             // enable alpha blending
             GL.Enable(EnableCap.Blend);
             GL.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
             GL.BlendFuncSeparate(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha);
             GL.ColorMask(true, true, true, true);
+        }
+
+        public void SetMaskedBlending()
+        {
+            // enable alpha blending
+            GL.Enable(EnableCap.Blend);
+            GL.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
+            GL.BlendFuncSeparate(BlendingFactorSrc.DstAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.OneMinusSrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.ColorMask(true, true, true, true);
+        }
+
+        private void SetupOpenGL()
+        {
+            SetAlphaBlending();
 
             GL.Disable(EnableCap.CullFace);
             GL.Disable(EnableCap.ScissorTest);
@@ -443,14 +457,14 @@ namespace Aiv.Fast2D
 
 
 
-        public void SetClearColor(float r, float g, float b)
+        public void SetClearColor(float r, float g, float b, float a=1)
         {
-            GL.ClearColor(r, g, b, 1);
+            GL.ClearColor(r, g, b, a);
         }
 
-        public void SetClearColor(int r, int g, int b)
+        public void SetClearColor(int r, int g, int b, int a=255)
         {
-            GL.ClearColor(r / 255f, g / 255f, b / 255f, 1);
+            GL.ClearColor(r / 255f, g / 255f, b / 255f, a/255f);
         }
 
 
@@ -729,6 +743,48 @@ namespace Aiv.Fast2D
                 (int)(height * this.scaleY));
         }
 
+
+        public void RecomputeViewport(int width, int height, float orthoSize = 0)
+        {
+
+            this._aspectRatio = (float)width / (float)height;
+
+            // use units instead of pixels ?
+            if (orthoSize > 0)
+            {
+                this.orthoMatrix = Matrix4.CreateOrthographic(orthoSize * 2f * this._aspectRatio, -orthoSize * 2f, -1.0f, 1.0f);
+            }
+            else {
+                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
+            }
+
+            // setup viewport
+            this.SetViewport(0, 0, width, height);
+        }
+
+        public void ResetViewport()
+        {
+            RecomputeViewport(this.width, this.height, Context.orthographicSize);
+        }
+
+        public void RenderTo(RenderTexture renderTexture, bool clear = true)
+        {
+            if (renderTexture == null)
+            {
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                ResetViewport();
+                return;
+            }
+            else {
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, renderTexture.FrameBuffer);
+                RecomputeViewport(renderTexture.Width, renderTexture.Height);
+            }
+
+            if (clear)
+            {
+                GL.Clear(ClearBufferMask.ColorBufferBit);
+            }
+        }
     }
 }
 
