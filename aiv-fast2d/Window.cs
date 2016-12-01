@@ -480,6 +480,24 @@ namespace Aiv.Fast2D
         }
 #endif
 
+        public void SetScissorTest(bool enabled)
+        {
+            if (enabled)
+            {
+                GL.Enable(EnableCap.ScissorTest);
+            }
+            else
+            {
+                GL.Disable(EnableCap.ScissorTest);
+            }
+        }
+
+        public void SetScissorTest(int x, int y, int width, int height)
+        {
+            SetScissorTest(true);
+            GL.Scissor(x, (window.Height - y) - height, width, height);
+        }
+
         public void Update()
         {
 

@@ -192,7 +192,9 @@ namespace Aiv.Fast2D.Example
                 }
                 else
                 {
+                    window.SetScissorTest(window.Width/2 - 200, window.Height/2 - 200, 400, 400);
                     triangle.DrawColor(1f, 0f, 1f, 1f);
+                    window.SetScissorTest(false);
                 }
 
                 window.Update();
