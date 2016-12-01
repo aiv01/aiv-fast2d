@@ -73,11 +73,14 @@ namespace Aiv.Fast2D
 #version 330 core
 
 layout(location = 0) in vec2 vertex;
+layout(location = 1) in vec2 uv;
 
 uniform mat4 mvp;
+out vec2 uvout;
 
 void main(){
         gl_Position = mvp * vec4(vertex.xy, 0.0, 1.0);
+        uvout = uv;
 }";
         private static string simpleFragmentShader = @"
 #version 330 core
@@ -85,11 +88,14 @@ void main(){
 precision highp float;
 
 uniform vec4 color;
+uniform sampler2D tex;
+
+in vec2 uvout;
 
 out vec4 out_color;
 
 void main(){
-       out_color = color;
+       out_color = texture(tex, uvout) + color;
 }";
 
         private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader);
@@ -123,7 +129,10 @@ void main(){
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.uvBufferId);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
             if (shader == null)
+            {
                 shader = simpleShader;
+                shader.SetUniform("tex", 0);
+            }
             this.shader = shader;
         }
 
@@ -236,6 +245,8 @@ void main(){
 
         public void DrawTexture(Texture tex)
         {
+            if (this.v == null || this.uv == null)
+                return;
             this.Bind();
             tex.Bind();
             this.shader.Use();
@@ -261,6 +272,8 @@ void main(){
         // fast version of drawtexture without UV re-upload
         public void DrawTexture(int textureId)
         {
+            if (this.v == null || this.uv == null)
+                return;
             this.Bind();
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, textureId);
@@ -288,6 +301,15 @@ void main(){
         // simply set the 'color' uniform of the shader
         public void DrawColor(float r, float g, float b, float a)
         {
+            if (this.v == null)
+                return;
+
+            // upload fake uvs (if required) to avoid crashes
+            if (this.uv == null)
+            {
+                this.uv = new float[this.v.Length];
+                this.UpdateUV();
+            }
             this.shader.SetUniform("color", new Vector4(r, g, b, a));
             this.Draw();
         }
@@ -300,6 +322,8 @@ void main(){
         // simple draw without textures (useful for subclasses)
         public void Draw(ShaderSetupHook hook = null)
         {
+            if (this.v == null)
+                return;
             this.Bind();
             // clear current texture
             GL.ActiveTexture(TextureUnit.Texture0);

@@ -67,17 +67,19 @@ namespace Aiv.Fast2D.Example
             Mesh triangle = new Mesh();
             triangle.v = new float[] { 100, 100, 50, 200, 150, 200 };
             triangle.UpdateVertex();
+            triangle.uv = new float[] { 0.5f, 0.5f, 0, 0, 1, 0 };
+            triangle.UpdateUV();
 
             while (window.opened)
             {
 
-                for(int i=0;i<tiles2.Instances;i++)
+                for (int i = 0; i < tiles2.Instances; i++)
                 {
                     tiles2.SetPosition(i, new Vector2(20 * i, 20 * i), true);
                 }
                 tiles2.UpdatePositions();
 
-                
+
 
                 ship.position.Y = 10;
                 ship.position += new Vector2(5f, 0) * window.deltaTime;
@@ -94,7 +96,7 @@ namespace Aiv.Fast2D.Example
                 }
                 int x = (index % 10) * (alien.Width / 10);
                 int y = (index / 10) * height;
-                
+
 
                 ship.DrawTexture(alien, x, y, alien.Width / 10, height);
 
@@ -109,7 +111,7 @@ namespace Aiv.Fast2D.Example
                 logo.scale = new Vector2(1f, 1f);
                 logo.DrawTexture(logoAiv);
 
-                
+
 
                 if (window.GetKey(KeyCode.Esc))
                     break;
@@ -140,10 +142,10 @@ namespace Aiv.Fast2D.Example
                 window.SetClearColor(100, 100, 100);
                 RenderTexture.To(null);
 
-              
+
                 monitor.DrawTexture(screen);
 
-                
+
 
                 Vector2 newPosition = tiles.GetPosition(2) - Vector2.One * 20f * window.deltaTime;
                 tiles.SetPosition(2, newPosition);
@@ -166,10 +168,19 @@ namespace Aiv.Fast2D.Example
                 particleSystem2.position = ship2.position;
                 particleSystem2.Update(window);
 
+
                 triangle.v[4] = window.mouseX;
                 triangle.v[5] = window.mouseY;
                 triangle.UpdateVertex();
-                triangle.DrawColor(1f, 0f, 1f, 1f);
+
+                if (window.HasFocus)
+                {
+                    triangle.DrawTexture(alien);
+                }
+                else
+                {
+                    triangle.DrawColor(1f, 0f, 1f, 1f);
+                }
 
                 window.Update();
             }

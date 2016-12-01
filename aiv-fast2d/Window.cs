@@ -355,6 +355,14 @@ namespace Aiv.Fast2D
             this.opened = false;
         }
 
+        public bool HasFocus
+        {
+            get
+            {
+                return this.window.Focused;
+            }
+        }
+
         private void FixDimensions(int width, int height, bool first = false)
         {
             this.width = width;
