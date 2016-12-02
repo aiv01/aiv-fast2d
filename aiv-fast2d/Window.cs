@@ -743,10 +743,16 @@ namespace Aiv.Fast2D
                 (int)(height * this.scaleY));
         }
 
+		public void SetViewportUnscaled(int x, int y, int width, int height)
+		{
+			GL.Viewport(x,
+				y,
+				width,
+				height);
+		}
 
-        public void RecomputeViewport(int width, int height, float orthoSize = 0)
-        {
-
+        public void RecomputeViewport(int width, int height, float orthoSize = 0, bool unscaled=false)
+		{
             this._aspectRatio = (float)width / (float)height;
 
             // use units instead of pixels ?
@@ -758,8 +764,14 @@ namespace Aiv.Fast2D
                 this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
             }
 
-            // setup viewport
-            this.SetViewport(0, 0, width, height);
+			// setup viewport
+			if (unscaled)
+			{
+				this.SetViewportUnscaled(0, 0, width, height);
+			}
+			else {
+				this.SetViewport(0, 0, width, height);
+			}
         }
 
         public void ResetViewport()
@@ -777,7 +789,8 @@ namespace Aiv.Fast2D
             }
             else {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, renderTexture.FrameBuffer);
-                RecomputeViewport(renderTexture.Width, renderTexture.Height);
+				// unscaled viewport
+				RecomputeViewport(renderTexture.Width, renderTexture.Height, Context.orthographicSize, true);
             }
 
             if (clear)
