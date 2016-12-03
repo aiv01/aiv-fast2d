@@ -28,8 +28,7 @@ out vec4 color;
 void main() {
         // simply read and write the texture value
         color = texture(tex, uv);
-}
-";
+}";
         public DoNothingEffect() : base(fragmentShader) {}
 
     }
