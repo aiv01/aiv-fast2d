@@ -35,3 +35,24 @@ void main() {
 }
 
 ```
+
+Then you can simply add it to the postprocessing chain (effects inserted first will be applied first):
+
+```cs
+PostProcessingEffect yourEffect = window.AddPostProcessingEffect(new DoNothingEffect());
+```
+
+Effects can be enabled/disabled at runtime:
+
+```cs
+if (window.GetKey(KeyCode.Space))
+    yourEffect.enabled = false;
+```
+
+Or inserted at a specific location of the chain:
+
+```cs
+// add the effect at position 2 of the chain
+PostProcessingEffect yourEffect = window.SetPostProcessingEffect(2, new DoNothingEffect());
+```
+
