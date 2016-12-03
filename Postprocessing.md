@@ -98,3 +98,132 @@ void main() {
 }
 
 ```
+
+Masking with a texture (Update() is called at every game cycle):
+
+```cs
+using Aiv.Fast2D;
+
+namespace Aiv.Fast2D.Example
+{
+    public class MaskEffect : PostProcessingEffect
+    {
+
+        private Texture maskTexture;
+
+        private static string fragmentShader = @"
+#version 330 core
+
+precision highp float;
+
+in vec2 uv;
+
+uniform sampler2D tex;
+uniform sampler2D mask_tex;
+
+out vec4 color;
+
+void main() {
+        vec4 base = texture(tex, uv);
+        vec4 mask = texture(mask_tex, uv);
+
+        color = vec4(base.rgb * mask.a, base.a);
+}
+";
+
+        public MaskEffect(string fileName) : base(fragmentShader)
+        {
+            this.maskTexture = new Texture(fileName);
+        }
+
+        public MaskEffect(Texture mask) : base(fragmentShader)
+        {
+            this.maskTexture = mask;
+        }
+
+        public override void Update(Window window)
+        {
+            window.BindTextureToUnit(this.maskTexture, 1);
+            screenMesh.shader.SetUniform("mask_tex", 1);
+        }
+
+    }
+}
+```
+
+Change screen geometry (use WASD to move the screen):
+
+```cs
+using Aiv.Fast2D;
+using OpenTK;
+
+namespace Aiv.Fast2D.Example
+{
+    public class WASDEffect : PostProcessingEffect
+    {
+
+        private Vector2 center;
+
+        private static string fragmentShader = @"
+#version 330 core
+
+precision highp float;
+
+in vec2 uv;
+
+uniform sampler2D tex;
+
+out vec4 color;
+
+void main() {
+        color = texture(tex, uv);
+}
+";
+
+        public WASDEffect() : base(fragmentShader)
+        {
+
+        }
+
+        public override void Update(Window window)
+        {
+            
+            if (window.GetKey(KeyCode.D))
+            {
+                center.X += window.deltaTime;
+            }
+
+            if (window.GetKey(KeyCode.A))
+            {
+                center.X -= window.deltaTime;
+            }
+
+            if (window.GetKey(KeyCode.W))
+            {
+                center.Y += window.deltaTime;
+            }
+
+            if (window.GetKey(KeyCode.S))
+            {
+                center.Y -= window.deltaTime;
+            }
+
+            screenMesh.v = new float[]
+            {
+                    -1 + center.X, 1 + center.Y,
+                    1+ center.X, 1 + center.Y,
+                    1+ center.X, -1 + center.Y,
+
+                    1+ center.X,-1 + center.Y,
+                    -1+ center.X, -1 + center.Y,
+                    -1+ center.X, 1 + center.Y
+            };
+
+            screenMesh.UpdateVertex();
+
+        }
+
+    }
+}
+
+```
