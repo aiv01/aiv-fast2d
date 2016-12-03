@@ -109,6 +109,17 @@ namespace Aiv.Fast2D.Example
             maskedObject.position = new Vector2(200, 200);
             Sprite maskedBackground = new Sprite(alien2.Width, alien2.Height);
 
+            PostProcessingEffect mainEffect = window.AddPostProcessingEffect(new GrayscaleEffect());
+            mainEffect.enabled = false;
+
+            window.AddPostProcessingEffect(new MaskEffect("aiv_fast2d_example.Assets.mask_circle.png"));
+
+            window.AddPostProcessingEffect(new BlackBands());
+            
+            window.AddPostProcessingEffect(new RedBands());
+
+            // insert a postprocessing effect at the specific position
+            window.SetPostProcessingEffect(1, new WASDEffect());
 
             while (window.opened)
             {
@@ -246,6 +257,16 @@ namespace Aiv.Fast2D.Example
                 window.RenderTo(null);
 
                 maskedObject.DrawTexture(maskedAlien);
+
+                if (window.GetKey(KeyCode.Space))
+                {
+                    mainEffect.enabled = true;
+                }
+
+                if (window.GetKey(KeyCode.Return))
+                {
+                    mainEffect.enabled = false;
+                }
 
                 window.Update();
             }

@@ -190,6 +190,8 @@ namespace Aiv.Fast2D
 
         public delegate void GameLoop(Window window);
 
+        private List<PostProcessingEffect> postProcessingEffects;
+
 #if !__MOBILE__
         public Window(string title) : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true)
         {
@@ -318,7 +320,37 @@ namespace Aiv.Fast2D
 
             // more gentle GC
             GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+
+            postProcessingEffects = new List<PostProcessingEffect>();
         }
+
+        public PostProcessingEffect AddPostProcessingEffect(PostProcessingEffect effect)
+        {
+            effect.Setup(this);
+            postProcessingEffects.Add(effect);
+            return effect;
+        }
+
+        public void ClearPostProcessingEffects()
+        {
+            postProcessingEffects.Clear();
+        }
+
+        public PostProcessingEffect[] PostProcessingEffects
+        {
+            get
+            {
+                return postProcessingEffects.ToArray();
+            }
+        }
+
+        public PostProcessingEffect SetPostProcessingEffect(int index, PostProcessingEffect effect)
+        {
+            effect.Setup(this);
+            postProcessingEffects.Insert(index, effect);
+            return effect;
+        }
+
 
         public void SetAlphaBlending()
         {
@@ -415,7 +447,7 @@ namespace Aiv.Fast2D
         public void SetIcon(string fileName)
         {
             Icon icon = null;
-           
+
             Assembly assembly = Assembly.GetEntryAssembly();
 
             // if the file in included in the resources, load it as stream
@@ -457,14 +489,14 @@ namespace Aiv.Fast2D
 
 
 
-        public void SetClearColor(float r, float g, float b, float a=1)
+        public void SetClearColor(float r, float g, float b, float a = 1)
         {
             GL.ClearColor(r, g, b, a);
         }
 
-        public void SetClearColor(int r, int g, int b, int a=255)
+        public void SetClearColor(int r, int g, int b, int a = 255)
         {
-            GL.ClearColor(r / 255f, g / 255f, b / 255f, a/255f);
+            GL.ClearColor(r / 255f, g / 255f, b / 255f, a / 255f);
         }
 
 
@@ -512,10 +544,89 @@ namespace Aiv.Fast2D
             GL.Scissor(x, (window.Height - y) - height, width, height);
         }
 
+        private PostProcessingEffect GetFirstPostProcessingEffect()
+        {
+            foreach (PostProcessingEffect effect in postProcessingEffects)
+            {
+                if (effect != null && effect.enabled)
+                    return effect;
+            }
+            return null;
+        }
+
+        private int GetDefaultFrameBuffer()
+        {
+            foreach (PostProcessingEffect effect in postProcessingEffects)
+            {
+                if (effect != null && effect.enabled)
+                    return effect.RenderTexture.FrameBuffer;
+            }
+            return 0;
+        }
+
+        public int ActivePostProcessingEffectsCount
+        {
+            get
+            {
+                int i = 0;
+                foreach (PostProcessingEffect effect in postProcessingEffects)
+                {
+                    if (effect != null && effect.enabled)
+                        i++;
+                }
+                return i;
+            }
+        }
+
+        // 0 means, render to the real screen
+        private int GetNextPostProcessingEffectFramebuffer(int current)
+        {
+            for (int i = current + 1; i < postProcessingEffects.Count; i++)
+            {
+                if (postProcessingEffects[i] != null && postProcessingEffects[i].enabled)
+                {
+                    return postProcessingEffects[i].RenderTexture.FrameBuffer;
+                }
+
+            }
+            return 0;
+        }
+
+        private void ApplyPostProcessingEffects()
+        {
+
+            for (int i = 0; i < postProcessingEffects.Count; i++)
+            {
+                if (postProcessingEffects[i] != null && postProcessingEffects[i].enabled)
+                {
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, GetNextPostProcessingEffectFramebuffer(i));
+                    GL.Clear(ClearBufferMask.ColorBufferBit);
+                    // custom update cycle
+                    postProcessingEffects[i].Update(this);
+                    // blit to the next render destination
+                    postProcessingEffects[i].Apply(this);
+
+                }
+            }
+
+        }
+
+        public void BindTextureToUnit(Texture texture, int unit)
+        {
+            BindTextureToUnit(texture.Id, unit);
+        }
+
+        public void BindTextureToUnit(int textureId, int unit)
+        {
+            GL.ActiveTexture(TextureUnit.Texture0 + unit);
+            GL.BindTexture(TextureTarget.Texture2D, textureId);
+        }
+
         public void Update()
         {
 
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            // apply postprocessing (if required)
+            ApplyPostProcessingEffects();
 
             // redraw
             this.window.SwapBuffers();
@@ -558,7 +669,7 @@ namespace Aiv.Fast2D
             for (int i = 0; i < Context.shaderGC.Count; i++)
             {
                 int _id = Context.shaderGC[i];
-                //Console.WriteLine ("deleting " + _id);
+                
                 GL.DeleteProgram(_id);
                 Context.Log(string.Format("shader {0} deleted", _id));
             }
@@ -571,16 +682,19 @@ namespace Aiv.Fast2D
             // get next events
             this.window.ProcessEvents();
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+
+
 
             // avoid negative values
             this._deltaTime = this.watch.Elapsed.TotalSeconds > 0 ? (float)this.watch.Elapsed.TotalSeconds : 0f;
 
             this.watch.Reset();
             this.watch.Start();
-#else
-            GL.Clear(ClearBufferMask.ColorBufferBit);
 #endif
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, GetDefaultFrameBuffer());
+            
+            GL.Clear(ClearBufferMask.ColorBufferBit);
 
         }
 
@@ -743,16 +857,16 @@ namespace Aiv.Fast2D
                 (int)(height * this.scaleY));
         }
 
-		public void SetViewportUnscaled(int x, int y, int width, int height)
-		{
-			GL.Viewport(x,
-				y,
-				width,
-				height);
-		}
+        public void SetViewportUnscaled(int x, int y, int width, int height)
+        {
+            GL.Viewport(x,
+                y,
+                width,
+                height);
+        }
 
-        public void RecomputeViewport(int width, int height, float orthoSize = 0, bool unscaled=false)
-		{
+        public void RecomputeViewport(int width, int height, float orthoSize = 0, bool unscaled = false)
+        {
             this._aspectRatio = (float)width / (float)height;
 
             // use units instead of pixels ?
@@ -764,14 +878,14 @@ namespace Aiv.Fast2D
                 this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
             }
 
-			// setup viewport
-			if (unscaled)
-			{
-				this.SetViewportUnscaled(0, 0, width, height);
-			}
-			else {
-				this.SetViewport(0, 0, width, height);
-			}
+            // setup viewport
+            if (unscaled)
+            {
+                this.SetViewportUnscaled(0, 0, width, height);
+            }
+            else {
+                this.SetViewport(0, 0, width, height);
+            }
         }
 
         public void ResetViewport()
@@ -783,14 +897,14 @@ namespace Aiv.Fast2D
         {
             if (renderTexture == null)
             {
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, GetDefaultFrameBuffer());
                 ResetViewport();
                 return;
             }
             else {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, renderTexture.FrameBuffer);
-				// unscaled viewport
-				RecomputeViewport(renderTexture.Width, renderTexture.Height, Context.orthographicSize, true);
+                // unscaled viewport
+                RecomputeViewport(renderTexture.Width, renderTexture.Height, Context.orthographicSize, true);
             }
 
             if (clear)

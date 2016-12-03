@@ -47,6 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WASDEffect.cs" />
+    <Compile Include="MaskEffect.cs" />
+    <Compile Include="RedBands.cs" />
+    <Compile Include="BlackBands.cs" />
+    <Compile Include="GrayscaleEffect.cs" />
     <Compile Include="ParticleSystem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

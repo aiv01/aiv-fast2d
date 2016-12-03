@@ -13,6 +13,10 @@ namespace Aiv.Fast2D
 	public class Shader : IDisposable
 	{
 
+        public class CompilationException : Exception {
+            public CompilationException(string message) : base(message) { }
+        }
+
 		private int programId;
 
 		private Dictionary<string, int> uniformCache;
@@ -31,8 +35,19 @@ namespace Aiv.Fast2D
 			GL.ShaderSource (vertexShaderId, vertex);
 			GL.CompileShader (vertexShaderId);
 
-			GL.ShaderSource (fragmentShaderId, fragment);
+            string vertexShaderCompilationError = GL.GetShaderInfoLog(vertexShaderId);
+            if (vertexShaderCompilationError != null && vertexShaderCompilationError != "")
+            {
+                throw new CompilationException(vertexShaderCompilationError);
+            }
+
+            GL.ShaderSource (fragmentShaderId, fragment);
 			GL.CompileShader (fragmentShaderId);
+            string fragmentShaderCompilationError = GL.GetShaderInfoLog(fragmentShaderId);
+            if (fragmentShaderCompilationError != null && fragmentShaderCompilationError != "")
+            {
+                throw new CompilationException(fragmentShaderCompilationError);
+            }
 
             this.programId = GL.CreateProgram ();
 			GL.AttachShader (programId, vertexShaderId);

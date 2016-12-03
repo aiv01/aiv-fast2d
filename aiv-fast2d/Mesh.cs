@@ -60,6 +60,8 @@ namespace Aiv.Fast2D
         public delegate void ShaderSetupHook(Mesh mesh);
         protected ShaderSetupHook shaderSetupHook;
 
+        public bool noMatrix;
+
         protected int instances;
         public int Instances
         {
@@ -134,6 +136,7 @@ void main(){
                 shader.SetUniform("tex", 0);
             }
             this.shader = shader;
+            this.noMatrix = false;
         }
 
         protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0)
@@ -212,6 +215,8 @@ void main(){
         // here we update translations, scaling and rotations
         private void ApplyMatrix()
         {
+            if (this.noMatrix)
+                return;
 
             // WARNING !!! OpenTK uses row-major while OpenGL uses column-major
             Matrix4 m =
