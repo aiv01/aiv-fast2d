@@ -121,6 +121,8 @@ namespace Aiv.Fast2D.Example
             // insert a postprocessing effect at the specific position
             window.SetPostProcessingEffect(1, new WASDEffect());
 
+            window.SetPostProcessingEffect(1, new WobbleEffect(5));
+
             while (window.opened)
             {
 

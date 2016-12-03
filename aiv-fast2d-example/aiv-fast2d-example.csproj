@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WobbleEffect.cs" />
     <Compile Include="WASDEffect.cs" />
     <Compile Include="MaskEffect.cs" />
     <Compile Include="RedBands.cs" />
