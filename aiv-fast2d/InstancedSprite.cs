@@ -56,7 +56,6 @@ void main(){
         private float[] positionsData;
         private float[] scalesData;
 
-        
 
         public void SetPosition(int instanceId, Vector2 position, bool noUpload=false)
         {
@@ -121,6 +120,7 @@ void main(){
             {
                 scalesData[i] = 1f;
             }
+
             positionsBuffer = NewFloatBuffer(2, 2, positionsData, 1);
             scalesBuffer = NewFloatBuffer(3, 2, scalesData, 1);
         }

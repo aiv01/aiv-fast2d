@@ -138,8 +138,28 @@ namespace Aiv.Fast2D.Example
 
             window.SetPostProcessingEffect(1, new WobbleEffect(5));
 
+            Tilemap tileMap = new Tilemap("Assets/map001.csv", "Assets/tiles_spritesheet.png");
+
             while (window.opened)
             {
+                if (window.GetKey(KeyCode.Right))
+                {
+                    tileMap.position += new Vector2(1, 0) * window.deltaTime * 300;
+                }
+                if (window.GetKey(KeyCode.Left))
+                {
+                    tileMap.position += new Vector2(-1, 0) * window.deltaTime * 300;
+                }
+                if (window.GetKey(KeyCode.Up))
+                {
+                    tileMap.position += new Vector2(0, -1) * window.deltaTime * 300;
+                }
+                if (window.GetKey(KeyCode.Down))
+                {
+                    tileMap.position += new Vector2(0, 1) * window.deltaTime * 300;
+                }
+
+                tileMap.Draw();
 
                 for (int i = 0; i < tiles2.Instances; i++)
                 {

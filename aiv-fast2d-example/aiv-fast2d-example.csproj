@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Tilemap.cs" />
     <Compile Include="WobbleEffect.cs" />
     <Compile Include="WASDEffect.cs" />
     <Compile Include="MaskEffect.cs" />
@@ -61,6 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Assets\map001.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -87,6 +91,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\mask_circle2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\tiles_spritesheet.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
