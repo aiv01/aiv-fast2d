@@ -112,6 +112,7 @@ void main(){
 
         private void SetupInstances()
         {
+            this.hasVertexColors = false;
             this.shader = instancedSpriteShader;
             positionsData = new float[2 * this.instances];
             scalesData = new float[2 * this.instances];

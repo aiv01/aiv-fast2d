@@ -5,6 +5,7 @@ using OpenTK.Graphics.OpenGL;
 #else
 using OpenTK.Graphics.ES30;
 #endif
+using System.Collections.Generic;
 
 namespace Aiv.Fast2D
 {
@@ -15,11 +16,17 @@ namespace Aiv.Fast2D
 
         public float[] v;
         public float[] uv;
+        public float[] vc;
 
         private int vBufferId;
         private int uvBufferId;
+        private int vcBufferId;
+
+        private List<int> customBuffers;
 
         private bool disposed;
+
+        public bool hasVertexColors;
 
         public Shader shader;
 
@@ -76,13 +83,16 @@ namespace Aiv.Fast2D
 
 layout(location = 0) in vec2 vertex;
 layout(location = 1) in vec2 uv;
+layout(location = 2) in vec4 vc;
 
 uniform mat4 mvp;
 out vec2 uvout;
+out vec4 vertex_color;
 
 void main(){
         gl_Position = mvp * vec4(vertex.xy, 0.0, 1.0);
         uvout = uv;
+        vertex_color = vc;
 }";
         private static string simpleFragmentShader = @"
 #version 330 core
@@ -93,17 +103,19 @@ uniform vec4 color;
 uniform sampler2D tex;
 
 in vec2 uvout;
+in vec4 vertex_color;
 
 out vec4 out_color;
 
 void main(){
-       out_color = texture(tex, uvout) + color;
+       out_color = texture(tex, uvout) + color + vertex_color;
 }";
 
         private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader);
 
         public Mesh(Shader shader = null)
         {
+            this.customBuffers = new List<int>();
 #if !__MOBILE__
             this.vertexArrayId = GL.GenVertexArray();
 #else
@@ -121,6 +133,7 @@ void main(){
             GL.EnableVertexAttribArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.vBufferId);
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
 #if !__MOBILE__
             this.uvBufferId = GL.GenBuffer();
 #else
@@ -130,6 +143,17 @@ void main(){
             GL.EnableVertexAttribArray(1);
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.uvBufferId);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
+#if !__MOBILE__
+            this.vcBufferId = GL.GenBuffer();
+#else
+            GL.GenBuffers(1, tmpStore);
+            this.vcBufferId = tmpStore[0];
+#endif
+            GL.EnableVertexAttribArray(2);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, this.vcBufferId);
+            GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
             if (shader == null)
             {
                 shader = simpleShader;
@@ -137,10 +161,12 @@ void main(){
             }
             this.shader = shader;
             this.noMatrix = false;
+            this.hasVertexColors = true;
         }
 
         protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0)
         {
+            this.Bind();
 #if !__MOBILE__
             int bufferId = GL.GenBuffer();
 #else
@@ -160,6 +186,7 @@ void main(){
 #else
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsage.DynamicDraw);
 #endif
+            this.customBuffers.Add(bufferId);
             return bufferId;
         }
 
@@ -177,6 +204,7 @@ void main(){
         {
             this.UpdateVertex();
             this.UpdateUV();
+            this.UpdateVertexColor();
         }
 
         public void UpdateVertex()
@@ -204,6 +232,20 @@ void main(){
             GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(this.uv.Length * sizeof(float)), this.uv, BufferUsageHint.DynamicDraw);
 #else
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(this.uv.Length * sizeof(float)), this.uv, BufferUsage.DynamicDraw);
+#endif
+        }
+
+        public void UpdateVertexColor()
+        {
+            if (this.vc == null)
+                return;
+            this.Bind();
+            // we use dynamic drawing, could be inefficient for simpler cases, but improves performance in case of complex animations
+            GL.BindBuffer(BufferTarget.ArrayBuffer, this.vcBufferId);
+#if !__MOBILE__
+            GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(this.vc.Length * sizeof(float)), this.vc, BufferUsageHint.DynamicDraw);
+#else
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(this.vc.Length * sizeof(float)), this.vc, BufferUsage.DynamicDraw);
 #endif
         }
 
@@ -248,10 +290,16 @@ void main(){
             this.shader.SetUniform("mvp", mvp);
         }
 
-        public void DrawTexture(Texture tex)
+        public virtual void DrawTexture(Texture tex)
         {
             if (this.v == null || this.uv == null)
                 return;
+            // upload fake vcs (if required) to avoid crashes
+            if (this.vc == null && this.hasVertexColors)
+            {
+                this.vc = new float[this.v.Length * 2];
+                this.UpdateVertexColor();
+            }
             this.Bind();
             tex.Bind();
             this.shader.Use();
@@ -275,10 +323,16 @@ void main(){
         }
 
         // fast version of drawtexture without UV re-upload
-        public void DrawTexture(int textureId)
+        public virtual void DrawTexture(int textureId)
         {
             if (this.v == null || this.uv == null)
                 return;
+            // upload fake vcs (if required) to avoid crashes
+            if (this.vc == null && this.hasVertexColors)
+            {
+                this.vc = new float[this.v.Length * 2];
+                this.UpdateVertexColor();
+            }
             this.Bind();
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, textureId);
@@ -304,22 +358,15 @@ void main(){
 
 
         // simply set the 'color' uniform of the shader
-        public void DrawColor(float r, float g, float b, float a)
+        public virtual void DrawColor(float r, float g, float b, float a)
         {
-            if (this.v == null)
-                return;
-
-            // upload fake uvs (if required) to avoid crashes
-            if (this.uv == null)
-            {
-                this.uv = new float[this.v.Length];
-                this.UpdateUV();
-            }
             this.shader.SetUniform("color", new Vector4(r, g, b, a));
             this.Draw();
+            // always reset the color
+            this.shader.SetUniform("color", Vector4.Zero);
         }
 
-        public void DrawColor(int r, int g, int b, int a)
+        public virtual void DrawColor(int r, int g, int b, int a)
         {
             DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
         }
@@ -329,6 +376,18 @@ void main(){
         {
             if (this.v == null)
                 return;
+            // upload fake uvs (if required) to avoid crashes
+            if (this.uv == null)
+            {
+                this.uv = new float[this.v.Length];
+                this.UpdateUV();
+            }
+            // upload fake vcs (if required) to avoid crashes
+            if (this.vc == null && this.hasVertexColors)
+            {
+                this.vc = new float[this.v.Length * 2];
+                this.UpdateVertexColor();
+            }
             this.Bind();
             // clear current texture
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -366,14 +425,27 @@ void main(){
 #if !__MOBILE__
             GL.DeleteBuffer(this.vBufferId);
             GL.DeleteBuffer(this.uvBufferId);
+            GL.DeleteBuffer(this.vcBufferId);
             GL.DeleteVertexArray(this.vertexArrayId);
 #else
-            GL.DeleteBuffers(2, new int[] { this.vBufferId, this.uvBufferId });
+            GL.DeleteBuffers(3, new int[] { this.vBufferId, this.uvBufferId, this.vcBufferId });
             GL.DeleteVertexArrays(1, new int[] { this.vertexArrayId });
 #endif
             Context.Log(string.Format("buffer {0} deleted", this.vBufferId));
             Context.Log(string.Format("buffer {0} deleted", this.uvBufferId));
-            Context.Log(string.Format("vertexArray {0} deleted", this.uvBufferId));
+            Context.Log(string.Format("buffer {0} deleted", this.vcBufferId));
+
+            foreach (int customBufferId in this.customBuffers)
+            {
+#if !__MOBILE__
+                GL.DeleteBuffer(customBufferId);
+#else
+                GL.DeleteBuffers(1, new int[] { customBufferId });
+#endif
+                Context.Log(string.Format("buffer {0} deleted", customBufferId));
+            }
+
+            Context.Log(string.Format("vertexArray {0} deleted", this.vertexArrayId));
             disposed = true;
         }
 
@@ -383,6 +455,11 @@ void main(){
                 return;
             Context.bufferGC.Add(this.vBufferId);
             Context.bufferGC.Add(this.uvBufferId);
+            Context.bufferGC.Add(this.vcBufferId);
+            foreach(int customBufferId in this.customBuffers)
+            {
+                Context.bufferGC.Add(customBufferId);
+            }
             Context.vaoGC.Add(this.vertexArrayId);
 
             disposed = true;

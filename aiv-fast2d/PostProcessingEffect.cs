@@ -39,6 +39,7 @@ void main(){
         public PostProcessingEffect(string fragmentShader)
         {
             screenMesh = new Mesh(new Shader(vertexShader, fragmentShader));
+            screenMesh.hasVertexColors = false;
 
             screenMesh.v = new float[]
             {

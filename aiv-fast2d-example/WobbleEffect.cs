@@ -27,8 +27,7 @@ void main() {
         uv2.x += sin(uv2.y * 3 * 3 * 3.14159 +  wave) / 100;
 
         color = texture(tex, uv2);
-}
-";
+}";
 
 
         public WobbleEffect(float speed) : base(fragmentShader)

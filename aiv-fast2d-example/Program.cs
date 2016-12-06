@@ -96,7 +96,22 @@ namespace Aiv.Fast2D.Example
             };
             farTriangles.UpdateVertex();
 
+            Mesh colouredTriangle = new Mesh();
+            colouredTriangle.v = new float[]
+            {
+                700, 100,
+                600, 200,
+                800, 200
+            };
+            colouredTriangle.UpdateVertex();
 
+            colouredTriangle.vc = new float[]
+            {
+                1, 0, 0, 1,
+                0, 1, 0, 1,
+                0, 0, 1, 1
+            };
+            colouredTriangle.UpdateVertexColor();
             
             Texture alien2 = new Texture("aiv_fast2d_example.Assets.2.png");
             RenderTexture maskedAlien = new RenderTexture(alien2.Width, alien2.Height);
@@ -269,6 +284,8 @@ namespace Aiv.Fast2D.Example
                 {
                     mainEffect.enabled = false;
                 }
+
+                colouredTriangle.Draw();
 
                 window.Update();
             }

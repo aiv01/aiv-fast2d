@@ -73,6 +73,7 @@ void main(){
 
         public Sprite(float width, float height) : base(spriteShader)
         {
+            this.hasVertexColors = false;
             this.width = width;
             this.height = height;
             this.v = new float[] {
@@ -175,7 +176,7 @@ void main(){
             this.DrawTexture(tex, x, y, tex.Width, tex.Height);
         }
 
-        new public void DrawTexture(Texture tex)
+        public override void DrawTexture(Texture tex)
         {
             this.DrawTexture(tex, 0, 0, tex.Width, tex.Height);
         }
