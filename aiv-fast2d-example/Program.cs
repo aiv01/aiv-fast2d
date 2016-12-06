@@ -164,8 +164,13 @@ namespace Aiv.Fast2D.Example
                 for (int i = 0; i < tiles2.Instances; i++)
                 {
                     tiles2.SetPosition(i, new Vector2(20 * i, 20 * i), true);
+                    if (i % 2 == 0)
+                    {
+                        tiles2.SetAdditiveColor(i, new Vector4(1, -1, -1, 1), true);
+                    }
                 }
                 tiles2.UpdatePositions();
+                tiles2.UpdateAdditiveColors();
 
 
 
