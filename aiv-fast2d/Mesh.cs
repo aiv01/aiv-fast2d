@@ -69,6 +69,8 @@ namespace Aiv.Fast2D
 
         public bool noMatrix;
 
+        protected bool requireUseTexture;
+
         protected int instances;
         public int Instances
         {
@@ -100,6 +102,7 @@ void main(){
 precision highp float;
 
 uniform vec4 color;
+uniform float use_texture;
 uniform sampler2D tex;
 
 in vec2 uvout;
@@ -108,7 +111,14 @@ in vec4 vertex_color;
 out vec4 out_color;
 
 void main(){
-       out_color = texture(tex, uvout) + color + vertex_color;
+    if (use_texture > 0.0) {
+        out_color = texture(tex, uvout);
+        out_color += vec4(vertex_color.xyz * out_color.a, vertex_color.a);
+    }
+    else {
+        out_color = vertex_color;
+    }
+    out_color += color;
 }";
 
         private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader);
@@ -162,6 +172,7 @@ void main(){
             this.shader = shader;
             this.noMatrix = false;
             this.hasVertexColors = true;
+            this.requireUseTexture = true;
         }
 
         protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0)
@@ -302,6 +313,8 @@ void main(){
             }
             this.Bind();
             tex.Bind();
+            if (this.requireUseTexture)
+                this.shader.SetUniform("use_texture", 1f);
             this.shader.Use();
             if (this.shaderSetupHook != null)
             {
@@ -336,6 +349,8 @@ void main(){
             this.Bind();
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, textureId);
+            if (this.requireUseTexture)
+                this.shader.SetUniform("use_texture", 1f);
             this.shader.Use();
             if (this.shaderSetupHook != null)
             {
@@ -392,7 +407,9 @@ void main(){
             // clear current texture
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
-            
+            if (this.requireUseTexture)
+                this.shader.SetUniform("use_texture", -1f);
+
             this.shader.Use();
             if (hook != null)
             {

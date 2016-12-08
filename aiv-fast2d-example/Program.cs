@@ -99,17 +99,17 @@ namespace Aiv.Fast2D.Example
             Mesh colouredTriangle = new Mesh();
             colouredTriangle.v = new float[]
             {
-                700, 100,
-                600, 200,
-                800, 200
+                500, 200,
+                400, 300,
+                600, 300
             };
             colouredTriangle.UpdateVertex();
 
             colouredTriangle.vc = new float[]
             {
-                1, 0, 0, 1,
-                0, 1, 0, 1,
-                0, 0, 1, 1
+                1, 0, 0, 0.5f,
+                0, 1, 0, 0.5f,
+                0, 0, 1, 0.5f
             };
             colouredTriangle.UpdateVertexColor();
             
@@ -310,6 +310,8 @@ namespace Aiv.Fast2D.Example
                     mainEffect.enabled = false;
                 }
 
+                colouredTriangle.position = window.mousePosition;
+                colouredTriangle.scale = new Vector2(1, 1);
                 colouredTriangle.Draw();
 
                 window.Update();
