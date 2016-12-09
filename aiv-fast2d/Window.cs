@@ -147,7 +147,7 @@ namespace Aiv.Fast2D
             get
             {
                 if (Context.orthographicSize > 0)
-                    return Context.orthographicSize * 2 * this._aspectRatio;
+                    return Context.orthographicSize * this._aspectRatio;
                 return this.Width;
             }
         }
@@ -157,7 +157,7 @@ namespace Aiv.Fast2D
             get
             {
                 if (Context.orthographicSize > 0)
-                    return Context.orthographicSize * 2;
+                    return Context.orthographicSize;
                 return this.Height;
             }
         }
@@ -228,7 +228,13 @@ namespace Aiv.Fast2D
             this.height = window.Holder.SurfaceFrame.Height();
             this._aspectRatio = (float)width / (float)height;
 
-            this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
+            if (Context.orthographicSize > 0)
+            {
+                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, Context.orthographicSize * this._aspectRatio, Context.orthographicSize, 0, -1.0f, 1.0f);
+            }
+            else {
+                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
+            }
 
             SetupOpenGL();
         }
@@ -302,7 +308,15 @@ namespace Aiv.Fast2D
                 {
                     case MotionEventActions.Move:
                         touchX = e.Event.GetX();
+                        if (Context.orthographicSize > 0)
+                        {
+                            touchX /= (this.width / this.orthoWidth);
+                        }
                         touchY = e.Event.GetY();
+                        if (Context.orthographicSize > 0)
+                        {
+                            touchY /= (this.height / this.orthoHeight);
+                        }
                         break;
                     case MotionEventActions.Up:
                         isTouching = false;
@@ -428,7 +442,7 @@ namespace Aiv.Fast2D
             // use units instead of pixels ?
             if (Context.orthographicSize > 0)
             {
-                this.orthoMatrix = Matrix4.CreateOrthographic(Context.orthographicSize * 2f * this._aspectRatio, -Context.orthographicSize * 2f, -1.0f, 1.0f);
+                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, Context.orthographicSize * this._aspectRatio, Context.orthographicSize, 0, -1.0f, 1.0f);
             }
             else {
                 this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
@@ -669,7 +683,7 @@ namespace Aiv.Fast2D
             for (int i = 0; i < Context.shaderGC.Count; i++)
             {
                 int _id = Context.shaderGC[i];
-                
+
                 GL.DeleteProgram(_id);
                 Context.Log(string.Format("shader {0} deleted", _id));
             }
@@ -693,7 +707,7 @@ namespace Aiv.Fast2D
 #endif
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, GetDefaultFrameBuffer());
-            
+
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
         }
@@ -701,21 +715,29 @@ namespace Aiv.Fast2D
 
 
 #if !__MOBILE__
-        public int mouseX
+        public float mouseX
         {
             get
             {
                 Point p = new Point(this._mouseState.X, this._mouseState.Y);
-                return (int)((float)this.window.PointToClient(p).X / this.scaleX);
+                if (Context.orthographicSize > 0)
+                {
+                    return ((float)this.window.PointToClient(p).X / this.scaleX)/(this.width/this.orthoWidth);
+                }
+                return ((float)this.window.PointToClient(p).X / this.scaleX);
             }
         }
 
-        public int mouseY
+        public float mouseY
         {
             get
             {
                 Point p = new Point(this._mouseState.X, this._mouseState.Y);
-                return (int)((float)this.window.PointToClient(p).Y / this.scaleY);
+                if (Context.orthographicSize > 0)
+                {
+                    return ((float)this.window.PointToClient(p).Y / this.scaleY)/(this.height/this.orthoHeight);
+                }
+                return ((float)this.window.PointToClient(p).Y / this.scaleY);
             }
         }
 
@@ -872,7 +894,7 @@ namespace Aiv.Fast2D
             // use units instead of pixels ?
             if (orthoSize > 0)
             {
-                this.orthoMatrix = Matrix4.CreateOrthographic(orthoSize * 2f * this._aspectRatio, -orthoSize * 2f, -1.0f, 1.0f);
+                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, orthoSize * this._aspectRatio, orthoSize, 0, -1.0f, 1.0f);
             }
             else {
                 this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
