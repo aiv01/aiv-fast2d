@@ -226,7 +226,10 @@ namespace Aiv.Fast2D
         public static void SetCurrent(Window targetWindow)
         {
             current = targetWindow;
+            // on mobile devices, multiple contexts are not available
+#if !__MOBILE__
             current.window.MakeCurrent();
+#endif
         }
 
         public void SetCurrent()
