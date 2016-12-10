@@ -428,16 +428,8 @@ namespace Aiv.Fast2D
                 switch (e.Event.Action)
                 {
                     case MotionEventActions.Move:
-                        touchX = e.Event.GetX();
-                        if (this.currentOrthographicSize > 0)
-                        {
-                            touchX /= (this.width / this.orthoWidth);
-                        }
-                        touchY = e.Event.GetY();
-                        if (this.currentOrthographicSize > 0)
-                        {
-                            touchY /= (this.height / this.orthoHeight);
-                        }
+                        touchX = e.Event.GetX() - this.viewportPosition.X / (this.viewportSize.X / this.orthoWidth);
+                        touchY = e.Event.GetY() - this.viewportPosition.Y / (this.viewportSize.Y / this.orthoHeight);
                         break;
                     case MotionEventActions.Up:
                         isTouching = false;
@@ -979,17 +971,17 @@ namespace Aiv.Fast2D
         }
 #endif
 
-        public void SetViewport(int x, int y, int width, int height, float orthoSize = 0, bool unscaled = false)
+        public void SetViewport(int x, int y, int width, int height, float orthoSize = 0, bool virtualScreen = false)
         {
             // store values before changes
             this.viewportPosition = new Vector2(x, y);
             this.viewportSize = new Vector2(width, height);
             // fix y as it is downsided in OpenGL
             y = (this.height - y) - height;
-            if (unscaled)
+            if (virtualScreen)
             {
-                GL.Viewport(x,
-                y,
+                GL.Viewport(0,
+                0,
                 width,
                 height);
             }
@@ -1028,7 +1020,7 @@ namespace Aiv.Fast2D
             }
             else {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, renderTexture.FrameBuffer);
-                // unscaled viewport
+                // unscaled,virtual viewport
                 SetViewport(0, 0, renderTexture.Width, renderTexture.Height, orthoSize, true);
             }
 

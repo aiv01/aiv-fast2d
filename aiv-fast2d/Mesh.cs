@@ -129,7 +129,7 @@ void main(){
 #if !__MOBILE__
             this.vertexArrayId = GL.GenVertexArray();
 #else
-            int []tmpStore = new int[1];
+            int[] tmpStore = new int[1];
             GL.GenVertexArrays(1, tmpStore);
             this.vertexArrayId = tmpStore[0];
 #endif
@@ -181,7 +181,7 @@ void main(){
 #if !__MOBILE__
             int bufferId = GL.GenBuffer();
 #else
-            int []tmpStore = new int[1];
+            int[] tmpStore = new int[1];
             GL.GenBuffers(1, tmpStore);
             int bufferId = tmpStore[0];
 #endif
@@ -207,7 +207,7 @@ void main(){
 #if !__MOBILE__
             GL.BufferSubData<float>(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)), data.Length * sizeof(float), data);
 #else
-            GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)),(IntPtr)(data.Length * sizeof(float)), data);
+            GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)), (IntPtr)(data.Length * sizeof(float)), data);
 #endif
         }
 
@@ -292,8 +292,6 @@ void main(){
             {
                 m *= Window.Current.CurrentCamera.Matrix();
             }
-
-            Matrix4 foo = Window.Current.OrthoMatrix;
 
             Matrix4 mvp = m * Window.Current.OrthoMatrix;
 
@@ -419,7 +417,7 @@ void main(){
             {
                 this.shaderSetupHook(this);
             }
-            
+
             this.ApplyMatrix();
             if (instances <= 1)
             {
@@ -473,7 +471,7 @@ void main(){
             Window.Current.bufferGC.Add(this.vBufferId);
             Window.Current.bufferGC.Add(this.uvBufferId);
             Window.Current.bufferGC.Add(this.vcBufferId);
-            foreach(int customBufferId in this.customBuffers)
+            foreach (int customBufferId in this.customBuffers)
             {
                 Window.Current.bufferGC.Add(customBufferId);
             }

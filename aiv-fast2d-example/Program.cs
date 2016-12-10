@@ -284,7 +284,7 @@ namespace Aiv.Fast2D.Example
 
                 window.SetClearColor(0f, 0f, 0f, 0f);
                 window.RenderTo(maskedAlien);
-               
+                
                 maskedBackground.DrawTexture(alien2);
                 window.SetMaskedBlending();
                 spriteMask.scale = Vector2.One;

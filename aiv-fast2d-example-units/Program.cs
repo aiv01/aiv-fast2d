@@ -43,6 +43,8 @@ namespace Aiv.Fast2D.Example.Units
             Camera camera3 = new Camera();
             Camera movingCamera = new Camera();
 
+            Sprite pointer = new Sprite(1, 1);
+
             while (window.opened && windowFake.opened)
             {
 
@@ -99,12 +101,17 @@ namespace Aiv.Fast2D.Example.Units
                 if (window.GetKey(KeyCode.Left))
                     movingCamera.position.X -= window.deltaTime;
 
+                pointer.position = window.mousePosition;
+                pointer.DrawSolidColor(1f, 0, 0, 1f);
+
                 window.Update();
 
                 windowFake.SetCurrent();
 
                 triangleFake.position = windowFake.mousePosition;
                 triangleFake.DrawColor(1f, 0f, 1f, 1f);
+
+                
 
                 windowFake.Update();
             }
