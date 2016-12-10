@@ -38,6 +38,11 @@ namespace Aiv.Fast2D.Example.Units
             triangle.UpdateVertex();
             triangle.pivot = new Vector2(2, 0.5f);
 
+            Camera camera1 = new Camera();
+            Camera camera2 = new Camera();
+            Camera camera3 = new Camera();
+            Camera movingCamera = new Camera();
+
             while (window.opened && windowFake.opened)
             {
 
@@ -47,6 +52,7 @@ namespace Aiv.Fast2D.Example.Units
                 window.SetScissorTest(window.CurrentViewportPosition.X, window.CurrentViewportPosition.Y, window.CurrentViewportSize.X, window.CurrentViewportSize.Y);
                 window.SetClearColor(0.5f, 0.5f, 0.5f);
                 window.ClearColor();
+                window.SetCamera(movingCamera);
                 triangle.scale = new Vector2(1f, 1f);
                 triangle.position = window.mousePosition;
                 triangle.DrawColor(0f, 1f, 0f, 1f);
@@ -58,6 +64,7 @@ namespace Aiv.Fast2D.Example.Units
                 window.SetScissorTest(window.CurrentViewportPosition.X, window.CurrentViewportPosition.Y, window.CurrentViewportSize.X, window.CurrentViewportSize.Y);
                 window.SetClearColor(0.5f, 0.5f, 1f);
                 window.ClearColor();
+                window.SetCamera(camera1);
                 triangle.scale = new Vector2(1f, 1f);
                 triangle.position = window.mousePosition;
                 triangle.DrawColor(1f, 1f, 0f, 1f);
@@ -66,6 +73,7 @@ namespace Aiv.Fast2D.Example.Units
                 window.SetScissorTest(window.CurrentViewportPosition.X, window.CurrentViewportPosition.Y, window.CurrentViewportSize.X, window.CurrentViewportSize.Y);
                 window.SetClearColor(0.5f, 1f, 0.5f);
                 window.ClearColor();
+                window.SetCamera(camera3);
                 triangle.scale = new Vector2(1f, 1f);
                 triangle.position = window.mousePosition;
                 triangle.DrawColor(1f, 0f, 0f, 1f);
@@ -77,12 +85,19 @@ namespace Aiv.Fast2D.Example.Units
                 window.SetScissorTest(window.CurrentViewportPosition.X, window.CurrentViewportPosition.Y, window.CurrentViewportSize.X, window.CurrentViewportSize.Y);
                 window.SetClearColor(1f, 0.5f, 0.5f);
                 window.ClearColor();
+                window.SetCamera(camera2);
                 triangle.scale = new Vector2(1f, 1f);
                 triangle.position = window.mousePosition;
                 triangle.DrawColor(1f, 0f, 1f, 1f);
 
                 if (window.GetKey(KeyCode.Esc))
                     break;
+
+                if (window.GetKey(KeyCode.Right))
+                    movingCamera.position.X += window.deltaTime;
+
+                if (window.GetKey(KeyCode.Left))
+                    movingCamera.position.X -= window.deltaTime;
 
                 window.Update();
 
