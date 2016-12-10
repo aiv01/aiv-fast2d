@@ -317,6 +317,7 @@ namespace Aiv.Fast2D.Example
                 }
 
                 colouredTriangle.position = window.mousePosition;
+                colouredTriangle.pivot = new Vector2(500, 250);
                 colouredTriangle.scale = new Vector2(1, 1);
                 colouredTriangle.Draw();
 
