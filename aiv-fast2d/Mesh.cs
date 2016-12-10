@@ -35,7 +35,7 @@ namespace Aiv.Fast2D
 
         public Vector2 pivot = Vector2.Zero;
 
-        public Camera camera;
+        public Camera Camera;
 
         private float rotation;
 
@@ -284,18 +284,18 @@ void main(){
                 Matrix4.CreateTranslation(this.position.X, this.position.Y, 0);
 
 
-            if (this.camera != null)
+            if (this.Camera != null)
             {
-                m *= this.camera.Matrix();
+                m *= this.Camera.Matrix();
             }
-            else if (Context.mainCamera != null)
+            else if (Window.Current.CurrentCamera != null)
             {
-                m *= Context.mainCamera.Matrix();
+                m *= Window.Current.CurrentCamera.Matrix();
             }
 
-            Matrix4 foo = Context.currentWindow.OrthoMatrix;
+            Matrix4 foo = Window.Current.OrthoMatrix;
 
-            Matrix4 mvp = m * Context.currentWindow.OrthoMatrix;
+            Matrix4 mvp = m * Window.Current.OrthoMatrix;
 
             // pass the matrix to the shader
             this.shader.SetUniform("mvp", mvp);
@@ -448,9 +448,9 @@ void main(){
             GL.DeleteBuffers(3, new int[] { this.vBufferId, this.uvBufferId, this.vcBufferId });
             GL.DeleteVertexArrays(1, new int[] { this.vertexArrayId });
 #endif
-            Context.Log(string.Format("buffer {0} deleted", this.vBufferId));
-            Context.Log(string.Format("buffer {0} deleted", this.uvBufferId));
-            Context.Log(string.Format("buffer {0} deleted", this.vcBufferId));
+            Window.Current.Log(string.Format("buffer {0} deleted", this.vBufferId));
+            Window.Current.Log(string.Format("buffer {0} deleted", this.uvBufferId));
+            Window.Current.Log(string.Format("buffer {0} deleted", this.vcBufferId));
 
             foreach (int customBufferId in this.customBuffers)
             {
@@ -459,10 +459,10 @@ void main(){
 #else
                 GL.DeleteBuffers(1, new int[] { customBufferId });
 #endif
-                Context.Log(string.Format("buffer {0} deleted", customBufferId));
+                Window.Current.Log(string.Format("buffer {0} deleted", customBufferId));
             }
 
-            Context.Log(string.Format("vertexArray {0} deleted", this.vertexArrayId));
+            Window.Current.Log(string.Format("vertexArray {0} deleted", this.vertexArrayId));
             disposed = true;
         }
 
@@ -470,14 +470,14 @@ void main(){
         {
             if (disposed)
                 return;
-            Context.bufferGC.Add(this.vBufferId);
-            Context.bufferGC.Add(this.uvBufferId);
-            Context.bufferGC.Add(this.vcBufferId);
+            Window.Current.bufferGC.Add(this.vBufferId);
+            Window.Current.bufferGC.Add(this.uvBufferId);
+            Window.Current.bufferGC.Add(this.vcBufferId);
             foreach(int customBufferId in this.customBuffers)
             {
-                Context.bufferGC.Add(customBufferId);
+                Window.Current.bufferGC.Add(customBufferId);
             }
-            Context.vaoGC.Add(this.vertexArrayId);
+            Window.Current.vaoGC.Add(this.vertexArrayId);
 
             disposed = true;
         }

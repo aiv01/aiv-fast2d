@@ -119,13 +119,6 @@ void main(){
             this.additiveTint = color;
         }
 
-#if !__MOBILE__
-        public void SetAdditiveTint(Color color)
-        {
-            this.additiveTint = new Vector4(color.R / 255, color.G / 255, color.B / 255, color.A / 255);
-        }
-#endif
-
         public void SetMultiplyTint(float r, float g, float b, float a)
         {
             this.multiplyTint = new Vector4(r, g, b, a);

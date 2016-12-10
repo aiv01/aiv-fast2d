@@ -11,8 +11,22 @@ namespace Aiv.Fast2D.Example.Units
     {
         static void Main(string[] args)
         {
-            Context.orthographicSize = 10;
+
+            Window windowFake = new Window(800, 600, "Fake");
+            windowFake.SetDefaultOrthographicSize(7);
+            windowFake.SetClearColor(1f, 0, 0);
+            Mesh triangleFake = new Mesh();
+            triangleFake.v = new float[]
+            {
+                2, 0,
+                1, 2,
+                3, 2
+            };
+            triangleFake.UpdateVertex();
+
             Window window = new Window(1024, 576, "Units based example");
+            window.SetClearColor(0f, 1f, 0f);
+            window.SetDefaultOrthographicSize(10);
 
             Mesh triangle = new Mesh();
             triangle.v = new float[]
@@ -24,22 +38,60 @@ namespace Aiv.Fast2D.Example.Units
             triangle.UpdateVertex();
             triangle.pivot = new Vector2(2, 0.5f);
 
-            while (window.opened)
+            while (window.opened && windowFake.opened)
             {
-                window.SetViewport(0, 576/2, 1024, 576 / 2);
+
+                window.SetCurrent();
+
+                window.SetViewport(0, 0, 1024/2, 576 / 2, 5);
+                window.SetScissorTest(window.CurrentViewportPosition.X, window.CurrentViewportPosition.Y, window.CurrentViewportSize.X, window.CurrentViewportSize.Y);
+                window.SetClearColor(0.5f, 0.5f, 0.5f);
+                window.ClearColor();
                 triangle.scale = new Vector2(1f, 1f);
                 triangle.position = window.mousePosition;
                 triangle.DrawColor(0f, 1f, 0f, 1f);
 
-                window.SetViewport(0, 0, 1024, 576 / 2);
-                triangle.scale = new Vector2(2f, 2f);
+                triangle.position = new Vector2(2, 2);
+                triangle.DrawColor(1f, 0f, 0f, 1f);
+
+                window.SetViewport(0, 576/2, 1024/2, 576 / 2, 5);
+                window.SetScissorTest(window.CurrentViewportPosition.X, window.CurrentViewportPosition.Y, window.CurrentViewportSize.X, window.CurrentViewportSize.Y);
+                window.SetClearColor(0.5f, 0.5f, 1f);
+                window.ClearColor();
+                triangle.scale = new Vector2(1f, 1f);
                 triangle.position = window.mousePosition;
                 triangle.DrawColor(1f, 1f, 0f, 1f);
+
+                window.SetViewport(1024/2, 0, 1024 / 2, 576 / 2, 5);
+                window.SetScissorTest(window.CurrentViewportPosition.X, window.CurrentViewportPosition.Y, window.CurrentViewportSize.X, window.CurrentViewportSize.Y);
+                window.SetClearColor(0.5f, 1f, 0.5f);
+                window.ClearColor();
+                triangle.scale = new Vector2(1f, 1f);
+                triangle.position = window.mousePosition;
+                triangle.DrawColor(1f, 0f, 0f, 1f);
+
+                triangle.position = new Vector2(2, 2);
+                triangle.DrawColor(1f, 1f, 0f, 1f);
+
+                window.SetViewport(1024/2, 576 / 2, 1024 / 2, 576 / 2, 5);
+                window.SetScissorTest(window.CurrentViewportPosition.X, window.CurrentViewportPosition.Y, window.CurrentViewportSize.X, window.CurrentViewportSize.Y);
+                window.SetClearColor(1f, 0.5f, 0.5f);
+                window.ClearColor();
+                triangle.scale = new Vector2(1f, 1f);
+                triangle.position = window.mousePosition;
+                triangle.DrawColor(1f, 0f, 1f, 1f);
 
                 if (window.GetKey(KeyCode.Esc))
                     break;
 
                 window.Update();
+
+                windowFake.SetCurrent();
+
+                triangleFake.position = windowFake.mousePosition;
+                triangleFake.DrawColor(1f, 0f, 1f, 1f);
+
+                windowFake.Update();
             }
         }
     }

@@ -8,6 +8,7 @@ using OpenTK.Platform.Android;
 using Android.Views;
 using Android.Content;
 using Android.OS;
+using Android.Content.Res;
 #endif
 using System.Diagnostics;
 using OpenTK.Input;
@@ -126,6 +127,35 @@ namespace Aiv.Fast2D
         private int width;
         private int height;
 
+        private Vector2 viewportPosition;
+        private Vector2 viewportSize;
+
+        public Vector2 CurrentViewportPosition
+        {
+            get
+            {
+                return viewportPosition;
+            }
+        }
+
+        public Vector2 CurrentViewportSize
+        {
+            get
+            {
+                return viewportSize;
+            }
+        }
+
+        private float currentOrthographicSize;
+
+        public float CurrentOrthoGraphicSize
+        {
+            get
+            {
+                return currentOrthographicSize;
+            }
+        }
+
         public int Width
         {
             get
@@ -146,9 +176,9 @@ namespace Aiv.Fast2D
         {
             get
             {
-                if (Context.orthographicSize > 0)
-                    return Context.orthographicSize * this._aspectRatio;
-                return this.Width;
+                if (this.currentOrthographicSize > 0)
+                    return this.currentOrthographicSize * this._aspectRatio;
+                return this.width;
             }
         }
 
@@ -156,10 +186,52 @@ namespace Aiv.Fast2D
         {
             get
             {
-                if (Context.orthographicSize > 0)
-                    return Context.orthographicSize;
-                return this.Height;
+                if (this.currentOrthographicSize > 0)
+                    return this.currentOrthographicSize;
+                return this.height;
             }
+        }
+
+        public static Vector2[] Resolutions
+        {
+            get
+            {
+                List<Vector2> resolutions = new List<Vector2>();
+                foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions)
+                {
+                    resolutions.Add(new Vector2(resolution.Width, resolution.Height));
+                }
+                return resolutions.ToArray();
+            }
+        }
+
+        private float defaultOrthographicSize;
+
+        public void SetDefaultOrthographicSize(float value)
+        {
+            defaultOrthographicSize = value;
+            this.SetViewport(0, 0, this.width, this.height);
+        }
+
+        private static Window current;
+
+        public static Window Current
+        {
+            get
+            {
+                return Window.current;
+            }
+        }
+
+        public static void SetCurrent(Window targetWindow)
+        {
+            current = targetWindow;
+            current.window.MakeCurrent();
+        }
+
+        public void SetCurrent()
+        {
+            Window.SetCurrent(this);
         }
 
 #if !__MOBILE__
@@ -191,6 +263,49 @@ namespace Aiv.Fast2D
         public delegate void GameLoop(Window window);
 
         private List<PostProcessingEffect> postProcessingEffects;
+
+        public string GetError()
+        {
+#if !__MOBILE__
+            return GL.GetError ().ToString ();
+#else
+            return GL.GetErrorCode().ToString();
+#endif
+        }
+
+        private ILogger logger;
+
+        public void SetLogger(ILogger logger)
+        {
+            this.logger = logger;
+        }
+
+        public void Log(string message)
+        {
+            if (logger == null)
+                return;
+            logger.Log(message);
+        }
+
+        public List<int> textureGC = new List<int>();
+        public List<int> bufferGC = new List<int>();
+        public List<int> vaoGC = new List<int>();
+        public List<int> shaderGC = new List<int>();
+
+        private Camera currentCamera;
+
+        public void SetCamera(Camera camera)
+        {
+            this.currentCamera = camera;
+        }
+
+        public Camera CurrentCamera
+        {
+            get
+            {
+                return this.currentCamera;
+            }
+        }
 
 #if !__MOBILE__
         public Window(string title) : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true)
@@ -226,15 +341,8 @@ namespace Aiv.Fast2D
         {
             this.width = window.Holder.SurfaceFrame.Width();
             this.height = window.Holder.SurfaceFrame.Height();
-            this._aspectRatio = (float)width / (float)height;
 
-            if (Context.orthographicSize > 0)
-            {
-                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, Context.orthographicSize * this._aspectRatio, Context.orthographicSize, 0, -1.0f, 1.0f);
-            }
-            else {
-                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
-            }
+            this.SetViewport(0, 0, this.width, this.height);
 
             SetupOpenGL();
         }
@@ -287,11 +395,21 @@ namespace Aiv.Fast2D
             vibrator.Cancel();
         }
 
+        private static AssetManager assets;
+
+        public static AssetManager Assets
+        {
+            get
+            {
+                return assets;
+            }
+        }
+
         public Window(AndroidGameView gameView)
         {
             this.window = gameView;
             // required for accessing assets
-            Context.assets = gameView.Context.Assets;
+            assets = gameView.Context.Assets;
             this.scaleX = 1;
             this.scaleY = 1;
             // on mobile refresh is capped to 60hz
@@ -308,12 +426,12 @@ namespace Aiv.Fast2D
                 {
                     case MotionEventActions.Move:
                         touchX = e.Event.GetX();
-                        if (Context.orthographicSize > 0)
+                        if (this.currentOrthographicSize > 0)
                         {
                             touchX /= (this.width / this.orthoWidth);
                         }
                         touchY = e.Event.GetY();
-                        if (Context.orthographicSize > 0)
+                        if (this.currentOrthographicSize > 0)
                         {
                             touchY /= (this.height / this.orthoHeight);
                         }
@@ -330,12 +448,12 @@ namespace Aiv.Fast2D
             };
 #endif
 
-            Context.currentWindow = this;
-
             // more gentle GC
             GCSettings.LatencyMode = GCLatencyMode.LowLatency;
 
             postProcessingEffects = new List<PostProcessingEffect>();
+
+            Window.SetCurrent(this);
         }
 
         public PostProcessingEffect AddPostProcessingEffect(PostProcessingEffect effect)
@@ -436,24 +554,13 @@ namespace Aiv.Fast2D
             }
             this.scaleX = (float)this.window.Width / (float)this.width;
             this.scaleY = (float)this.window.Height / (float)this.height;
-
-            this._aspectRatio = (float)width / (float)height;
-
-            // use units instead of pixels ?
-            if (Context.orthographicSize > 0)
-            {
-                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, Context.orthographicSize * this._aspectRatio, Context.orthographicSize, 0, -1.0f, 1.0f);
-            }
-            else {
-                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
-            }
-
+           
             // setup viewport
             this.SetViewport(0, 0, width, height);
 
             // required for updating context !
             this.window.Context.Update(this.window.WindowInfo);
-            GL.ClearColor(Color.Black);
+            GL.ClearColor(0f, 0f, 0f, 1f);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             this.window.SwapBuffers();
         }
@@ -513,12 +620,13 @@ namespace Aiv.Fast2D
             GL.ClearColor(r / 255f, g / 255f, b / 255f, a / 255f);
         }
 
+        public void ClearColor()
+        {
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+        }
+
 
 #if !__MOBILE__
-        public void SetClearColor(Color color)
-        {
-            GL.ClearColor(color);
-        }
 
         public bool SetResolution(int screenWidth, int screenHeight)
         {
@@ -555,7 +663,12 @@ namespace Aiv.Fast2D
         public void SetScissorTest(int x, int y, int width, int height)
         {
             SetScissorTest(true);
-            GL.Scissor(x, (window.Height - y) - height, width, height);
+            GL.Scissor(x, (this.height - y) - height, width, height);
+        }
+
+        public void SetScissorTest(float x, float y, float width, float height)
+        {
+            SetScissorTest((int)x, (int)y, (int)width, (int)height);
         }
 
         private PostProcessingEffect GetFirstPostProcessingEffect()
@@ -647,47 +760,47 @@ namespace Aiv.Fast2D
 
             // destroy useless resources
             // use for for avoiding "changing while iterating
-            for (int i = 0; i < Context.bufferGC.Count; i++)
+            for (int i = 0; i < this.bufferGC.Count; i++)
             {
-                int _id = Context.bufferGC[i];
+                int _id = this.bufferGC[i];
 #if !__MOBILE__
                 GL.DeleteBuffer(_id);
 #else
                 GL.DeleteBuffers(1, new int[] { _id });
 #endif
-                Context.Log(string.Format("buffer {0} deleted", _id));
+                this.Log(string.Format("buffer {0} deleted", _id));
             }
-            Context.bufferGC.Clear();
+            this.bufferGC.Clear();
 
-            for (int i = 0; i < Context.vaoGC.Count; i++)
+            for (int i = 0; i < this.vaoGC.Count; i++)
             {
-                int _id = Context.vaoGC[i];
+                int _id = this.vaoGC[i];
 #if !__MOBILE__
                 GL.DeleteVertexArray(_id);
 #else
                 GL.DeleteVertexArrays(1, new int[] { _id });
 #endif
-                Context.Log(string.Format("vertexArray {0} deleted", _id));
+                this.Log(string.Format("vertexArray {0} deleted", _id));
             }
-            Context.vaoGC.Clear();
+            this.vaoGC.Clear();
 
-            for (int i = 0; i < Context.textureGC.Count; i++)
+            for (int i = 0; i < this.textureGC.Count; i++)
             {
-                int _id = Context.textureGC[i];
+                int _id = this.textureGC[i];
 
                 GL.DeleteTexture(_id);
-                Context.Log(string.Format("texture {0} deleted", _id));
+                this.Log(string.Format("texture {0} deleted", _id));
             }
-            Context.textureGC.Clear();
+            this.textureGC.Clear();
 
-            for (int i = 0; i < Context.shaderGC.Count; i++)
+            for (int i = 0; i < this.shaderGC.Count; i++)
             {
-                int _id = Context.shaderGC[i];
+                int _id = this.shaderGC[i];
 
                 GL.DeleteProgram(_id);
-                Context.Log(string.Format("shader {0} deleted", _id));
+                this.Log(string.Format("shader {0} deleted", _id));
             }
-            Context.shaderGC.Clear();
+            this.shaderGC.Clear();
 
 #if !__MOBILE__
             this._keyboardState = Keyboard.GetState();
@@ -720,11 +833,7 @@ namespace Aiv.Fast2D
             get
             {
                 Point p = new Point(this._mouseState.X, this._mouseState.Y);
-                if (Context.orthographicSize > 0)
-                {
-                    return ((float)this.window.PointToClient(p).X / this.scaleX)/(this.width/this.orthoWidth);
-                }
-                return ((float)this.window.PointToClient(p).X / this.scaleX);
+                return ((float)this.window.PointToClient(p).X / this.scaleX - this.viewportPosition.X)/(this.viewportSize.X/this.orthoWidth);
             }
         }
 
@@ -733,11 +842,7 @@ namespace Aiv.Fast2D
             get
             {
                 Point p = new Point(this._mouseState.X, this._mouseState.Y);
-                if (Context.orthographicSize > 0)
-                {
-                    return ((float)this.window.PointToClient(p).Y / this.scaleY)/(this.height/this.orthoHeight);
-                }
-                return ((float)this.window.PointToClient(p).Y / this.scaleY);
+                return ((float)this.window.PointToClient(p).Y / this.scaleY - this.viewportPosition.Y)/(this.viewportSize.Y/this.orthoHeight);
             }
         }
 
@@ -871,25 +976,31 @@ namespace Aiv.Fast2D
         }
 #endif
 
-        public void SetViewport(int x, int y, int width, int height)
+        public void SetViewport(int x, int y, int width, int height, float orthoSize = 0, bool unscaled = false)
         {
-            GL.Viewport((int)(x * this.scaleX),
-                (int)(y * this.scaleY),
-                (int)(width * this.scaleX),
-                (int)(height * this.scaleY));
-        }
-
-        public void SetViewportUnscaled(int x, int y, int width, int height)
-        {
-            GL.Viewport(x,
+            // store values before changes
+            this.viewportPosition = new Vector2(x, y);
+            this.viewportSize = new Vector2(width, height);
+            // fix y as it is downsided in OpenGL
+            y = (this.height - y) - height;
+            if (unscaled)
+            {
+                GL.Viewport(x,
                 y,
                 width,
                 height);
-        }
+            }
+            else {
+                GL.Viewport((int)(x * this.scaleX),
+                    (int)(y * this.scaleY),
+                    (int)(width * this.scaleX),
+                    (int)(height * this.scaleY));
+            }
 
-        public void RecomputeViewport(int width, int height, float orthoSize = 0, bool unscaled = false)
-        {
             this._aspectRatio = (float)width / (float)height;
+
+            if (orthoSize == 0)
+                orthoSize = this.defaultOrthographicSize;
 
             // use units instead of pixels ?
             if (orthoSize > 0)
@@ -900,33 +1011,22 @@ namespace Aiv.Fast2D
                 this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
             }
 
-            // setup viewport
-            if (unscaled)
-            {
-                this.SetViewportUnscaled(0, 0, width, height);
-            }
-            else {
-                this.SetViewport(0, 0, width, height);
-            }
+            this.currentOrthographicSize = orthoSize;
+
         }
 
-        public void ResetViewport()
-        {
-            RecomputeViewport(this.width, this.height, Context.orthographicSize);
-        }
-
-        public void RenderTo(RenderTexture renderTexture, bool clear = true)
+        public void RenderTo(RenderTexture renderTexture, bool clear = true, float orthoSize = 0)
         {
             if (renderTexture == null)
             {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, GetDefaultFrameBuffer());
-                ResetViewport();
+                SetViewport(0, 0, this.width, this.height);
                 return;
             }
             else {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, renderTexture.FrameBuffer);
                 // unscaled viewport
-                RecomputeViewport(renderTexture.Width, renderTexture.Height, Context.orthographicSize, true);
+                SetViewport(0, 0, renderTexture.Width, renderTexture.Height, orthoSize, true);
             }
 
             if (clear)

@@ -18,9 +18,10 @@ namespace Aiv.Fast2D.Example
         static void Main(string[] args)
         {
 
-            Context.logger = new ExampleLogger();
+            
 
             Window window = new Window(800, 600, "Aiv.Fast2D.Example");
+            window.SetLogger(new ExampleLogger());
             window.SetIcon("aiv_fast2d_example.Assets.2.ico");
 
             window.SetCursor(false);
@@ -308,6 +309,11 @@ namespace Aiv.Fast2D.Example
                 if (window.GetKey(KeyCode.Return))
                 {
                     mainEffect.enabled = false;
+                }
+
+                if (window.GetKey(KeyCode.Num1))
+                {
+                    window.SetDefaultOrthographicSize(window.CurrentOrthoGraphicSize + window.deltaTime * 100);
                 }
 
                 colouredTriangle.position = window.mousePosition;

@@ -177,7 +177,7 @@ namespace Aiv.Fast2D
                 if (fileName.StartsWith("Assets/"))
                 {
                     string newFileName = fileName.Substring(7);
-                    imageStream = Context.assets.Open(newFileName);
+                    imageStream = Window.Assets.Open(newFileName);
                 }
             }
 
@@ -264,7 +264,7 @@ namespace Aiv.Fast2D
             if (disposed)
                 return;
             GL.DeleteTexture(this.textureId);
-            Context.Log(string.Format("texture {0} deleted", this.textureId));
+            Window.Current.Log(string.Format("texture {0} deleted", this.textureId));
             disposed = true;
         }
 
@@ -310,7 +310,7 @@ namespace Aiv.Fast2D
         {
             if (disposed)
                 return;
-            Context.textureGC.Add(this.textureId);
+            Window.Current.textureGC.Add(this.textureId);
             disposed = true;
         }
     }

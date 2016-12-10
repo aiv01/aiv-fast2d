@@ -47,9 +47,6 @@
     <Compile Include="..\aiv-fast2d\Camera.cs">
       <Link>Camera.cs</Link>
     </Compile>
-    <Compile Include="..\aiv-fast2d\Context.cs">
-      <Link>Context.cs</Link>
-    </Compile>
     <Compile Include="..\aiv-fast2d\ILogger.cs">
       <Link>ILogger.cs</Link>
     </Compile>

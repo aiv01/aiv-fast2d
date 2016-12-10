@@ -12,8 +12,8 @@ namespace Aiv.Fast2D
 		{
 			this.position = new Vector2 (x, y);
 
-			if (Context.mainCamera == null)
-				Context.mainCamera = this;
+			if (Window.Current.CurrentCamera == null)
+				Window.Current.SetCamera(this);
 		}
 
 		public Matrix4 Matrix ()
