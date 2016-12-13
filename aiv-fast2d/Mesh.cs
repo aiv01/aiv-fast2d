@@ -103,6 +103,7 @@ precision highp float;
 
 uniform vec4 color;
 uniform float use_texture;
+uniform float use_wireframe;
 uniform sampler2D tex;
 
 in vec2 uvout;
@@ -114,6 +115,15 @@ void main(){
     if (use_texture > 0.0) {
         out_color = texture(tex, uvout);
         out_color += vec4(vertex_color.xyz * out_color.a, vertex_color.a);
+    }
+    else if (use_wireframe > 0.0) {
+        if(any(lessThan(vertex_color.xyz, vec3(use_wireframe)))) {
+            out_color = color;
+        }
+        else {
+            out_color = vec4(0, 0, 0, 0);    
+        }
+        return;
     }
     else {
         out_color = vertex_color;
@@ -371,7 +381,7 @@ void main(){
 
 
         // simply set the 'color' uniform of the shader
-        public virtual void DrawColor(float r, float g, float b, float a)
+        public virtual void DrawColor(float r, float g, float b, float a = 1)
         {
             this.shader.SetUniform("color", new Vector4(r, g, b, a));
             this.Draw();
@@ -379,9 +389,55 @@ void main(){
             this.shader.SetUniform("color", Vector4.Zero);
         }
 
-        public virtual void DrawColor(int r, int g, int b, int a)
+        public virtual void DrawColor(int r, int g, int b, int a = 255)
         {
             DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
+        }
+
+        public virtual void DrawWireframe(float r, float g, float b, float a = 1, float tickness=0.02f)
+        {
+            if (this.v == null)
+                return;
+
+            // check if vcs neet to be temporarily stored
+            // and check if the shader supports them
+            if (!this.hasVertexColors)
+                return;
+
+            // store original vcs
+            float[] vcs_storage = this.vc;
+
+            int numVcs = this.v.Length * 2;
+            this.vc = new float[numVcs];
+            for (int i = 0; i < numVcs; i += 12)
+            {
+                this.vc[i] = 1f;
+                this.vc[i + 1] = 0f;
+                this.vc[i + 2] = 0f;
+
+                this.vc[i + 4] = 0f;
+                this.vc[i + 5] = 1f;
+                this.vc[i + 6] = 0f;
+
+                this.vc[i + 8] = 0f;
+                this.vc[i + 9] = 0f;
+                this.vc[i + 10] = 1f;
+            }
+            this.UpdateVertexColor();
+
+            this.shader.SetUniform("color", new Vector4(r, g, b, a));
+            this.shader.SetUniform("use_wireframe", tickness);
+            this.Draw();
+            this.shader.SetUniform("use_wireframe", -1f);
+            // always reset the color
+            this.shader.SetUniform("color", Vector4.Zero);
+            // reset old vcs (could be null)
+            this.vc = vcs_storage;
+        }
+
+        public virtual void DrawWireframe(int r, int g, int b, int a = 255, float tickness = 0.02f)
+        {
+            DrawWireframe(r / 255f, g / 255f, b / 255f, a / 255f, tickness);
         }
 
         // simple draw without textures (useful for subclasses)

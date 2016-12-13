@@ -24,6 +24,16 @@ namespace Aiv.Fast2D.Example.Units
             };
             triangleFake.UpdateVertex();
 
+            Mesh wireframeTriangle = new Mesh();
+
+            wireframeTriangle.v = new float[]
+            {
+                4, 0,
+                3, 1,
+                5, 1
+            };
+            wireframeTriangle.UpdateVertex();
+
             Window window = new Window(1024, 576, "Units based example");
             window.SetClearColor(0f, 1f, 0f);
             window.SetDefaultOrthographicSize(10);
@@ -44,6 +54,8 @@ namespace Aiv.Fast2D.Example.Units
             Camera movingCamera = new Camera();
 
             Sprite pointer = new Sprite(1, 1);
+
+            
 
             while (window.opened && windowFake.opened)
             {
@@ -111,7 +123,7 @@ namespace Aiv.Fast2D.Example.Units
                 triangleFake.position = windowFake.mousePosition;
                 triangleFake.DrawColor(1f, 0f, 1f, 1f);
 
-                
+                wireframeTriangle.DrawWireframe(0f, 1f, 0f);
 
                 windowFake.Update();
             }
