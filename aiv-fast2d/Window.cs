@@ -270,7 +270,7 @@ namespace Aiv.Fast2D
         public string GetError()
         {
 #if !__MOBILE__
-            return GL.GetError ().ToString ();
+            return GL.GetError().ToString();
 #else
             return GL.GetErrorCode().ToString();
 #endif
@@ -549,7 +549,7 @@ namespace Aiv.Fast2D
             }
             this.scaleX = (float)this.window.Width / (float)this.width;
             this.scaleY = (float)this.window.Height / (float)this.height;
-           
+
             // setup viewport
             this.SetViewport(0, 0, width, height);
 
@@ -573,7 +573,8 @@ namespace Aiv.Fast2D
                 icon = new Icon(iconStream);
 
             }
-            else {
+            else
+            {
                 icon = new Icon(fileName);
             }
             this.window.Icon = icon;
@@ -828,7 +829,7 @@ namespace Aiv.Fast2D
             get
             {
                 Point p = new Point(this._mouseState.X, this._mouseState.Y);
-                return ((float)this.window.PointToClient(p).X / this.scaleX - this.viewportPosition.X)/(this.viewportSize.X/this.orthoWidth);
+                return ((float)this.window.PointToClient(p).X / this.scaleX - this.viewportPosition.X) / (this.viewportSize.X / this.orthoWidth);
             }
         }
 
@@ -837,7 +838,7 @@ namespace Aiv.Fast2D
             get
             {
                 Point p = new Point(this._mouseState.X, this._mouseState.Y);
-                return ((float)this.window.PointToClient(p).Y / this.scaleY - this.viewportPosition.Y)/(this.viewportSize.Y/this.orthoHeight);
+                return ((float)this.window.PointToClient(p).Y / this.scaleY - this.viewportPosition.Y) / (this.viewportSize.Y / this.orthoHeight);
             }
         }
 
@@ -895,14 +896,91 @@ namespace Aiv.Fast2D
             }
         }
 
-        public Vector2 JoystickAxisLeft(int index)
+        public Vector2 JoystickAxisLeftRaw(int index)
         {
             return GamePad.GetState(index).ThumbSticks.Left;
         }
 
-        public Vector2 JoystickAxisRight(int index)
+        public Vector2 JoystickAxisRightRaw(int index)
         {
             return GamePad.GetState(index).ThumbSticks.Right;
+        }
+
+        private Vector2 SanitizeJoystickVector(Vector2 axis, float threshold)
+        {
+            if (Math.Abs(axis.X) < threshold)
+                axis.X = 0;
+            if (Math.Abs(axis.X) > 1f - threshold)
+                axis.X = Math.Sign(axis.X);
+            if (Math.Abs(axis.Y) < threshold)
+                axis.Y = 0;
+            if (Math.Abs(axis.Y) > 1f - threshold)
+                axis.Y = Math.Sign(axis.Y);
+            axis.Y *= -1;
+            return axis;
+        }
+
+        public Vector2 JoystickAxisLeft(int index, float threshold = 0.1f)
+        {
+            Vector2 axis = GamePad.GetState(index).ThumbSticks.Left;
+            return SanitizeJoystickVector(axis, threshold);
+        }
+
+        public Vector2 JoystickAxisRight(int index, float threshold = 0.1f)
+        {
+            Vector2 axis = GamePad.GetState(index).ThumbSticks.Right;
+            return SanitizeJoystickVector(axis, threshold);
+        }
+
+        public float JoystickTriggerLeftRaw(int index)
+        {
+            return GamePad.GetState(index).Triggers.Left;
+        }
+
+        public float JoystickTriggerRightRaw(int index)
+        {
+            return GamePad.GetState(index).Triggers.Right;
+        }
+
+        private float SanitizeJoystickTrigger(float value, float threshold)
+        {
+            if (value < threshold)
+                return 0;
+            if (value > 1f - threshold)
+                return 1f;
+            return value;
+        }
+
+        public float JoystickTriggerLeft(int index, float threshold = 0.1f)
+        {
+            float trigger = GamePad.GetState(index).Triggers.Left;
+            return SanitizeJoystickTrigger(trigger, threshold);
+        }
+
+        public float JoystickTriggerRight(int index, float threshold = 0.1f)
+        {
+            float trigger = GamePad.GetState(index).Triggers.Right;
+            return SanitizeJoystickTrigger(trigger, threshold);
+        }
+
+        public bool JoystickLeftShoulder(int index)
+        {
+            return GamePad.GetState(index).Buttons.LeftShoulder == ButtonState.Pressed;
+        }
+
+        public bool JoystickRightShoulder(int index)
+        {
+            return GamePad.GetState(index).Buttons.RightShoulder == ButtonState.Pressed;
+        }
+
+        public bool JoystickLeftStick(int index)
+        {
+            return GamePad.GetState(index).Buttons.LeftStick == ButtonState.Pressed;
+        }
+
+        public bool JoystickRightStick(int index)
+        {
+            return GamePad.GetState(index).Buttons.RightStick == ButtonState.Pressed;
         }
 
         public bool JoystickUp(int index)
@@ -985,7 +1063,8 @@ namespace Aiv.Fast2D
                 width,
                 height);
             }
-            else {
+            else
+            {
                 GL.Viewport((int)(x * this.scaleX),
                     (int)(y * this.scaleY),
                     (int)(width * this.scaleX),
@@ -1002,7 +1081,8 @@ namespace Aiv.Fast2D
             {
                 this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, orthoSize * this._aspectRatio, orthoSize, 0, -1.0f, 1.0f);
             }
-            else {
+            else
+            {
                 this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
             }
 
@@ -1018,7 +1098,8 @@ namespace Aiv.Fast2D
                 SetViewport(0, 0, this.width, this.height);
                 return;
             }
-            else {
+            else
+            {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, renderTexture.FrameBuffer);
                 // unscaled,virtual viewport
                 SetViewport(0, 0, renderTexture.Width, renderTexture.Height, orthoSize, true);

@@ -129,13 +129,18 @@ void main(){
             this.multiplyTint = color;
         }
 
-        public void DrawSolidColor(float r, float g, float b, float a)
+        public void DrawSolidColor(float r, float g, float b, float a = 1)
         {
             this.Draw((mesh) =>
             {
                 mesh.shader.SetUniform("use_texture", -1f);
                 mesh.shader.SetUniform("add_tint", new Vector4(r, g, b, a));
             });
+        }
+
+        public void DrawSolidColor(int r, int g, int b, int a = 255)
+        {
+            DrawSolidColor(r / 255f, g / 255f, b / 255f, a / 255f);
         }
 
         public void DrawTexture(Texture tex, int x, int y, int width, int height)

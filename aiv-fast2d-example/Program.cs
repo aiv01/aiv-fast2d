@@ -160,6 +160,8 @@ namespace Aiv.Fast2D.Example
                     tileMap.position += new Vector2(0, 1) * window.deltaTime * 300;
                 }
 
+                tileMap.position += window.JoystickAxisRight(0) * window.deltaTime * 300;
+
                 tileMap.Draw();
 
                 for (int i = 0; i < tiles2.Instances; i++)
