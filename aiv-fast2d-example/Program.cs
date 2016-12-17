@@ -320,7 +320,9 @@ namespace Aiv.Fast2D.Example
 
                 colouredTriangle.position = window.mousePosition;
                 colouredTriangle.pivot = new Vector2(500, 250);
-                colouredTriangle.scale = new Vector2(1, 1);
+                float triggerRight = window.JoystickTriggerRight(0);
+                float triggerLeft = window.JoystickTriggerLeft(0);
+                colouredTriangle.scale = new Vector2(1 + triggerLeft, 1 + triggerRight);
                 colouredTriangle.Draw();
 
                 window.Update();

@@ -85,7 +85,7 @@ namespace Aiv.Fast2D.Android.Example
             sprite001.DrawSolidColor(1, 0, 0, 0.5f);
 
             lineDrawer.Point2 = window.TouchPosition;
-            lineDrawer.DrawSolidColor(1, 1, 0, 1);
+            lineDrawer.DrawSolidColor(1f, 1f, 0f, 1f);
 
             window.Update();
         }

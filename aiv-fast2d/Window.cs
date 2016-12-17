@@ -963,12 +963,12 @@ namespace Aiv.Fast2D
             return SanitizeJoystickTrigger(trigger, threshold);
         }
 
-        public bool JoystickLeftShoulder(int index)
+        public bool JoystickShoulderLeft(int index)
         {
             return GamePad.GetState(index).Buttons.LeftShoulder == ButtonState.Pressed;
         }
 
-        public bool JoystickRightShoulder(int index)
+        public bool JoystickShoulderRight(int index)
         {
             return GamePad.GetState(index).Buttons.RightShoulder == ButtonState.Pressed;
         }
