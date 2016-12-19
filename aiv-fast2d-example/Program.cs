@@ -18,8 +18,6 @@ namespace Aiv.Fast2D.Example
         static void Main(string[] args)
         {
 
-            
-
             Window window = new Window(800, 600, "Aiv.Fast2D.Example");
             window.SetLogger(new ExampleLogger());
             window.SetIcon("aiv_fast2d_example.Assets.2.ico");
@@ -113,7 +111,7 @@ namespace Aiv.Fast2D.Example
                 0, 0, 1, 0.5f
             };
             colouredTriangle.UpdateVertexColor();
-            
+
             Texture alien2 = new Texture("aiv_fast2d_example.Assets.2.png");
             RenderTexture maskedAlien = new RenderTexture(alien2.Width, alien2.Height);
             Sprite spriteMask = new Sprite(50, 50);
@@ -131,7 +129,7 @@ namespace Aiv.Fast2D.Example
             window.AddPostProcessingEffect(new MaskEffect("aiv_fast2d_example.Assets.mask_circle.png"));
 
             window.AddPostProcessingEffect(new BlackBands());
-            
+
             window.AddPostProcessingEffect(new RedBands());
 
             // insert a postprocessing effect at the specific position
@@ -265,7 +263,7 @@ namespace Aiv.Fast2D.Example
                 particleSystem2.Update(window);
 
 
-                
+
 
                 farTriangles.DrawColor(0f, 0f, 1f, 1f);
 
@@ -279,14 +277,14 @@ namespace Aiv.Fast2D.Example
                 }
                 else
                 {
-                    window.SetScissorTest(window.Width/2 - 200, window.Height/2 - 200, 400, 400);
+                    window.SetScissorTest(window.Width / 2 - 200, window.Height / 2 - 200, 400, 400);
                     triangle.DrawColor(1f, 0f, 1f, 1f);
                     window.SetScissorTest(false);
                 }
 
                 window.SetClearColor(0f, 0f, 0f, 0f);
                 window.RenderTo(maskedAlien);
-                
+
                 maskedBackground.DrawTexture(alien2);
                 window.SetMaskedBlending();
                 spriteMask.scale = Vector2.One;

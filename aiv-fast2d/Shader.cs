@@ -33,6 +33,9 @@ namespace Aiv.Fast2D
             {
                 vertex = vertexObsolete;
                 fragment = fragmentObsolete;
+#if !__MOBILE__
+                fragment = fragment.Replace("precision mediump float;", "");
+#endif
             }
 #if __MOBILE__
             vertex = vertex.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
@@ -82,6 +85,11 @@ namespace Aiv.Fast2D
         public int GetAttribLocation(string name)
         {
             return GL.GetAttribLocation(this.programId, name);
+        }
+
+        public void BindAttribLocation(int attribId, string name)
+        {
+            GL.BindAttribLocation(this.programId, attribId, name);
         }
 
         private int GetUniform(string name)

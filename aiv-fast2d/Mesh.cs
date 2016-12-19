@@ -270,8 +270,9 @@ void main(){
                 attribArrayId = this.shader.GetAttribLocation(name);
             }
 
-            GL.EnableVertexAttribArray(attribArrayId);
             GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
+
+            GL.EnableVertexAttribArray(attribArrayId);
             GL.VertexAttribPointer(attribArrayId, elementSize, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
 
             if (divisor > 0)
