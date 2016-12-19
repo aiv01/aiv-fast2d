@@ -10,30 +10,39 @@ using System.Collections.Generic;
 
 namespace Aiv.Fast2D
 {
-	public class Shader : IDisposable
-	{
+    public class Shader : IDisposable
+    {
 
-        public class CompilationException : Exception {
+        public class CompilationException : Exception
+        {
             public CompilationException(string message) : base(message) { }
         }
 
-		private int programId;
+        private int programId;
 
-		private Dictionary<string, int> uniformCache;
+        private Dictionary<string, int> uniformCache;
 
-		private bool disposed;
+        private bool disposed;
 
-		public Shader (string vertex, string fragment)
-		{
+        public Shader(string vertexModern, string fragmentModern, string vertexObsolete = "", string fragmentObsolete = "")
+        {
+            string vertex = vertexModern;
+            string fragment = fragmentModern;
+
+            if (Window.IsObsolete)
+            {
+                vertex = vertexObsolete;
+                fragment = fragmentObsolete;
+            }
 #if __MOBILE__
             vertex = vertex.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
             fragment = fragment.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
 #endif
-            int vertexShaderId = GL.CreateShader (ShaderType.VertexShader);
-			int fragmentShaderId = GL.CreateShader (ShaderType.FragmentShader);
+            int vertexShaderId = GL.CreateShader(ShaderType.VertexShader);
+            int fragmentShaderId = GL.CreateShader(ShaderType.FragmentShader);
 
-			GL.ShaderSource (vertexShaderId, vertex);
-			GL.CompileShader (vertexShaderId);
+            GL.ShaderSource(vertexShaderId, vertex);
+            GL.CompileShader(vertexShaderId);
 
             string vertexShaderCompilationError = GL.GetShaderInfoLog(vertexShaderId);
             if (vertexShaderCompilationError != null && vertexShaderCompilationError != "")
@@ -41,59 +50,67 @@ namespace Aiv.Fast2D
                 throw new CompilationException(vertexShaderCompilationError);
             }
 
-            GL.ShaderSource (fragmentShaderId, fragment);
-			GL.CompileShader (fragmentShaderId);
+            GL.ShaderSource(fragmentShaderId, fragment);
+            GL.CompileShader(fragmentShaderId);
             string fragmentShaderCompilationError = GL.GetShaderInfoLog(fragmentShaderId);
             if (fragmentShaderCompilationError != null && fragmentShaderCompilationError != "")
             {
                 throw new CompilationException(fragmentShaderCompilationError);
             }
 
-            this.programId = GL.CreateProgram ();
-			GL.AttachShader (programId, vertexShaderId);
-			GL.AttachShader (programId, fragmentShaderId);
+            this.programId = GL.CreateProgram();
+            GL.AttachShader(programId, vertexShaderId);
+            GL.AttachShader(programId, fragmentShaderId);
 
-			GL.LinkProgram (programId);
+            GL.LinkProgram(programId);
 
-			GL.DetachShader (programId, vertexShaderId);
-			GL.DetachShader (programId, fragmentShaderId);
+            GL.DetachShader(programId, vertexShaderId);
+            GL.DetachShader(programId, fragmentShaderId);
 
-			GL.DeleteShader (vertexShaderId);
-			GL.DeleteShader (fragmentShaderId);
+            GL.DeleteShader(vertexShaderId);
+            GL.DeleteShader(fragmentShaderId);
 
-			this.uniformCache = new Dictionary<string, int> ();
+            this.uniformCache = new Dictionary<string, int>();
 
-		}
+        }
 
-		public void Use ()
-		{
-			GL.UseProgram (this.programId);
-		}
+        public void Use()
+        {
+            GL.UseProgram(this.programId);
+        }
 
-		private int GetUniform(string name) {
-			int uid = -1;
-			if (this.uniformCache.ContainsKey (name)) {
-				uid = this.uniformCache [name];
-			} else {
-				uid = GL.GetUniformLocation (this.programId, name);
-				this.uniformCache [name] = uid;
-			}
-			return uid;
-		}
+        public int GetAttribLocation(string name)
+        {
+            return GL.GetAttribLocation(this.programId, name);
+        }
 
-		public void SetUniform (string name, Matrix4 m)
-		{
-			this.Use ();
-			int uid = this.GetUniform (name);
-			GL.UniformMatrix4 (uid, false, ref m);
-		}
+        private int GetUniform(string name)
+        {
+            int uid = -1;
+            if (this.uniformCache.ContainsKey(name))
+            {
+                uid = this.uniformCache[name];
+            }
+            else {
+                uid = GL.GetUniformLocation(this.programId, name);
+                this.uniformCache[name] = uid;
+            }
+            return uid;
+        }
 
-		public void SetUniform (string name, int n)
-		{
-			this.Use ();
-			int uid = this.GetUniform (name);
-			GL.Uniform1 (uid, n);
-		}
+        public void SetUniform(string name, Matrix4 m)
+        {
+            this.Use();
+            int uid = this.GetUniform(name);
+            GL.UniformMatrix4(uid, false, ref m);
+        }
+
+        public void SetUniform(string name, int n)
+        {
+            this.Use();
+            int uid = this.GetUniform(name);
+            GL.Uniform1(uid, n);
+        }
 
         public void SetUniform(string name, float n)
         {
@@ -109,21 +126,22 @@ namespace Aiv.Fast2D
             GL.Uniform4(uid, value);
         }
 
-        public void Dispose ()
-		{
-			if (disposed)
-				return;
-			GL.DeleteProgram (this.programId);
+        public void Dispose()
+        {
+            if (disposed)
+                return;
+            GL.DeleteProgram(this.programId);
             Window.Current.Log(string.Format("shader {0} deleted", this.programId));
             disposed = true;
-		}
+        }
 
-		~Shader() {
-			if (disposed)
-				return;
-            Window.Current.shaderGC.Add (this.programId);
-			disposed = true;
-		}
-	}
+        ~Shader()
+        {
+            if (disposed)
+                return;
+            Window.Current.shaderGC.Add(this.programId);
+            disposed = true;
+        }
+    }
 }
 

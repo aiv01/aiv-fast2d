@@ -131,10 +131,66 @@ void main(){
     out_color += color;
 }";
 
-        private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader);
+        private static string simpleVertexShaderObsolete = @"
+attribute vec2 vertex;
+attribute vec2 uv;
+attribute vec4 vc;
+
+uniform mat4 mvp;
+varying vec2 uvout;
+varying vec4 vertex_color;
+
+void main(){
+        gl_Position = mvp * vec4(vertex.xy, 0.0, 1.0);
+        uvout = uv;
+        vertex_color = vc;
+}";
+        private static string simpleFragmentShaderObsolete = @"
+precision mediump float;
+
+uniform vec4 color;
+uniform float use_texture;
+uniform float use_wireframe;
+uniform sampler2D tex;
+
+varying vec2 uvout;
+varying vec4 vertex_color;
+
+
+void main(){
+    if (use_texture > 0.0) {
+        gl_FragColor = texture2D(tex, uvout);
+        gl_FragColor += vec4(vertex_color.xyz * gl_FragColor.a, vertex_color.a);
+    }
+    else if (use_wireframe > 0.0) {
+        if(any(lessThan(vertex_color.xyz, vec3(use_wireframe)))) {
+            gl_FragColor = color;
+        }
+        else {
+            gl_FragColor = vec4(0, 0, 0, 0);    
+        }
+        return;
+    }
+    else {
+        gl_FragColor = vertex_color;
+    }
+    gl_FragColor += color;
+}";
+
+        private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete);
 
         public Mesh(Shader shader = null)
         {
+
+            if (shader == null)
+            {
+                shader = simpleShader;
+                shader.SetUniform("tex", 0);
+            }
+
+
+            this.shader = shader;
+
             this.customBuffers = new List<int>();
 #if !__MOBILE__
             this.vertexArrayId = GL.GenVertexArray();
@@ -144,15 +200,23 @@ void main(){
             this.vertexArrayId = tmpStore[0];
 #endif
             this.Bind();
+
+
 #if !__MOBILE__
             this.vBufferId = GL.GenBuffer();
 #else
             GL.GenBuffers(1, tmpStore);
             this.vBufferId = tmpStore[0];
 #endif
-            GL.EnableVertexAttribArray(0);
+
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.vBufferId);
-            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
+            int vertexAttribId = 0;
+            if (Window.IsObsolete)
+                vertexAttribId = this.shader.GetAttribLocation("vertex");
+            GL.EnableVertexAttribArray(vertexAttribId);
+            GL.VertexAttribPointer(vertexAttribId, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
 
 #if !__MOBILE__
             this.uvBufferId = GL.GenBuffer();
@@ -160,9 +224,14 @@ void main(){
             GL.GenBuffers(1, tmpStore);
             this.uvBufferId = tmpStore[0];
 #endif
-            GL.EnableVertexAttribArray(1);
+
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.uvBufferId);
-            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+            int uvAttribId = 1;
+            if (Window.IsObsolete)
+                uvAttribId = this.shader.GetAttribLocation("uv");
+            GL.EnableVertexAttribArray(uvAttribId);
+            GL.VertexAttribPointer(uvAttribId, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
 
 #if !__MOBILE__
             this.vcBufferId = GL.GenBuffer();
@@ -170,22 +239,23 @@ void main(){
             GL.GenBuffers(1, tmpStore);
             this.vcBufferId = tmpStore[0];
 #endif
-            GL.EnableVertexAttribArray(2);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, this.vcBufferId);
-            GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
 
-            if (shader == null)
+            GL.BindBuffer(BufferTarget.ArrayBuffer, this.vcBufferId);
+            int vcAttribId = 2;
+            if (Window.IsObsolete)
+                vcAttribId = this.shader.GetAttribLocation("vc");
+            if (vcAttribId > -1)
             {
-                shader = simpleShader;
-                shader.SetUniform("tex", 0);
+                GL.EnableVertexAttribArray(vcAttribId);
+                GL.VertexAttribPointer(vcAttribId, 4, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
             }
-            this.shader = shader;
+
             this.noMatrix = false;
             this.hasVertexColors = true;
             this.requireUseTexture = true;
         }
 
-        protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0)
+        protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0, string name = "")
         {
             this.Bind();
 #if !__MOBILE__
@@ -195,9 +265,15 @@ void main(){
             GL.GenBuffers(1, tmpStore);
             int bufferId = tmpStore[0];
 #endif
+            if (Window.IsObsolete)
+            {
+                attribArrayId = this.shader.GetAttribLocation(name);
+            }
+
             GL.EnableVertexAttribArray(attribArrayId);
             GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
             GL.VertexAttribPointer(attribArrayId, elementSize, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
             if (divisor > 0)
             {
                 GL.VertexAttribDivisor(attribArrayId, divisor);
@@ -394,7 +470,7 @@ void main(){
             DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
         }
 
-        public virtual void DrawWireframe(float r, float g, float b, float a = 1, float tickness=0.02f)
+        public virtual void DrawWireframe(float r, float g, float b, float a = 1, float tickness = 0.02f)
         {
             if (this.v == null)
                 return;

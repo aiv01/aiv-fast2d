@@ -56,7 +56,49 @@ void main(){
         }
 }";
 
-        private static Shader instancedSpriteShader = new Shader(instancedSpriteVertexShader, instancedSpriteFragmentShader);
+        private static string instancedSpriteVertexShaderObsolete = @"
+attribute vec2 vertex;
+attribute vec2 uv;
+attribute vec2 position;
+attribute vec2 scale;
+attribute vec4 additive_tint;
+attribute vec4 multiply_tint;
+
+uniform mat4 mvp;
+
+varying vec2 uvout;
+varying vec4 additive_tint_out;
+varying vec4 multiply_tint_out;
+
+void main(){
+        gl_Position = mvp * vec4((vertex.xy * scale) + position, 0.0, 1.0);
+        uvout = uv;
+        additive_tint_out = additive_tint;
+        multiply_tint_out = multiply_tint;
+}";
+        private static string instancedSpriteFragmentObsolete = @"
+precision mediump float;
+
+varying vec2 uvout;
+varying vec4 additive_tint_out;
+varying vec4 multiply_tint_out;
+
+uniform vec4 mul_tint;
+uniform vec4 add_tint;
+uniform sampler2D tex;
+uniform float use_texture;
+
+void main(){
+        if (use_texture > 0.0) {
+            gl_FragColor = texture2D(tex, uvout) * mul_tint * multiply_tint_out;
+            gl_FragColor += vec4((add_tint.xyz + additive_tint_out.xyz) * gl_FragColor.a, add_tint.a + additive_tint_out.a);
+        }
+        else {
+            gl_FragColor = add_tint + additive_tint_out;
+        }
+}";
+
+        private static Shader instancedSpriteShader = new Shader(instancedSpriteVertexShader, instancedSpriteFragmentShader, instancedSpriteVertexShaderObsolete, instancedSpriteFragmentObsolete);
 
         private int positionsBuffer;
         private int scalesBuffer;
@@ -192,10 +234,10 @@ void main(){
                 multiplyColorData[i] = 1f;
             }
 
-            positionsBuffer = NewFloatBuffer(2, 2, positionsData, 1);
-            scalesBuffer = NewFloatBuffer(3, 2, scalesData, 1);
-            additiveColorBuffer = NewFloatBuffer(4, 4, additiveColorData, 1);
-            multiplyColorBuffer = NewFloatBuffer(5, 4, multiplyColorData, 1);
+            positionsBuffer = NewFloatBuffer(2, 2, positionsData, 1, "position");
+            scalesBuffer = NewFloatBuffer(3, 2, scalesData, 1, "scale");
+            additiveColorBuffer = NewFloatBuffer(4, 4, additiveColorData, 1, "additive_tint");
+            multiplyColorBuffer = NewFloatBuffer(5, 4, multiplyColorData, 1, "multiply_tint");
         }
     }
 }

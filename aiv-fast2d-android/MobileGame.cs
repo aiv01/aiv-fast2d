@@ -56,7 +56,7 @@ namespace Aiv.Fast2D.Android
             // the default GraphicsMode that is set consists of (16, 16, 0, 0, 2, false)
             try
             {
-                Log.Verbose("Aiv.Fast2D", "Loading with default settings");
+                Log.Verbose("Aiv.Fast2D", "Trying OpenGL ES3");
 
                 // if you don't call this, the context won't be created
                 base.CreateFrameBuffer();
@@ -71,9 +71,17 @@ namespace Aiv.Fast2D.Android
             // the device returns a reliable graphics setting.
             try
             {
-                Log.Verbose("Aiv.Fast2D", "Loading with custom Android settings (low mode)");
-                GraphicsMode = new AndroidGraphicsMode(0, 0, 0, 0, 0, false);
+                ContextRenderingApi = GLVersion.ES2;
+                Window.SetObsoleteMode();
 
+                // a framebuffer could be already created in previous attempt
+                try {
+                    base.DestroyFrameBuffer();
+                }
+                catch { }
+
+                Log.Verbose("Aiv.Fast2D", "Trying OpenGL ES2");
+              
                 // if you don't call this, the context won't be created
                 base.CreateFrameBuffer();
                 return;
@@ -82,7 +90,7 @@ namespace Aiv.Fast2D.Android
             {
                 Log.Verbose("Aiv.Fast2D", "{0}", ex);
             }
-            throw new Exception("Can't load egl, aborting");
+            throw new Exception("Can't setup OpenGL ES, aborting");
         }
 
         // This gets called on each frame render

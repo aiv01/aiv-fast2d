@@ -310,6 +310,21 @@ namespace Aiv.Fast2D
             }
         }
 
+        private static bool obsoleteMode;
+
+        public static void SetObsoleteMode()
+        {
+            obsoleteMode = true;
+        }
+
+        public static bool IsObsolete
+        {
+            get
+            {
+                return obsoleteMode;
+            }
+        }
+
 #if !__MOBILE__
         public Window(string title) : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true)
         {

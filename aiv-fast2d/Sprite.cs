@@ -46,7 +46,38 @@ void main(){
         }
 }";
 
-        private static Shader spriteShader = new Shader(spriteVertexShader, spriteFragmentShader);
+        private static string spriteVertexShaderObsolete = @"
+attribute vec2 vertex;
+attribute vec2 uv;
+uniform mat4 mvp;
+
+varying vec2 uvout;
+
+void main(){
+        gl_Position = mvp * vec4(vertex.xy, 0.0, 1.0);
+        uvout = uv;
+}";
+        private static string spriteFragmentShaderObsolete = @"
+precision mediump float;
+
+varying vec2 uvout;
+
+uniform vec4 mul_tint;
+uniform vec4 add_tint;
+uniform sampler2D tex;
+uniform float use_texture;
+
+void main(){
+        if (use_texture > 0.0) {
+            gl_FragColor = texture2D(tex, uvout) * mul_tint;
+            gl_FragColor += vec4(add_tint.xyz * gl_FragColor.a, add_tint.a);
+        }
+        else {
+            gl_FragColor = add_tint;
+        }
+}";
+
+        private static Shader spriteShader = new Shader(spriteVertexShader, spriteFragmentShader, spriteVertexShaderObsolete, spriteFragmentShaderObsolete);
 
 
         private float width;
