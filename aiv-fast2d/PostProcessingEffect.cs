@@ -26,6 +26,17 @@ void main(){
         uv = screen_uv;
 }";
 
+        private static string vertexShaderObsolete = @"
+attribute vec2 screen_vertex;
+attribute vec2 screen_uv;
+
+varying vec2 uv;
+
+void main(){
+        gl_Position = vec4(screen_vertex.xy, 0.0, 1.0);
+        uv = screen_uv;
+}";
+
         protected RenderTexture renderTexture;
 
         public RenderTexture RenderTexture
@@ -36,9 +47,14 @@ void main(){
             }
         }
 
-        public PostProcessingEffect(string fragmentShader)
+        public PostProcessingEffect(string fragmentShader, string fragmentShaderObsolete = null)
         {
-            screenMesh = new Mesh(new Shader(vertexShader, fragmentShader));
+            string[] attribs = null;
+            if (fragmentShaderObsolete != null)
+            {
+                attribs = new string[] { "screen_vertex", "screen_uv" };
+            }
+            screenMesh = new Mesh(new Shader(vertexShader, fragmentShader, vertexShaderObsolete, fragmentShaderObsolete, attribs));
             screenMesh.hasVertexColors = false;
 
             screenMesh.v = new float[]

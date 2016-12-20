@@ -77,7 +77,7 @@ void main(){
         }
 }";
 
-        private static Shader spriteShader = new Shader(spriteVertexShader, spriteFragmentShader, spriteVertexShaderObsolete, spriteFragmentShaderObsolete);
+        private static Shader spriteShader = new Shader(spriteVertexShader, spriteFragmentShader, spriteVertexShaderObsolete, spriteFragmentShaderObsolete, new string[] { "vertex", "uv" });
 
 
         private float width;

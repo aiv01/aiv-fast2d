@@ -59,6 +59,9 @@ namespace Aiv.Fast2D.Android.Example.Obsolete
 
             alienTexture = new Texture("Assets/2.png");
             alien = new Sprite(alienTexture.Width, alienTexture.Height);
+
+            window.AddPostProcessingEffect(new GrayscaleEffect());
+
         }
 
         private void GameUpdate(Window window)
@@ -74,15 +77,15 @@ namespace Aiv.Fast2D.Android.Example.Obsolete
                 window.CancelVibration();
             }
 
-            mesh001.DrawColor(1f, 0f, 1f, 1f);
+            mesh001.DrawColor(0f, 1f, 0f, 1f);
 
-            /*alien.SetAdditiveTint(0f, 0, 0, 0);
+            alien.SetAdditiveTint(0f, 0, 0, 0);
             alien.position = window.TouchPosition;
             alien.DrawTexture(alienTexture);
 
             alien.SetAdditiveTint(1f, 0, 0, 0);
-            alien.position = Vector2.Zero;
-            alien.DrawTexture(alienTexture);*/
+            alien.position = new Vector2(100, 100);
+            alien.DrawTexture(alienTexture);
 
             window.Update();
         }

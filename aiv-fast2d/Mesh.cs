@@ -22,7 +22,19 @@ namespace Aiv.Fast2D
         private int uvBufferId;
         private int vcBufferId;
 
-        private List<int> customBuffers;
+        private struct VertexAttrib
+        {
+            public int bufferId;
+            public int elementSize;
+
+            public VertexAttrib(int bufferId, int elementSize)
+            {
+                this.bufferId = bufferId;
+                this.elementSize = elementSize;
+            }
+        }
+
+        private Dictionary<int, VertexAttrib> customBuffers;
 
         private bool disposed;
 
@@ -177,10 +189,71 @@ void main(){
     gl_FragColor += color;
 }";
 
-        private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete);
+        private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete, new string[] { "vertex", "uv", "vc" });
+
+        public int NewVBO()
+        {
+#if __MOBILE__
+            int[] tmpStore = new int[1];
+            GL.GenBuffers(1, tmpStore);
+            return tmpStore[0];
+#else
+            return GL.GenBuffer();
+#endif
+        }
+
+        public int NewVAO()
+        {
+            int vao = -1;
+            // use VAO on modern OpenGL
+            if (!Window.IsObsolete)
+            {
+#if !__MOBILE__
+                vao = GL.GenVertexArray();
+#else
+                int[] tmpStore = new int[1];
+                GL.GenVertexArrays(1, tmpStore);
+                vao = tmpStore[0];
+#endif    
+            }
+            return vao;
+        }
 
         public Mesh(Shader shader = null)
         {
+
+            this.customBuffers = new Dictionary<int, VertexAttrib>();
+
+            // use VAO if possible
+            this.vertexArrayId = NewVAO();
+            if (this.vertexArrayId > -1)
+            {
+                this.Bind();
+            }
+
+            // vertex
+            this.vBufferId = NewVBO();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, this.vBufferId);
+            int vertexAttribId = 0;
+            GL.EnableVertexAttribArray(vertexAttribId);
+            GL.VertexAttribPointer(vertexAttribId, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
+
+            // uv
+            this.uvBufferId = NewVBO();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, this.uvBufferId);
+            int uvAttribId = 1;
+            GL.EnableVertexAttribArray(uvAttribId);
+            GL.VertexAttribPointer(uvAttribId, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
+
+            // vc
+            this.vcBufferId = NewVBO();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, this.vcBufferId);
+            int vcAttribId = 2;
+            GL.EnableVertexAttribArray(vcAttribId);
+            GL.VertexAttribPointer(vcAttribId, 4, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
 
             if (shader == null)
             {
@@ -188,88 +261,18 @@ void main(){
                 shader.SetUniform("tex", 0);
             }
 
-
             this.shader = shader;
-
-            this.customBuffers = new List<int>();
-#if !__MOBILE__
-            this.vertexArrayId = GL.GenVertexArray();
-#else
-            int[] tmpStore = new int[1];
-            GL.GenVertexArrays(1, tmpStore);
-            this.vertexArrayId = tmpStore[0];
-#endif
-            this.Bind();
-
-
-#if !__MOBILE__
-            this.vBufferId = GL.GenBuffer();
-#else
-            GL.GenBuffers(1, tmpStore);
-            this.vBufferId = tmpStore[0];
-#endif
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, this.vBufferId);
-
-            int vertexAttribId = 0;
-            if (Window.IsObsolete)
-                vertexAttribId = this.shader.GetAttribLocation("vertex");
-            GL.EnableVertexAttribArray(vertexAttribId);
-            GL.VertexAttribPointer(vertexAttribId, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
-
-
-#if !__MOBILE__
-            this.uvBufferId = GL.GenBuffer();
-#else
-            GL.GenBuffers(1, tmpStore);
-            this.uvBufferId = tmpStore[0];
-#endif
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, this.uvBufferId);
-            int uvAttribId = 1;
-            if (Window.IsObsolete)
-                uvAttribId = this.shader.GetAttribLocation("uv");
-            GL.EnableVertexAttribArray(uvAttribId);
-            GL.VertexAttribPointer(uvAttribId, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
-
-
-#if !__MOBILE__
-            this.vcBufferId = GL.GenBuffer();
-#else
-            GL.GenBuffers(1, tmpStore);
-            this.vcBufferId = tmpStore[0];
-#endif
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, this.vcBufferId);
-            int vcAttribId = 2;
-            if (Window.IsObsolete)
-                vcAttribId = this.shader.GetAttribLocation("vc");
-            if (vcAttribId > -1)
-            {
-                GL.EnableVertexAttribArray(vcAttribId);
-                GL.VertexAttribPointer(vcAttribId, 4, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
-            }
 
             this.noMatrix = false;
             this.hasVertexColors = true;
             this.requireUseTexture = true;
         }
 
-        protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0, string name = "")
+        protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0)
         {
             this.Bind();
-#if !__MOBILE__
-            int bufferId = GL.GenBuffer();
-#else
-            int[] tmpStore = new int[1];
-            GL.GenBuffers(1, tmpStore);
-            int bufferId = tmpStore[0];
-#endif
-            if (Window.IsObsolete)
-            {
-                attribArrayId = this.shader.GetAttribLocation(name);
-            }
 
+            int bufferId = NewVBO();
             GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
 
             GL.EnableVertexAttribArray(attribArrayId);
@@ -284,7 +287,7 @@ void main(){
 #else
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsage.DynamicDraw);
 #endif
-            this.customBuffers.Add(bufferId);
+            this.customBuffers[attribArrayId] = new VertexAttrib(bufferId, elementSize);
             return bufferId;
         }
 
@@ -349,7 +352,34 @@ void main(){
 
         public void Bind()
         {
-            GL.BindVertexArray(this.vertexArrayId);
+            if (!Window.IsObsolete)
+            {
+                GL.BindVertexArray(this.vertexArrayId);
+            }
+            else
+            {
+                // vertex
+                GL.BindBuffer(BufferTarget.ArrayBuffer, this.vBufferId);
+                GL.EnableVertexAttribArray(0);
+                GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                // uv
+                GL.BindBuffer(BufferTarget.ArrayBuffer, this.uvBufferId);
+                GL.EnableVertexAttribArray(1);
+                GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                // vc
+                GL.BindBuffer(BufferTarget.ArrayBuffer, this.vcBufferId);
+                GL.EnableVertexAttribArray(2);
+                GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                // custom buffers
+                foreach (int customAttribId in this.customBuffers.Keys)
+                {
+                    int customBufferId = this.customBuffers[customAttribId].bufferId;
+                    int customBufferElementSize = this.customBuffers[customAttribId].elementSize;
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, customBufferId);
+                    GL.EnableVertexAttribArray(customAttribId);
+                    GL.VertexAttribPointer(customAttribId, customBufferElementSize, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                }
+            }
         }
 
         // here we update translations, scaling and rotations
@@ -583,14 +613,14 @@ void main(){
             Window.Current.Log(string.Format("buffer {0} deleted", this.uvBufferId));
             Window.Current.Log(string.Format("buffer {0} deleted", this.vcBufferId));
 
-            foreach (int customBufferId in this.customBuffers)
+            foreach (VertexAttrib customAttrib in this.customBuffers.Values)
             {
 #if !__MOBILE__
-                GL.DeleteBuffer(customBufferId);
+                GL.DeleteBuffer(customAttrib.bufferId);
 #else
-                GL.DeleteBuffers(1, new int[] { customBufferId });
+                GL.DeleteBuffers(1, new int[] { customAttrib.bufferId });
 #endif
-                Window.Current.Log(string.Format("buffer {0} deleted", customBufferId));
+                Window.Current.Log(string.Format("buffer {0} deleted", customAttrib.bufferId));
             }
 
             Window.Current.Log(string.Format("vertexArray {0} deleted", this.vertexArrayId));
@@ -604,9 +634,9 @@ void main(){
             Window.Current.bufferGC.Add(this.vBufferId);
             Window.Current.bufferGC.Add(this.uvBufferId);
             Window.Current.bufferGC.Add(this.vcBufferId);
-            foreach (int customBufferId in this.customBuffers)
+            foreach (VertexAttrib customAttrib in this.customBuffers.Values)
             {
-                Window.Current.bufferGC.Add(customBufferId);
+                Window.Current.bufferGC.Add(customAttrib.bufferId);
             }
             Window.Current.vaoGC.Add(this.vertexArrayId);
 

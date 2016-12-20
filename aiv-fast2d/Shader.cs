@@ -18,22 +18,32 @@ namespace Aiv.Fast2D
             public CompilationException(string message) : base(message) { }
         }
 
+        public class UnsupportedVersionException : Exception
+        {
+            public UnsupportedVersionException(string message) : base(message) { }
+        }
+
         private int programId;
 
         private Dictionary<string, int> uniformCache;
 
         private bool disposed;
 
-        public Shader(string vertexModern, string fragmentModern, string vertexObsolete = "", string fragmentObsolete = "")
+        public Shader(string vertexModern, string fragmentModern, string vertexObsolete = null, string fragmentObsolete = null, string[] attribs = null)
         {
             string vertex = vertexModern;
             string fragment = fragmentModern;
 
             if (Window.IsObsolete)
             {
+                if (vertexObsolete == null || fragmentObsolete == null || attribs == null)
+                {
+                    throw new UnsupportedVersionException("Unsupported OpenGL version for this shader");
+                }
                 vertex = vertexObsolete;
                 fragment = fragmentObsolete;
 #if !__MOBILE__
+                // obsolete Desktop OpenGL does not have medium precision
                 fragment = fragment.Replace("precision mediump float;", "");
 #endif
             }
@@ -64,6 +74,17 @@ namespace Aiv.Fast2D
             this.programId = GL.CreateProgram();
             GL.AttachShader(programId, vertexShaderId);
             GL.AttachShader(programId, fragmentShaderId);
+
+            if (Window.IsObsolete)
+            {
+                if (attribs != null)
+                {
+                    for (int i = 0; i < attribs.Length; i++)
+                    {
+                        GL.BindAttribLocation(programId, i, attribs[i]);
+                    }
+                }
+            }
 
             GL.LinkProgram(programId);
 
