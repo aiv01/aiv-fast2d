@@ -11,8 +11,20 @@ namespace Aiv.Fast2D.Example.Units
     {
         static void Main(string[] args)
         {
-
+            Window.SetObsoleteMode();
             Window windowFake = new Window(800, 600, "Fake");
+
+            Console.WriteLine(windowFake.Version);
+            Console.WriteLine(windowFake.Vendor);
+            Console.WriteLine(windowFake.SLVersion);
+            Console.WriteLine(windowFake.Renderer);
+            Console.WriteLine(windowFake.Extensions);
+
+            foreach(string displayName in Window.Displays)
+            {
+                Console.WriteLine(displayName);
+            }
+
             windowFake.SetDefaultOrthographicSize(7);
             windowFake.SetClearColor(1f, 0, 0);
             Mesh triangleFake = new Mesh();

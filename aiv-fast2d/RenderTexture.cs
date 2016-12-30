@@ -29,9 +29,15 @@ namespace Aiv.Fast2D
             GL.GenFramebuffers(1, tmp_values);
             frameBuffer = tmp_values[0];
 #endif
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
+            Window.BindFrameBuffer(frameBuffer);
 #if !__MOBILE__
-            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, this.Id, 0);
+            if (Window.IsObsolete)
+            {
+                GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, this.Id, 0);
+            }
+            else {
+                GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, this.Id, 0);
+            }
 #else
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferSlot.ColorAttachment0, TextureTarget.Texture2D, this.Id, 0);
 #endif

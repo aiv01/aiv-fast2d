@@ -174,14 +174,14 @@ void main(){
             DrawSolidColor(r / 255f, g / 255f, b / 255f, a / 255f);
         }
 
-        public void DrawTexture(Texture tex, int x, int y, int width, int height)
+        public void DrawTexture(Texture tex, int xOffset, int yOffset, int width, int height)
         {
             float deltaW = 1f / tex.Width;
             float deltaH = 1f / tex.Height;
-            float left = x * deltaW;
-            float right = (x + width) * deltaW;
-            float top = y * deltaH;
-            float bottom = (y + height) * deltaH;
+            float left = xOffset * deltaW;
+            float right = (xOffset + width) * deltaW;
+            float top = yOffset * deltaH;
+            float bottom = (yOffset + height) * deltaH;
             if (tex.flipped)
             {
                 float tmp = bottom;
@@ -200,9 +200,9 @@ void main(){
             base.DrawTexture(tex);
         }
 
-        public void DrawTexture(Texture tex, int x, int y)
+        public void DrawTexture(Texture tex, int xOffset, int yOffset)
         {
-            this.DrawTexture(tex, x, y, tex.Width, tex.Height);
+            this.DrawTexture(tex, xOffset, yOffset, tex.Width, tex.Height);
         }
 
         public override void DrawTexture(Texture tex)

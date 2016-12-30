@@ -18,11 +18,11 @@ namespace Aiv.Fast2D.Android.Example.Obsolete
         )]
     public class MainActivity : Activity
     {
-        MobileGame view;
+        private MobileGame view;
 
-        Mesh mesh001;
-        Texture alienTexture;
-        Sprite alien;
+        private Mesh mesh001;
+        private Texture alienTexture;
+        private Sprite alien;
 
         protected override void OnCreate(Bundle bundle)
         {

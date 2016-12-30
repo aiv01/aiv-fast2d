@@ -192,6 +192,46 @@ namespace Aiv.Fast2D
             }
         }
 
+        public string Version
+        {
+            get
+            {
+                return GL.GetString(StringName.Version);
+            }
+        }
+
+        public string Vendor
+        {
+            get
+            {
+                return GL.GetString(StringName.Vendor);
+            }
+        }
+
+        public string SLVersion
+        {
+            get
+            {
+                return GL.GetString(StringName.ShadingLanguageVersion);
+            }
+        }
+
+        public string Renderer
+        {
+            get
+            {
+                return GL.GetString(StringName.Renderer);
+            }
+        }
+
+        public string Extensions
+        {
+            get
+            {
+                return GL.GetString(StringName.Extensions);
+            }
+        }
+
         public static Vector2[] Resolutions
         {
             get
@@ -235,6 +275,17 @@ namespace Aiv.Fast2D
         public void SetCurrent()
         {
             Window.SetCurrent(this);
+        }
+
+        public static void BindFrameBuffer(int frameBufferId)
+        {
+#if !__MOBILE__
+            if (obsoleteMode) {
+                GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, frameBufferId);
+                return;
+            }
+#endif
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBufferId);
         }
 
 #if !__MOBILE__
@@ -325,6 +376,21 @@ namespace Aiv.Fast2D
             }
         }
 
+        public static string[] Displays
+        {
+            get
+            {
+                List<string> displays = new List<string>();
+                for(int i=0;i<=(int)DisplayIndex.Sixth;i++)
+                {
+                    DisplayDevice device = DisplayDevice.GetDisplay((DisplayIndex)i);
+                    if (device != null)
+                        displays.Add(device.ToString());
+                }
+                return displays.ToArray();
+            }
+        }
+
 #if !__MOBILE__
         public Window(string title) : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true)
         {
@@ -332,11 +398,16 @@ namespace Aiv.Fast2D
 
         public Window(int width, int height, string title, bool fullScreen = false)
         {
-
             // force opengl 3.3 this is a good compromise
+            int major = 3;
+            int minor = 3;
+            if (obsoleteMode) {
+                major = 2;
+                minor = 2;
+            }
             this.window = new GameWindow(width, height, OpenTK.Graphics.GraphicsMode.Default, title,
                 fullScreen ? GameWindowFlags.Fullscreen : GameWindowFlags.FixedWindow,
-                DisplayDevice.Default, 3, 3, OpenTK.Graphics.GraphicsContextFlags.ForwardCompatible);
+                DisplayDevice.Default, major, minor, OpenTK.Graphics.GraphicsContextFlags.Default);
 
             if (fullScreen)
             {
@@ -737,7 +808,7 @@ namespace Aiv.Fast2D
             {
                 if (postProcessingEffects[i] != null && postProcessingEffects[i].enabled)
                 {
-                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, GetNextPostProcessingEffectFramebuffer(i));
+                    BindFrameBuffer(GetNextPostProcessingEffectFramebuffer(i));
                     GL.Clear(ClearBufferMask.ColorBufferBit);
                     // custom update cycle
                     postProcessingEffects[i].Update(this);
@@ -830,7 +901,7 @@ namespace Aiv.Fast2D
             this.watch.Start();
 #endif
 
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, GetDefaultFrameBuffer());
+            BindFrameBuffer(GetDefaultFrameBuffer());
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
@@ -1109,13 +1180,13 @@ namespace Aiv.Fast2D
         {
             if (renderTexture == null)
             {
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, GetDefaultFrameBuffer());
+                BindFrameBuffer(GetDefaultFrameBuffer());
                 SetViewport(0, 0, this.width, this.height);
                 return;
             }
             else
             {
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, renderTexture.FrameBuffer);
+                BindFrameBuffer(renderTexture.FrameBuffer);
                 // unscaled,virtual viewport
                 SetViewport(0, 0, renderTexture.Width, renderTexture.Height, orthoSize, true);
             }
