@@ -257,20 +257,7 @@ namespace Aiv.Fast2D
 
 		private int defaultFramebuffer;
 		private bool collectedDefaultFrameBuffer;
-#if !__MOBILE__
-		public static Vector2[] Resolutions
-		{
-			get
-			{
-				List<Vector2> resolutions = new List<Vector2>();
-				foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions)
-				{
-					resolutions.Add(new Vector2(resolution.Width, resolution.Height));
-				}
-				return resolutions.ToArray();
-			}
-		}
-#endif
+
 
 		private float defaultOrthographicSize;
 
@@ -459,6 +446,38 @@ namespace Aiv.Fast2D
                 }
                 return displays.ToArray();
             }
+        }
+
+        public static Vector2[] Resolutions
+        {
+            get
+            {
+                List<Vector2> resolutions = new List<Vector2>();
+                foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions)
+                {
+                    resolutions.Add(new Vector2(resolution.Width, resolution.Height));
+                }
+                return resolutions.ToArray();
+            }
+        }
+
+        public bool SetResolution(int screenWidth, int screenHeight)
+        {
+            return SetResolution(new Vector2(screenWidth, screenHeight));
+        }
+
+        public bool SetResolution(Vector2 newResolution)
+        {
+            foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions)
+            {
+                if (resolution.Width == newResolution.X && resolution.Height == newResolution.Y)
+                {
+                    DisplayDevice.Default.ChangeResolution(resolution);
+                    this.FixDimensions(resolution.Width, resolution.Height);
+                    return true;
+                }
+            }
+            return false;
         }
 
         public Window(string title) : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true)
@@ -788,27 +807,6 @@ namespace Aiv.Fast2D
 		}
 
 
-#if !__MOBILE__
-
-        public bool SetResolution(int screenWidth, int screenHeight)
-        {
-            return SetResolution(new Vector2(screenWidth, screenHeight));
-        }
-
-        public bool SetResolution(Vector2 newResolution)
-        {
-            foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions)
-            {
-                if (resolution.Width == newResolution.X && resolution.Height == newResolution.Y)
-                {
-                    DisplayDevice.Default.ChangeResolution(resolution);
-                    this.FixDimensions(resolution.Width, resolution.Height);
-                    return true;
-                }
-            }
-            return false;
-        }
-#endif
 
 		public void SetScissorTest(bool enabled)
 		{
