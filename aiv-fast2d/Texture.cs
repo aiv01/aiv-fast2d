@@ -4,7 +4,9 @@ using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 #else
 using OpenTK.Graphics.ES30;
+#if __ANDROID__
 using Android.Graphics;
+#endif
 #endif
 using System.Reflection;
 using System.Text;
@@ -170,7 +172,7 @@ namespace Aiv.Fast2D
                 }
                 premultiplied = true;
             }
-#else
+#elif __ANDROID__
             Bitmap image = null;
             if (imageStream == null)
             {
@@ -211,6 +213,9 @@ namespace Aiv.Fast2D
                 }
             }
             premultiplied = true;
+#elif __IOS__
+			width = 0;
+			height = 0;
 #endif
 
             return bitmap;

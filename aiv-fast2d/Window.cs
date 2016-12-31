@@ -2,16 +2,23 @@
 using OpenTK;
 #if !__MOBILE__
 using OpenTK.Graphics.OpenGL;
-#else
+#elif __ANDROID__
 using OpenTK.Graphics.ES30;
 using OpenTK.Platform.Android;
 using Android.Views;
 using Android.Content;
 using Android.OS;
 using Android.Content.Res;
+#elif __IOS__
+using OpenTK.Graphics.ES30;
+using OpenGLES;
+using OpenTK.Platform.iPhoneOS;
+using GLKit;
 #endif
 using System.Diagnostics;
+#if !__IOS__
 using OpenTK.Input;
+#endif
 #if !__MOBILE__
 using System.Drawing;
 #endif
@@ -103,190 +110,210 @@ namespace Aiv.Fast2D
     }
 #endif
 
-    public class Window
-    {
-        private Matrix4 orthoMatrix;
-        private float _aspectRatio;
+	public class Window
+	{
+		private Matrix4 orthoMatrix;
+		private float _aspectRatio;
 
-        public Matrix4 OrthoMatrix
-        {
-            get
-            {
-                return this.orthoMatrix;
-            }
-        }
+		public Matrix4 OrthoMatrix
+		{
+			get
+			{
+				return this.orthoMatrix;
+			}
+		}
 
-        public float aspectRatio
-        {
-            get
-            {
-                return this._aspectRatio;
-            }
-        }
+		public float aspectRatio
+		{
+			get
+			{
+				return this._aspectRatio;
+			}
+		}
 
-        private int width;
-        private int height;
+		private int width;
+		private int height;
 
-        private Vector2 viewportPosition;
-        private Vector2 viewportSize;
+		private Vector2 viewportPosition;
+		private Vector2 viewportSize;
 
-        public Vector2 CurrentViewportPosition
-        {
-            get
-            {
-                return viewportPosition;
-            }
-        }
+		public Vector2 CurrentViewportPosition
+		{
+			get
+			{
+				return viewportPosition;
+			}
+		}
 
-        public Vector2 CurrentViewportSize
-        {
-            get
-            {
-                return viewportSize;
-            }
-        }
+		public Vector2 CurrentViewportSize
+		{
+			get
+			{
+				return viewportSize;
+			}
+		}
 
-        private float currentOrthographicSize;
+		private float currentOrthographicSize;
 
-        public float CurrentOrthoGraphicSize
-        {
-            get
-            {
-                return currentOrthographicSize;
-            }
-        }
+		public float CurrentOrthoGraphicSize
+		{
+			get
+			{
+				return currentOrthographicSize;
+			}
+		}
 
-        public int Width
-        {
-            get
-            {
-                return this.width;
-            }
-        }
+		public int Width
+		{
+			get
+			{
+				return this.width;
+			}
+		}
 
-        public int Height
-        {
-            get
-            {
-                return this.height;
-            }
-        }
+		public int Height
+		{
+			get
+			{
+				return this.height;
+			}
+		}
 
-        public float orthoWidth
-        {
-            get
-            {
-                if (this.currentOrthographicSize > 0)
-                    return this.currentOrthographicSize * this._aspectRatio;
-                return this.width;
-            }
-        }
+		public int ScaledWidth
+		{
+			get
+			{
+				return (int)(this.width * this.scaleX);
+			}
+		}
 
-        public float orthoHeight
-        {
-            get
-            {
-                if (this.currentOrthographicSize > 0)
-                    return this.currentOrthographicSize;
-                return this.height;
-            }
-        }
+		public int ScaledHeight
+		{
+			get
+			{
+				return (int)(this.height * this.scaleY);
+			}
+		}
 
-        public string Version
-        {
-            get
-            {
-                return GL.GetString(StringName.Version);
-            }
-        }
+		public float orthoWidth
+		{
+			get
+			{
+				if (this.currentOrthographicSize > 0)
+					return this.currentOrthographicSize * this._aspectRatio;
+				return this.width;
+			}
+		}
 
-        public string Vendor
-        {
-            get
-            {
-                return GL.GetString(StringName.Vendor);
-            }
-        }
+		public float orthoHeight
+		{
+			get
+			{
+				if (this.currentOrthographicSize > 0)
+					return this.currentOrthographicSize;
+				return this.height;
+			}
+		}
 
-        public string SLVersion
-        {
-            get
-            {
-                return GL.GetString(StringName.ShadingLanguageVersion);
-            }
-        }
+		public string Version
+		{
+			get
+			{
+				return GL.GetString(StringName.Version);
+			}
+		}
 
-        public string Renderer
-        {
-            get
-            {
-                return GL.GetString(StringName.Renderer);
-            }
-        }
+		public string Vendor
+		{
+			get
+			{
+				return GL.GetString(StringName.Vendor);
+			}
+		}
 
-        public string Extensions
-        {
-            get
-            {
-                return GL.GetString(StringName.Extensions);
-            }
-        }
+		public string SLVersion
+		{
+			get
+			{
+				return GL.GetString(StringName.ShadingLanguageVersion);
+			}
+		}
 
-        public static Vector2[] Resolutions
-        {
-            get
-            {
-                List<Vector2> resolutions = new List<Vector2>();
-                foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions)
-                {
-                    resolutions.Add(new Vector2(resolution.Width, resolution.Height));
-                }
-                return resolutions.ToArray();
-            }
-        }
+		public string Renderer
+		{
+			get
+			{
+				return GL.GetString(StringName.Renderer);
+			}
+		}
 
-        private float defaultOrthographicSize;
+		public string Extensions
+		{
+			get
+			{
+				return GL.GetString(StringName.Extensions);
+			}
+		}
 
-        public void SetDefaultOrthographicSize(float value)
-        {
-            defaultOrthographicSize = value;
-            this.SetViewport(0, 0, this.width, this.height);
-        }
+		private int defaultFramebuffer;
+		private bool collectedDefaultFrameBuffer;
+#if !__MOBILE__
+		public static Vector2[] Resolutions
+		{
+			get
+			{
+				List<Vector2> resolutions = new List<Vector2>();
+				foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions)
+				{
+					resolutions.Add(new Vector2(resolution.Width, resolution.Height));
+				}
+				return resolutions.ToArray();
+			}
+		}
+#endif
 
-        private static Window current;
+		private float defaultOrthographicSize;
 
-        public static Window Current
-        {
-            get
-            {
-                return Window.current;
-            }
-        }
+		public void SetDefaultOrthographicSize(float value)
+		{
+			defaultOrthographicSize = value;
+			this.SetViewport(0, 0, this.width, this.height);
+		}
 
-        public static void SetCurrent(Window targetWindow)
-        {
-            current = targetWindow;
-            // on mobile devices, multiple contexts are not available
+		private static Window current;
+
+		public static Window Current
+		{
+			get
+			{
+				return Window.current;
+			}
+		}
+
+		public static void SetCurrent(Window targetWindow)
+		{
+			current = targetWindow;
+			// on mobile devices, multiple contexts are not available
 #if !__MOBILE__
             current.window.MakeCurrent();
 #endif
-        }
+		}
 
-        public void SetCurrent()
-        {
-            Window.SetCurrent(this);
-        }
+		public void SetCurrent()
+		{
+			Window.SetCurrent(this);
+		}
 
-        public static void BindFrameBuffer(int frameBufferId)
-        {
+		public static void BindFrameBuffer(int frameBufferId)
+		{
 #if !__MOBILE__
             if (obsoleteMode) {
                 GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, frameBufferId);
                 return;
             }
 #endif
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBufferId);
-        }
+			GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBufferId);
+		}
 
 #if !__MOBILE__
         private GameWindow window;
@@ -296,87 +323,130 @@ namespace Aiv.Fast2D
 
         private KeyboardState _keyboardState;
         private MouseState _mouseState;
-#else
-        private AndroidGameView window;
+#elif __ANDROID__
+		private AndroidGameView window;
+#elif __IOS__
+		private GLKView window;
 #endif
 
-        // used for dpi management
-        private float scaleX;
-        private float scaleY;
+		// used for dpi management
+		private float scaleX;
+		private float scaleY;
 
-        private float _deltaTime;
+		private float _deltaTime;
 
-        public float deltaTime
-        {
-            get
-            {
-                return _deltaTime;
-            }
-        }
+		public float deltaTime
+		{
+			get
+			{
+				return _deltaTime;
+			}
+		}
 
-        public delegate void GameLoop(Window window);
+		public delegate void GameLoop(Window window);
 
-        private List<PostProcessingEffect> postProcessingEffects;
+		private List<PostProcessingEffect> postProcessingEffects;
 
-        public string GetError()
-        {
+		public string GetError()
+		{
 #if !__MOBILE__
             return GL.GetError().ToString();
 #else
-            return GL.GetErrorCode().ToString();
+			return GL.GetErrorCode().ToString();
 #endif
-        }
+		}
 
-        private ILogger logger;
+		private ILogger logger;
 
-        public void SetLogger(ILogger logger)
-        {
-            this.logger = logger;
-        }
+		public void SetLogger(ILogger logger)
+		{
+			this.logger = logger;
+		}
 
-        public void Log(string message)
-        {
-            if (logger == null)
-                return;
-            logger.Log(message);
-        }
+		public void Log(string message)
+		{
+			if (logger == null)
+				return;
+			logger.Log(message);
+		}
 
-        public List<int> textureGC = new List<int>();
-        public List<int> bufferGC = new List<int>();
-        public List<int> vaoGC = new List<int>();
-        public List<int> shaderGC = new List<int>();
+		public List<int> textureGC = new List<int>();
+		public List<int> bufferGC = new List<int>();
+		public List<int> vaoGC = new List<int>();
+		public List<int> shaderGC = new List<int>();
 
-        private Camera currentCamera;
+		private Camera currentCamera;
 
-        public void SetCamera(Camera camera)
-        {
-            this.currentCamera = camera;
-        }
+		public void SetCamera(Camera camera)
+		{
+			this.currentCamera = camera;
+		}
 
-        public Camera CurrentCamera
-        {
-            get
-            {
-                return this.currentCamera;
-            }
-        }
+		public Camera CurrentCamera
+		{
+			get
+			{
+				return this.currentCamera;
+			}
+		}
 
-        private static bool obsoleteMode;
+		private static bool obsoleteMode;
 
-        public static void SetObsoleteMode()
-        {
-            obsoleteMode = true;
-        }
+		public static void SetObsoleteMode()
+		{
+			obsoleteMode = true;
+		}
 
-        public static bool IsObsolete
-        {
-            get
-            {
-                return obsoleteMode;
-            }
-        }
+		public static bool IsObsolete
+		{
+			get
+			{
+				return obsoleteMode;
+			}
+		}
 
-        public static string[] Displays
+#if __MOBILE__
+		private float touchX;
+		private float touchY;
+
+		public float TouchX
+		{
+			get
+			{
+				return touchX;
+			}
+		}
+
+		public float TouchY
+		{
+			get
+			{
+				return touchY;
+			}
+		}
+
+		public Vector2 TouchPosition
+		{
+			get
+			{
+				return new Vector2(touchX, touchY);
+			}
+		}
+
+		private bool isTouching;
+		public bool IsTouching
+		{
+			get
+			{
+				return isTouching;
+			}
+		}
+
+
+#endif
+
+#if !__MOBILE__
+		public static string[] Displays
         {
             get
             {
@@ -391,7 +461,6 @@ namespace Aiv.Fast2D
             }
         }
 
-#if !__MOBILE__
         public Window(string title) : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true)
         {
         }
@@ -425,177 +494,189 @@ namespace Aiv.Fast2D
             watch = new Stopwatch();
 
             SetupOpenGL();
-#else
-        public void FixMobileViewport()
-        {
-            this.width = window.Holder.SurfaceFrame.Width();
-            this.height = window.Holder.SurfaceFrame.Height();
+#elif __ANDROID__
+		public void FixMobileViewport()
+		{
+			this.width = window.Holder.SurfaceFrame.Width();
+			this.height = window.Holder.SurfaceFrame.Height();
 
-            this.SetViewport(0, 0, this.width, this.height);
+			this.SetViewport(0, 0, this.width, this.height);
 
-            SetupOpenGL();
-        }
+			SetupOpenGL();
+		}
 
-        private float touchX;
-        private float touchY;
 
-        public float TouchX
-        {
-            get
-            {
-                return touchX;
-            }
-        }
 
-        public float TouchY
-        {
-            get
-            {
-                return touchY;
-            }
-        }
+		public void Vibrate(long amount)
+		{
+			Vibrator vibrator = (Vibrator)this.window.Context.GetSystemService(global::Android.Content.Context.VibratorService);
+			vibrator.Vibrate(amount);
+		}
 
-        public Vector2 TouchPosition
-        {
-            get
-            {
-                return new Vector2(touchX, touchY);
-            }
-        }
+		public void CancelVibration()
+		{
+			Vibrator vibrator = (Vibrator)this.window.Context.GetSystemService(global::Android.Content.Context.VibratorService);
+			vibrator.Cancel();
+		}
 
-        private bool isTouching;
-        public bool IsTouching
-        {
-            get
-            {
-                return isTouching;
-            }
-        }
+		private static AssetManager assets;
 
-        public void Vibrate(long amount)
-        {
-            Vibrator vibrator = (Vibrator)this.window.Context.GetSystemService(global::Android.Content.Context.VibratorService);
-            vibrator.Vibrate(amount);
-        }
+		public static AssetManager Assets
+		{
+			get
+			{
+				return assets;
+			}
+		}
 
-        public void CancelVibration()
-        {
-            Vibrator vibrator = (Vibrator)this.window.Context.GetSystemService(global::Android.Content.Context.VibratorService);
-            vibrator.Cancel();
-        }
 
-        private static AssetManager assets;
+		public Window(AndroidGameView gameView)
+		{
+			this.window = gameView;
+			// required for accessing assets
+			assets = gameView.Context.Assets;
+			this.scaleX = 1;
+			this.scaleY = 1;
+			// on mobile refresh is capped to 60hz
+			this._deltaTime = 1f / 60f;
 
-        public static AssetManager Assets
-        {
-            get
-            {
-                return assets;
-            }
-        }
+			this.window.Resize += (sender, e) =>
+			{
+				this.FixMobileViewport();
+			};
 
-        public Window(AndroidGameView gameView)
-        {
-            this.window = gameView;
-            // required for accessing assets
-            assets = gameView.Context.Assets;
-            this.scaleX = 1;
-            this.scaleY = 1;
-            // on mobile refresh is capped to 60hz
-            this._deltaTime = 1f / 60f;
+			this.window.Touch += (sender, e) =>
+			{
+				switch (e.Event.Action)
+				{
+					case MotionEventActions.Move:
+						touchX = e.Event.GetX() - this.viewportPosition.X / (this.viewportSize.X / this.orthoWidth);
+						touchY = e.Event.GetY() - this.viewportPosition.Y / (this.viewportSize.Y / this.orthoHeight);
+						break;
+					case MotionEventActions.Up:
+						isTouching = false;
+						break;
+					case MotionEventActions.Down:
+						isTouching = true;
+						break;
+					default:
+						break;
+				}
+			};
+#elif __IOS__
+		public void FixMobileViewport()
+		{
+			// get the size in pixels
+			this.width = (int)(window.Bounds.Size.Width * UIKit.UIScreen.MainScreen.Scale);
+			this.height = (int)(window.Bounds.Size.Height * UIKit.UIScreen.MainScreen.Scale);
 
-            this.window.Resize += (sender, e) =>
-            {
-                this.FixMobileViewport();
-            };
+			this.SetViewport(0, 0, this.width, this.height);
 
-            this.window.Touch += (sender, e) =>
-            {
-                switch (e.Event.Action)
-                {
-                    case MotionEventActions.Move:
-                        touchX = e.Event.GetX() - this.viewportPosition.X / (this.viewportSize.X / this.orthoWidth);
-                        touchY = e.Event.GetY() - this.viewportPosition.Y / (this.viewportSize.Y / this.orthoHeight);
-                        break;
-                    case MotionEventActions.Up:
-                        isTouching = false;
-                        break;
-                    case MotionEventActions.Down:
-                        isTouching = true;
-                        break;
-                    default:
-                        break;
-                }
-            };
+			SetupOpenGL();
+		}
+
+		public void TouchBegan(float x, float y)
+		{
+			isTouching = true;
+			touchX = x / this.scaleX - this.viewportPosition.X / (this.viewportSize.X / this.orthoWidth);
+			touchY = y / this.scaleY - this.viewportPosition.Y / (this.viewportSize.Y / this.orthoHeight);
+		}
+
+		public void TouchEnded(float x, float y)
+		{
+			isTouching = false;
+			touchX = x / this.scaleX - this.viewportPosition.X / (this.viewportSize.X / this.orthoWidth);
+			touchY = y / this.scaleY - this.viewportPosition.Y / (this.viewportSize.Y / this.orthoHeight);
+		}
+
+		public void TouchMoved(float x, float y)
+		{
+			touchX = x / this.scaleX - this.viewportPosition.X / (this.viewportSize.X / this.orthoWidth);
+			touchY = y / this.scaleY - this.viewportPosition.Y / (this.viewportSize.Y / this.orthoHeight);
+		}
+
+		public Window(GLKView view)
+		{
+			window = view;
+			this.scaleX = 1f/(float)UIKit.UIScreen.MainScreen.Scale;
+			this.scaleY = 1f/(float)UIKit.UIScreen.MainScreen.Scale;
+
+
+			// on mobile refresh is capped to 60hz
+			this._deltaTime = 1f / 60f;
+
+			FixMobileViewport();
 #endif
 
-            // more gentle GC
-            GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+			// more gentle GC
+			GCSettings.LatencyMode = GCLatencyMode.LowLatency;
 
-            postProcessingEffects = new List<PostProcessingEffect>();
+			postProcessingEffects = new List<PostProcessingEffect>();
 
-            Window.SetCurrent(this);
-        }
-
-        public PostProcessingEffect AddPostProcessingEffect(PostProcessingEffect effect)
-        {
-            effect.Setup(this);
-            postProcessingEffects.Add(effect);
-            return effect;
-        }
-
-        public void ClearPostProcessingEffects()
-        {
-            postProcessingEffects.Clear();
-        }
-
-        public PostProcessingEffect[] PostProcessingEffects
-        {
-            get
-            {
-                return postProcessingEffects.ToArray();
-            }
-        }
-
-        public PostProcessingEffect SetPostProcessingEffect(int index, PostProcessingEffect effect)
-        {
-            effect.Setup(this);
-            postProcessingEffects.Insert(index, effect);
-            return effect;
-        }
+			Window.SetCurrent(this);
 
 
-        public void SetAlphaBlending()
-        {
-            // enable alpha blending
-            GL.Enable(EnableCap.Blend);
-            GL.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
-            GL.BlendFuncSeparate(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.ColorMask(true, true, true, true);
-        }
+		}
 
-        public void SetMaskedBlending()
-        {
-            // enable alpha blending
-            GL.Enable(EnableCap.Blend);
-            GL.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
-            GL.BlendFuncSeparate(BlendingFactorSrc.DstAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.OneMinusSrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.ColorMask(true, true, true, true);
-        }
+		public PostProcessingEffect AddPostProcessingEffect(PostProcessingEffect effect)
+		{
+			effect.Setup(this);
+			postProcessingEffects.Add(effect);
+			return effect;
+		}
 
-        private void SetupOpenGL()
-        {
-            SetAlphaBlending();
+		public void ClearPostProcessingEffects()
+		{
+			postProcessingEffects.Clear();
+		}
 
-            GL.Disable(EnableCap.CullFace);
-            GL.Disable(EnableCap.ScissorTest);
+		public PostProcessingEffect[] PostProcessingEffects
+		{
+			get
+			{
+				return postProcessingEffects.ToArray();
+			}
+		}
+
+		public PostProcessingEffect SetPostProcessingEffect(int index, PostProcessingEffect effect)
+		{
+			effect.Setup(this);
+			postProcessingEffects.Insert(index, effect);
+			return effect;
+		}
+
+
+		public void SetAlphaBlending()
+		{
+			// enable alpha blending
+			GL.Enable(EnableCap.Blend);
+			GL.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
+			GL.BlendFuncSeparate(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha);
+			GL.ColorMask(true, true, true, true);
+		}
+
+		public void SetMaskedBlending()
+		{
+			// enable alpha blending
+			GL.Enable(EnableCap.Blend);
+			GL.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
+			GL.BlendFuncSeparate(BlendingFactorSrc.DstAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.OneMinusSrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+			GL.ColorMask(true, true, true, true);
+		}
+
+		private void SetupOpenGL()
+		{
+			SetAlphaBlending();
+
+			GL.Disable(EnableCap.CullFace);
+			GL.Disable(EnableCap.ScissorTest);
 
 #if !__MOBILE__
             GL.Disable(EnableCap.Multisample);
 #endif
 
-            GL.Disable(EnableCap.DepthTest);
-        }
+			GL.Disable(EnableCap.DepthTest);
+		}
 
 #if !__MOBILE__
         public void SetVSync(bool enable)
@@ -676,36 +757,35 @@ namespace Aiv.Fast2D
         {
             this.window.CursorVisible = enable;
         }
+
+		public string Title
+		{
+			get
+			{
+				return this.window.Title;
+			}
+			set
+			{
+				this.window.Title = value;
+			}
+		}
 #endif
 
-        public string Title
-        {
-            get
-            {
-                return this.window.Title;
-            }
-            set
-            {
-                this.window.Title = value;
-            }
-        }
 
+		public void SetClearColor(float r, float g, float b, float a = 1)
+		{
+			GL.ClearColor(r, g, b, a);
+		}
 
+		public void SetClearColor(int r, int g, int b, int a = 255)
+		{
+			GL.ClearColor(r / 255f, g / 255f, b / 255f, a / 255f);
+		}
 
-        public void SetClearColor(float r, float g, float b, float a = 1)
-        {
-            GL.ClearColor(r, g, b, a);
-        }
-
-        public void SetClearColor(int r, int g, int b, int a = 255)
-        {
-            GL.ClearColor(r / 255f, g / 255f, b / 255f, a / 255f);
-        }
-
-        public void ClearColor()
-        {
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-        }
+		public void ClearColor()
+		{
+			GL.Clear(ClearBufferMask.ColorBufferBit);
+		}
 
 
 #if !__MOBILE__
@@ -730,159 +810,171 @@ namespace Aiv.Fast2D
         }
 #endif
 
-        public void SetScissorTest(bool enabled)
-        {
-            if (enabled)
-            {
-                GL.Enable(EnableCap.ScissorTest);
-            }
-            else
-            {
-                GL.Disable(EnableCap.ScissorTest);
-            }
-        }
+		public void SetScissorTest(bool enabled)
+		{
+			if (enabled)
+			{
+				GL.Enable(EnableCap.ScissorTest);
+			}
+			else
+			{
+				GL.Disable(EnableCap.ScissorTest);
+			}
+		}
 
-        public void SetScissorTest(int x, int y, int width, int height)
-        {
-            SetScissorTest(true);
-            GL.Scissor(x, (this.height - y) - height, width, height);
-        }
+		public void SetScissorTest(int x, int y, int width, int height)
+		{
+			SetScissorTest(true);
+			GL.Scissor((int)(x * this.scaleX),
+					   (int)(((this.height - y) - height) * this.scaleY),
+					   (int)(width * this.scaleX),
+					   (int)(height * this.scaleY));
+		}
 
-        public void SetScissorTest(float x, float y, float width, float height)
-        {
-            SetScissorTest((int)x, (int)y, (int)width, (int)height);
-        }
+		public void SetScissorTest(float x, float y, float width, float height)
+		{
+			SetScissorTest((int)x, (int)y, (int)width, (int)height);
+		}
 
-        private PostProcessingEffect GetFirstPostProcessingEffect()
-        {
-            foreach (PostProcessingEffect effect in postProcessingEffects)
-            {
-                if (effect != null && effect.enabled)
-                    return effect;
-            }
-            return null;
-        }
+		private PostProcessingEffect GetFirstPostProcessingEffect()
+		{
+			foreach (PostProcessingEffect effect in postProcessingEffects)
+			{
+				if (effect != null && effect.enabled)
+					return effect;
+			}
+			return null;
+		}
 
-        private int GetDefaultFrameBuffer()
-        {
-            foreach (PostProcessingEffect effect in postProcessingEffects)
-            {
-                if (effect != null && effect.enabled)
-                    return effect.RenderTexture.FrameBuffer;
-            }
-            return 0;
-        }
+		private int GetDefaultFrameBuffer()
+		{
+			foreach (PostProcessingEffect effect in postProcessingEffects)
+			{
+				if (effect != null && effect.enabled)
+					return effect.RenderTexture.FrameBuffer;
+			}
+			if (!collectedDefaultFrameBuffer)
+			{
+				// iOS does not use default framebuffer 0
+				GL.GetInteger(GetPName.FramebufferBinding, out defaultFramebuffer);
+				collectedDefaultFrameBuffer = true;
+			}
 
-        public int ActivePostProcessingEffectsCount
-        {
-            get
-            {
-                int i = 0;
-                foreach (PostProcessingEffect effect in postProcessingEffects)
-                {
-                    if (effect != null && effect.enabled)
-                        i++;
-                }
-                return i;
-            }
-        }
+			return defaultFramebuffer;
+		}
 
-        // 0 means, render to the real screen
-        private int GetNextPostProcessingEffectFramebuffer(int current)
-        {
-            for (int i = current + 1; i < postProcessingEffects.Count; i++)
-            {
-                if (postProcessingEffects[i] != null && postProcessingEffects[i].enabled)
-                {
-                    return postProcessingEffects[i].RenderTexture.FrameBuffer;
-                }
+		public int ActivePostProcessingEffectsCount
+		{
+			get
+			{
+				int i = 0;
+				foreach (PostProcessingEffect effect in postProcessingEffects)
+				{
+					if (effect != null && effect.enabled)
+						i++;
+				}
+				return i;
+			}
+		}
 
-            }
-            return 0;
-        }
+		// 0 means, render to the real screen
+		private int GetNextPostProcessingEffectFramebuffer(int current)
+		{
+			for (int i = current + 1; i < postProcessingEffects.Count; i++)
+			{
+				if (postProcessingEffects[i] != null && postProcessingEffects[i].enabled)
+				{
+					return postProcessingEffects[i].RenderTexture.FrameBuffer;
+				}
 
-        private void ApplyPostProcessingEffects()
-        {
+			}
+			return 0;
+		}
 
-            for (int i = 0; i < postProcessingEffects.Count; i++)
-            {
-                if (postProcessingEffects[i] != null && postProcessingEffects[i].enabled)
-                {
-                    BindFrameBuffer(GetNextPostProcessingEffectFramebuffer(i));
-                    GL.Clear(ClearBufferMask.ColorBufferBit);
-                    // custom update cycle
-                    postProcessingEffects[i].Update(this);
-                    // blit to the next render destination
-                    postProcessingEffects[i].Apply(this);
+		private void ApplyPostProcessingEffects()
+		{
 
-                }
-            }
+			for (int i = 0; i < postProcessingEffects.Count; i++)
+			{
+				if (postProcessingEffects[i] != null && postProcessingEffects[i].enabled)
+				{
+					BindFrameBuffer(GetNextPostProcessingEffectFramebuffer(i));
+					GL.Clear(ClearBufferMask.ColorBufferBit);
+					// custom update cycle
+					postProcessingEffects[i].Update(this);
+					// blit to the next render destination
+					postProcessingEffects[i].Apply(this);
 
-        }
+				}
+			}
 
-        public void BindTextureToUnit(Texture texture, int unit)
-        {
-            BindTextureToUnit(texture.Id, unit);
-        }
+		}
 
-        public void BindTextureToUnit(int textureId, int unit)
-        {
-            GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            GL.BindTexture(TextureTarget.Texture2D, textureId);
-        }
+		public void BindTextureToUnit(Texture texture, int unit)
+		{
+			BindTextureToUnit(texture.Id, unit);
+		}
 
-        public void Update()
-        {
+		public void BindTextureToUnit(int textureId, int unit)
+		{
+			GL.ActiveTexture(TextureUnit.Texture0 + unit);
+			GL.BindTexture(TextureTarget.Texture2D, textureId);
+		}
 
-            // apply postprocessing (if required)
-            ApplyPostProcessingEffects();
+		public void Update()
+		{
 
-            // redraw
-            this.window.SwapBuffers();
+			// apply postprocessing (if required)
+			ApplyPostProcessingEffects();
 
-            // destroy useless resources
-            // use for for avoiding "changing while iterating
-            for (int i = 0; i < this.bufferGC.Count; i++)
-            {
-                int _id = this.bufferGC[i];
+#if !__IOS__
+			// redraw
+			this.window.SwapBuffers();
+#endif
+
+			// destroy useless resources
+			// use for for avoiding "changing while iterating
+			for (int i = 0; i < this.bufferGC.Count; i++)
+			{
+				int _id = this.bufferGC[i];
 #if !__MOBILE__
                 GL.DeleteBuffer(_id);
 #else
-                GL.DeleteBuffers(1, new int[] { _id });
+				GL.DeleteBuffers(1, new int[] { _id });
 #endif
-                this.Log(string.Format("buffer {0} deleted", _id));
-            }
-            this.bufferGC.Clear();
+				this.Log(string.Format("buffer {0} deleted", _id));
+			}
+			this.bufferGC.Clear();
 
-            for (int i = 0; i < this.vaoGC.Count; i++)
-            {
-                int _id = this.vaoGC[i];
+			for (int i = 0; i < this.vaoGC.Count; i++)
+			{
+				int _id = this.vaoGC[i];
 #if !__MOBILE__
                 GL.DeleteVertexArray(_id);
 #else
-                GL.DeleteVertexArrays(1, new int[] { _id });
+				GL.DeleteVertexArrays(1, new int[] { _id });
 #endif
-                this.Log(string.Format("vertexArray {0} deleted", _id));
-            }
-            this.vaoGC.Clear();
+				this.Log(string.Format("vertexArray {0} deleted", _id));
+			}
+			this.vaoGC.Clear();
 
-            for (int i = 0; i < this.textureGC.Count; i++)
-            {
-                int _id = this.textureGC[i];
+			for (int i = 0; i < this.textureGC.Count; i++)
+			{
+				int _id = this.textureGC[i];
 
-                GL.DeleteTexture(_id);
-                this.Log(string.Format("texture {0} deleted", _id));
-            }
-            this.textureGC.Clear();
+				GL.DeleteTexture(_id);
+				this.Log(string.Format("texture {0} deleted", _id));
+			}
+			this.textureGC.Clear();
 
-            for (int i = 0; i < this.shaderGC.Count; i++)
-            {
-                int _id = this.shaderGC[i];
+			for (int i = 0; i < this.shaderGC.Count; i++)
+			{
+				int _id = this.shaderGC[i];
 
-                GL.DeleteProgram(_id);
-                this.Log(string.Format("shader {0} deleted", _id));
-            }
-            this.shaderGC.Clear();
+				GL.DeleteProgram(_id);
+				this.Log(string.Format("shader {0} deleted", _id));
+			}
+			this.shaderGC.Clear();
 
 #if !__MOBILE__
             this._keyboardState = Keyboard.GetState();
@@ -901,11 +993,16 @@ namespace Aiv.Fast2D
             this.watch.Start();
 #endif
 
-            BindFrameBuffer(GetDefaultFrameBuffer());
+#if !__IOS__
+			ResetFrameBuffer();
+#endif
+		}
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-
-        }
+		public void ResetFrameBuffer()
+		{
+			BindFrameBuffer(GetDefaultFrameBuffer());
+			GL.Clear(ClearBufferMask.ColorBufferBit);
+		}
 
 
 
@@ -1135,67 +1232,67 @@ namespace Aiv.Fast2D
         }
 #endif
 
-        public void SetViewport(int x, int y, int width, int height, float orthoSize = 0, bool virtualScreen = false)
-        {
-            // store values before changes
-            this.viewportPosition = new Vector2(x, y);
-            this.viewportSize = new Vector2(width, height);
-            // fix y as it is downsided in OpenGL
-            y = (this.height - y) - height;
-            if (virtualScreen)
-            {
-                GL.Viewport(0,
-                0,
-                width,
-                height);
-            }
-            else
-            {
-                GL.Viewport((int)(x * this.scaleX),
-                    (int)(y * this.scaleY),
-                    (int)(width * this.scaleX),
-                    (int)(height * this.scaleY));
-            }
+		public void SetViewport(int x, int y, int width, int height, float orthoSize = 0, bool virtualScreen = false)
+		{
+			// store values before changes
+			this.viewportPosition = new Vector2(x, y);
+			this.viewportSize = new Vector2(width, height);
+			// fix y as it is downsided in OpenGL
+			y = (this.height - y) - height;
+			if (virtualScreen)
+			{
+				GL.Viewport(0,
+				0,
+				width,
+				height);
+			}
+			else
+			{
+				GL.Viewport((int)(x * this.scaleX),
+					(int)(y * this.scaleY),
+					(int)(width * this.scaleX),
+					(int)(height * this.scaleY));
+			}
 
-            this._aspectRatio = (float)width / (float)height;
+			this._aspectRatio = (float)width / (float)height;
 
-            if (orthoSize == 0)
-                orthoSize = this.defaultOrthographicSize;
+			if (orthoSize == 0)
+				orthoSize = this.defaultOrthographicSize;
 
-            // use units instead of pixels ?
-            if (orthoSize > 0)
-            {
-                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, orthoSize * this._aspectRatio, orthoSize, 0, -1.0f, 1.0f);
-            }
-            else
-            {
-                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
-            }
+			// use units instead of pixels ?
+			if (orthoSize > 0)
+			{
+				this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, orthoSize * this._aspectRatio, orthoSize, 0, -1.0f, 1.0f);
+			}
+			else
+			{
+				this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
+			}
 
-            this.currentOrthographicSize = orthoSize;
+			this.currentOrthographicSize = orthoSize;
 
-        }
+		}
 
-        public void RenderTo(RenderTexture renderTexture, bool clear = true, float orthoSize = 0)
-        {
-            if (renderTexture == null)
-            {
-                BindFrameBuffer(GetDefaultFrameBuffer());
-                SetViewport(0, 0, this.width, this.height);
-                return;
-            }
-            else
-            {
-                BindFrameBuffer(renderTexture.FrameBuffer);
-                // unscaled,virtual viewport
-                SetViewport(0, 0, renderTexture.Width, renderTexture.Height, orthoSize, true);
-            }
+		public void RenderTo(RenderTexture renderTexture, bool clear = true, float orthoSize = 0)
+		{
+			if (renderTexture == null)
+			{
+				BindFrameBuffer(GetDefaultFrameBuffer());
+				SetViewport(0, 0, this.width, this.height);
+				return;
+			}
+			else
+			{
+				BindFrameBuffer(renderTexture.FrameBuffer);
+				// unscaled,virtual viewport
+				SetViewport(0, 0, renderTexture.Width, renderTexture.Height, orthoSize, true);
+			}
 
-            if (clear)
-            {
-                GL.Clear(ClearBufferMask.ColorBufferBit);
-            }
-        }
-    }
+			if (clear)
+			{
+				GL.Clear(ClearBufferMask.ColorBufferBit);
+			}
+		}
+	}
 }
 

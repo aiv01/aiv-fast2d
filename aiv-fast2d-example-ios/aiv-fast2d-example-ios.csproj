@@ -96,11 +96,12 @@
     </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="OpenTK-1.0" />
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
+    <Reference Include="OpenTK-1.0" />
+    <Reference Include="OpenTK-1.0" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Entitlements.plist" />

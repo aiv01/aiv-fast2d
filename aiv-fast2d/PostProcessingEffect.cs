@@ -90,7 +90,7 @@ void main(){
 
         public void Setup(Window window)
         {
-            renderTexture = new RenderTexture(window.Width, window.Height);
+			renderTexture = new RenderTexture(window.ScaledWidth, window.ScaledHeight);
         }
 
         public void Apply(Window window)

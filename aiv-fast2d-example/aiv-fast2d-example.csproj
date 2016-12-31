@@ -7,7 +7,7 @@
     <ProjectGuid>{051FC68A-81B7-46AA-BADD-BFDEA23E9476}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>aiv_fast2d_example</RootNamespace>
+    <RootNamespace>Aiv.Fast2D.Example</RootNamespace>
     <AssemblyName>aiv-fast2d-example</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -20,14 +20,14 @@ namespace Aiv.Fast2D.Example
 
             Window window = new Window(800, 600, "Aiv.Fast2D.Example");
             window.SetLogger(new ExampleLogger());
-            window.SetIcon("aiv_fast2d_example.Assets.2.ico");
+            window.SetIcon("Aiv.Fast2D.Example.Assets.2.ico");
 
-            window.SetCursor(false);
+            //window.SetCursor(false);
 
-            Texture logoAiv = new Texture("aiv_fast2d_example.Assets.LogoAIV.png");
+            Texture logoAiv = new Texture("Aiv.Fast2D.Example.Assets.LogoAIV.png");
 
 
-            Texture alien = new Texture("aiv_fast2d_example.Assets.owl.png");
+            Texture alien = new Texture("Aiv.Fast2D.Example.Assets.owl.png");
 
 
             Sprite logo = new Sprite(logoAiv.Width, logoAiv.Height);
@@ -112,12 +112,12 @@ namespace Aiv.Fast2D.Example
             };
             colouredTriangle.UpdateVertexColor();
 
-            Texture alien2 = new Texture("aiv_fast2d_example.Assets.2.png");
+            Texture alien2 = new Texture("Aiv.Fast2D.Example.Assets.2.png");
             RenderTexture maskedAlien = new RenderTexture(alien2.Width, alien2.Height);
             Sprite spriteMask = new Sprite(50, 50);
 
-            Texture circleMask = new Texture("aiv_fast2d_example.Assets.mask_circle.png");
-            Texture circleMask2 = new Texture("aiv_fast2d_example.Assets.mask_circle2.png");
+            Texture circleMask = new Texture("Aiv.Fast2D.Example.Assets.mask_circle.png");
+            Texture circleMask2 = new Texture("Aiv.Fast2D.Example.Assets.mask_circle2.png");
 
             Sprite maskedObject = new Sprite(alien2.Width, alien2.Height);
             maskedObject.position = new Vector2(200, 200);
@@ -126,7 +126,7 @@ namespace Aiv.Fast2D.Example
             PostProcessingEffect mainEffect = window.AddPostProcessingEffect(new GrayscaleEffect());
             mainEffect.enabled = false;
 
-            window.AddPostProcessingEffect(new MaskEffect("aiv_fast2d_example.Assets.mask_circle.png"));
+            window.AddPostProcessingEffect(new MaskEffect("Aiv.Fast2D.Example.Assets.mask_circle.png"));
 
             window.AddPostProcessingEffect(new BlackBands());
 
