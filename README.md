@@ -1,6 +1,8 @@
 # aiv-fast2d
 Hardware accelerated 2D library, used by the first year students of "Accademia Italiana Videogiochi"
 
+Supports Windows, MacOSX, Linux, Android and iOS
+
 ```cs
 // open a window and get a OpenGL context
 Window window = new Window(1024, 576, "Title");
