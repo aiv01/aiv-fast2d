@@ -34,5 +34,5 @@ sprite.scale = new Vector2(0.5f, 0.5f);
 // draw a sprite/mesh with the specified texture
 sprite.DrawTexture(texture);
 // draw only a part of the the texture in the sprite/mesh
-sprite.DrawTexture(texture, xoffset, yoffset, width, height);
+sprite.DrawTexture(texture, xOffset, yOffset, width, height);
 ```
