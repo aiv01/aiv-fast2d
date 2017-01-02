@@ -7,7 +7,10 @@ using OpenTK.Graphics.ES30;
 
 namespace Aiv.Fast2D
 {
-	public static class Graphics
+
+    using Vector2 = OpenTK.Vector2;
+
+    public static class Graphics
 	{
 		public static void SetContext(Window window)
 		{

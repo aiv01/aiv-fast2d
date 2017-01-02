@@ -1,5 +1,9 @@
 ﻿using System;
+#if __SHARPDX__
+using SharpDX;
+#else
 using OpenTK;
+#endif
 
 namespace Aiv.Fast2D
 {
