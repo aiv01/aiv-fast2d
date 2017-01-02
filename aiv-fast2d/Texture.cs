@@ -142,7 +142,7 @@ namespace Aiv.Fast2D
                 if (image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppArgb)
                 {
                     Bitmap tmpBitmap = new Bitmap(image.Width, image.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    using (Graphics gfx = Graphics.FromImage(tmpBitmap))
+					using (System.Drawing.Graphics gfx = System.Drawing.Graphics.FromImage(tmpBitmap))
                     {
                         gfx.DrawImageUnscaled(image, 0, 0);
                     }
