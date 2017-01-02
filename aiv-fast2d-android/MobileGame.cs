@@ -94,6 +94,11 @@ namespace Aiv.Fast2D.Android
 			// This gets called on each frame render
 			protected override void OnRenderFrame(FrameEventArgs e)
 			{
+				if (this.mobileGame.requestedExit)
+				{
+					this.mobileGame.FinishActivity(0);
+					return;
+				}
 				base.OnRenderFrame(e);
 				mobileGame.GameUpdate(window);
 				window.Update();
@@ -102,6 +107,7 @@ namespace Aiv.Fast2D.Android
 		}
 
 		private View view;
+		private bool requestedExit;
 
 		protected override void OnCreate(Bundle bundle)
 		{
@@ -121,6 +127,11 @@ namespace Aiv.Fast2D.Android
 		{
 			base.OnResume();
 			view.Resume();
+		}
+
+		public void Exit()
+		{
+			requestedExit = true;
 		}
 
 		public virtual void GameSetup(Aiv.Fast2D.Window window)

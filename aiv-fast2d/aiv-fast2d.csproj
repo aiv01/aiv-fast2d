@@ -50,6 +50,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Graphics_OpenGL.cs" />
     <Compile Include="Window_Desktop.cs" />
+    <Compile Include="Game.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
