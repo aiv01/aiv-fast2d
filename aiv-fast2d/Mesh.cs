@@ -202,15 +202,15 @@ void main(){
 
 			// vertex
 			this.vBufferId = Graphics.NewBuffer();
-			Graphics.MapBufferToArray(uvBufferId, 0, 2);
+			Graphics.MapBufferToArray(this.vBufferId, 0, 2);
 
 			// uv
 			this.uvBufferId = Graphics.NewBuffer();
-			Graphics.MapBufferToArray(uvBufferId, 1, 2);
+			Graphics.MapBufferToArray(this.uvBufferId, 1, 2);
 
 			// vc
 			this.vcBufferId = Graphics.NewBuffer();
-			Graphics.MapBufferToArray(vcBufferId, 2, 4);
+			Graphics.MapBufferToArray(this.vcBufferId, 2, 4);
 
 			if (shader == null)
 			{
@@ -258,7 +258,6 @@ void main(){
 		{
 			if (this.v == null)
 				return;
-			this.Bind();
 			// we use dynamic drawing, could be inefficient for simpler cases, but improves performance in case of complex animations
 			Graphics.BufferData(this.vBufferId, this.v);
 		}
@@ -267,7 +266,6 @@ void main(){
 		{
 			if (this.uv == null)
 				return;
-			this.Bind();
 			// we use dynamic drawing, could be inefficient for simpler cases, but improves performance in case of complex animations
 			Graphics.BufferData(this.uvBufferId, this.uv);
 		}
@@ -276,7 +274,6 @@ void main(){
 		{
 			if (this.vc == null)
 				return;
-			this.Bind();
 			// we use dynamic drawing, could be inefficient for simpler cases, but improves performance in case of complex animations
 			Graphics.BufferData(this.vcBufferId, this.vc);
 		}

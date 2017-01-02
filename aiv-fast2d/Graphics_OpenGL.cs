@@ -180,11 +180,11 @@ namespace Aiv.Fast2D
 #endif
 		}
 
-		public static void MapBufferToArray(int bufferId, int index, int itemSize)
+		public static void MapBufferToArray(int bufferId, int index, int elementSize)
 		{
 			GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
 			GL.EnableVertexAttribArray(index);
-			GL.VertexAttribPointer(index, itemSize, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+			GL.VertexAttribPointer(index, elementSize, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
 		}
 
 		public static void BufferData(float[] data)
