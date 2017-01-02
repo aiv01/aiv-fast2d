@@ -127,6 +127,7 @@ namespace Aiv.Fast2D
 				IntPtr rawData = Marshal.AllocHGlobal(width * height * 4);
 				using (var cgContext = new CGBitmapContext(rawData, width, height, 8, 4 * width, colorSpace, CGBitmapFlags.ByteOrder32Big | CGBitmapFlags.PremultipliedLast))
 				{
+					cgContext.ClearRect(new CGRect(0, 0, width, height));
 					cgContext.DrawImage(new CGRect(0, 0, width, height), image.CGImage);
 					Marshal.Copy(rawData, bitmap, 0, bitmap.Length);
 				}
