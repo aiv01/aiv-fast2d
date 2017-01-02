@@ -129,16 +129,16 @@ namespace Aiv.Fast2D.Android
 			view.Resume();
 		}
 
-		public void Exit()
+		protected void Exit()
 		{
 			requestedExit = true;
 		}
 
-		public virtual void GameSetup(Aiv.Fast2D.Window window)
+		protected virtual void GameSetup(Aiv.Fast2D.Window window)
 		{
 		}
 
-		public virtual void GameUpdate(Aiv.Fast2D.Window window)
+		protected virtual void GameUpdate(Aiv.Fast2D.Window window)
 		{
 		}
 	}

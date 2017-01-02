@@ -26,7 +26,7 @@ namespace Aiv.Fast2D.Android.Example
 		private Sprite alien;
 		private Segment lineDrawer;
 
-		public override void GameSetup(Window window)
+		protected override void GameSetup(Window window)
 		{
 			window.SetClearColor(0f, 0f, 1f);
 			sprite001 = new Sprite(300, 300);
@@ -40,7 +40,7 @@ namespace Aiv.Fast2D.Android.Example
 			lineDrawer = new Segment(0, 0, window.Width, window.Height, 4);
 		}
 
-		public override void GameUpdate(Window window)
+		protected override void GameUpdate(Window window)
 		{
 			if (window.IsTouching)
 			{

@@ -17,12 +17,12 @@ namespace Aiv.Fast2D
 			window = new Window(width, height, title, fullScreen);
 		}
 
-		public virtual void GameSetup(Window window)
+		protected virtual void GameSetup(Window window)
 		{
 
 		}
 
-		public virtual void GameUpdate(Window window)
+		protected virtual void GameUpdate(Window window)
 		{
 
 		}
@@ -37,7 +37,7 @@ namespace Aiv.Fast2D
 			}
 		}
 
-		public void Exit()
+		protected void Exit()
 		{
 			requestedExit = true;
 		}

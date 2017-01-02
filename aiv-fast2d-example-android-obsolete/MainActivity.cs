@@ -24,7 +24,7 @@ namespace Aiv.Fast2D.Android.Example.Obsolete
 		private Sprite alien;
 
 
-		public override void GameSetup(Window window)
+		protected override void GameSetup(Window window)
 		{
 			window.SetClearColor(0f, 1f, 1f);
 			mesh001 = new Mesh();
@@ -43,7 +43,7 @@ namespace Aiv.Fast2D.Android.Example.Obsolete
 
 		}
 
-		public override void GameUpdate(Window window)
+		protected override void GameUpdate(Window window)
 		{
 			if (window.IsTouching)
 			{

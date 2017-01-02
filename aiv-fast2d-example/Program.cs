@@ -65,7 +65,7 @@ namespace Aiv.Fast2D.Example
 
 			}
 
-			public override void GameSetup(Window window)
+			protected override void GameSetup(Window window)
 			{
 				window.SetLogger(new ExampleLogger());
 				window.SetIcon("Aiv.Fast2D.Example.Assets.2.ico");
@@ -188,7 +188,7 @@ namespace Aiv.Fast2D.Example
 				tileMap = new Tilemap("Assets/map001.csv", "Assets/tiles_spritesheet.png");
 			}
 
-			public override void GameUpdate(Window window)
+			protected override void GameUpdate(Window window)
 			{
 
 				if (window.GetKey(KeyCode.Right))
