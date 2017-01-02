@@ -77,6 +77,9 @@
     <Compile Include="MobileGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Window_Android.cs" />
+    <Compile Include="..\aiv-fast2d\Graphics_OpenGL.cs">
+      <Link>Graphics_OpenGL.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

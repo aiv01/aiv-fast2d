@@ -537,8 +537,6 @@ namespace Aiv.Fast2D
 		{
 			byte[] bitmap = null;
 			Stream imageStream = null;
-
-#if !__MOBILE__
 			Bitmap image = null;
 
 			Assembly assembly = Assembly.GetEntryAssembly();
@@ -590,60 +588,16 @@ namespace Aiv.Fast2D
 						bitmap[position] = r;
 						bitmap[position + 2] = b;
 						// premultiply
-						byte a = bitmap[position + 3];
-						bitmap[position] = (byte)(bitmap[position] * (a / 255f));
-						bitmap[position + 1] = (byte)(bitmap[position + 1] * (a / 255f));
-						bitmap[position + 2] = (byte)(bitmap[position + 2] * (a / 255f));
+						if (premultiplied)
+						{
+							byte a = bitmap[position + 3];
+							bitmap[position] = (byte)(bitmap[position] * (a / 255f));
+							bitmap[position + 1] = (byte)(bitmap[position + 1] * (a / 255f));
+							bitmap[position + 2] = (byte)(bitmap[position + 2] * (a / 255f));
+						}
 					}
 				}
-				premultiplied = true;
 			}
-#elif __ANDROID__
-            Bitmap image = null;
-            if (imageStream == null)
-            {
-                if (fileName.StartsWith("Assets/"))
-                {
-                    string newFileName = fileName.Substring(7);
-                    imageStream = Window.Assets.Open(newFileName);
-                }
-            }
-
-            BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-            bitmapOptions.InPreferredConfig = global::Android.Graphics.Bitmap.Config.Argb8888;
-            image = BitmapFactory.DecodeStream(imageStream, new global::Android.Graphics.Rect(0, 0, 0, 0), bitmapOptions);
-            
-            width = image.Width;
-            height = image.Height;
-
-            bitmap = new byte[width * height * 4];
-
-        
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    int pixel = image.GetPixel(x, y);
-
-                    byte a = (byte)((pixel >> 24) & 0xff);
-                    byte r = (byte)((pixel >> 16) & 0xff);
-                    byte g = (byte)((pixel >> 8) & 0xff);
-                    byte b = (byte)(pixel & 0xff);
-                    // premultiply;
-                    int position = (y * width * 4) + (x * 4);
-                    bitmap[position] = (byte)(r * (a / 255f));
-                    bitmap[position + 1] = (byte)(g * (a / 255f));
-                    bitmap[position + 2] = (byte)(b * (a / 255f));
-                    bitmap[position + 3] = a;
-
-                }
-            }
-            premultiplied = true;
-#elif __IOS__
-			width = 0;
-			height = 0;
-#endif
-
 			return bitmap;
 		}
 	}

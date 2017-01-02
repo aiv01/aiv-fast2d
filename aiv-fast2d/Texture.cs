@@ -93,6 +93,7 @@ namespace Aiv.Fast2D
 
 		public Texture(string fileName, bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this(nearest, repeatX, repeatY, mipMap)
 		{
+			this.premultiplied = true;
 			this.bitmap = Window.LoadImage(fileName, premultiplied, out this.width, out this.height);
 			this.Update();
 		}
@@ -114,6 +115,7 @@ namespace Aiv.Fast2D
 		{
 			int mipMapWidth;
 			int mipMapHeight;
+			this.premultiplied = true;
 			byte[] mipMapBitmap = Window.LoadImage(fileName, premultiplied, out mipMapWidth, out mipMapHeight);
 			int expectedWidth = this.width / (int)Math.Pow(2, mipMap);
 			int expectedHeight = this.height / (int)Math.Pow(2, mipMap);
