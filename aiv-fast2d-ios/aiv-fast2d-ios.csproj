@@ -73,6 +73,10 @@
     <Compile Include="..\aiv-fast2d\InstancedSprite.cs">
       <Link>InstancedSprite.cs</Link>
     </Compile>
+    <Compile Include="Window_iOS.cs" />
+    <Compile Include="..\aiv-fast2d\Graphics_OpenGL.cs">
+      <Link>Graphics_OpenGL.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>
