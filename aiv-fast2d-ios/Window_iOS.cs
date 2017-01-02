@@ -122,17 +122,16 @@ namespace Aiv.Fast2D
 
 			byte[] bitmap = new byte[width * height * 4];
 
-			using (var colourSpace = CGColorSpace.CreateDeviceRGB())
+			using (var colorSpace = CGColorSpace.CreateDeviceRGB())
 			{
 				IntPtr rawData = Marshal.AllocHGlobal(width * height * 4);
-				using (var cgContext = new CGBitmapContext(rawData, width, height, 8, 4 * width, colourSpace, CGImageAlphaInfo.PremultipliedLast))
+				using (var cgContext = new CGBitmapContext(rawData, width, height, 8, 4 * width, colorSpace, CGBitmapFlags.ByteOrder32Big | CGBitmapFlags.PremultipliedLast))
 				{
 					cgContext.DrawImage(new CGRect(0, 0, width, height), image.CGImage);
 					Marshal.Copy(rawData, bitmap, 0, bitmap.Length);
-					Marshal.FreeHGlobal(rawData);
 				}
+				Marshal.FreeHGlobal(rawData);
 			}
-
 
 			if (!premultiplied)
 			{
@@ -140,24 +139,23 @@ namespace Aiv.Fast2D
 				{
 					for (int x = 0; x < width; x++)
 					{
-
 						int position = (y * width * 4) + (x * 4);
-
 
 						byte r = bitmap[position];
 						byte g = bitmap[position + 1];
 						byte b = bitmap[position + 2];
 						byte a = bitmap[position + 3];
 
+
 						bitmap[position] = (byte)(r * (255f / a));
 						bitmap[position + 1] = (byte)(g * (255f / a));
 						bitmap[position + 2] = (byte)(b * (255f / a));
 
 					}
+
 				}
+
 			}
-
-
 
 			return bitmap;
 		}
