@@ -4,6 +4,46 @@ namespace Aiv.Fast2D
 	public partial class Window
 	{
 
+		#region touch
+
+		private float touchX;
+		private float touchY;
+
+		public float TouchX
+		{
+			get
+			{
+				return touchX;
+			}
+		}
+
+		public float TouchY
+		{
+			get
+			{
+				return touchY;
+			}
+		}
+
+		public Vector2 TouchPosition
+		{
+			get
+			{
+				return new Vector2(touchX, touchY);
+			}
+		}
+
+		private bool isTouching;
+		public bool IsTouching
+		{
+			get
+			{
+				return isTouching;
+			}
+		}
+		#endregion
+
+
 		private AndroidGameView context;
 
 		public void FixMobileViewport()

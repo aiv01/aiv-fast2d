@@ -1,7 +1,5 @@
 ﻿using System;
 using OpenTK;
-using System.Drawing;
-using System.Collections.Generic;
 
 namespace Aiv.Fast2D
 {

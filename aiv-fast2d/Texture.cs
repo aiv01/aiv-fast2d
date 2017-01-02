@@ -1,18 +1,4 @@
 ﻿using System;
-#if !__MOBILE__
-using OpenTK.Graphics.OpenGL;
-using System.Drawing;
-#else
-using OpenTK.Graphics.ES30;
-#if __ANDROID__
-using Android.Graphics;
-#endif
-#endif
-using System.Reflection;
-using System.Text;
-using System.Linq;
-using System.IO;
-using System.Runtime.InteropServices;
 
 namespace Aiv.Fast2D
 {
@@ -23,7 +9,7 @@ namespace Aiv.Fast2D
 		private int width;
 		private int height;
 		private byte[] bitmap;
-		private bool premultiplied;
+		protected bool premultiplied;
 
 		public bool flipped = false;
 
@@ -79,9 +65,7 @@ namespace Aiv.Fast2D
 
 		public Texture(bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false)
 		{
-
-			GL.ActiveTexture(TextureUnit.Texture0);
-			this.textureId = GL.GenTexture();
+			this.textureId = Graphics.NewTexture();
 
 			this.Bind();
 
@@ -107,8 +91,6 @@ namespace Aiv.Fast2D
 		}
 
 
-
-
 		public Texture(string fileName, bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this(nearest, repeatX, repeatY, mipMap)
 		{
 			this.bitmap = Window.LoadImage(fileName, premultiplied, out this.width, out this.height);
@@ -120,11 +102,7 @@ namespace Aiv.Fast2D
 			this.Bind();
 			if (mipMap == 0)
 				this.bitmap = bitmap;
-#if !__MOBILE__
-			GL.TexImage2D<byte>(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba8, this.width / (int)Math.Pow(2, mipMap), this.height / (int)Math.Pow(2, mipMap), 0, PixelFormat.Rgba, PixelType.UnsignedByte, this.bitmap);
-#else
-            GL.TexImage2D(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba, this.width / (int)Math.Pow(2, mipMap), this.height / (int)Math.Pow(2, mipMap), 0, OpenTK.Graphics.ES30.PixelFormat.Rgba, PixelType.UnsignedByte, this.bitmap);
-#endif
+			Graphics.TextureBitmap(width, height, bitmap, mipMap);
 		}
 
 		public void Update(int mipMap = 0)
@@ -134,29 +112,28 @@ namespace Aiv.Fast2D
 
 		public void AddMipMap(int mipMap, string fileName)
 		{
-			int width;
-			int height;
-			byte[] bitmap = Window.LoadImage(fileName, premultiplied, out width, out height);
+			int mipMapWidth;
+			int mipMapHeight;
+			byte[] mipMapBitmap = Window.LoadImage(fileName, premultiplied, out mipMapWidth, out mipMapHeight);
 			int expectedWidth = this.width / (int)Math.Pow(2, mipMap);
 			int expectedHeight = this.height / (int)Math.Pow(2, mipMap);
 
 			if (width != expectedWidth || height != expectedHeight)
 				throw new Exception("invalid mipmap size");
 
-			this.Update(bitmap, mipMap);
+			this.Update(mipMapBitmap, mipMap);
 		}
 
 		public void Bind()
 		{
-			GL.ActiveTexture(TextureUnit.Texture0);
-			GL.BindTexture(TextureTarget.Texture2D, this.textureId);
+			Graphics.BindTextureToUnit(this.textureId, 0);
 		}
 
 		public void Dispose()
 		{
 			if (disposed)
 				return;
-			GL.DeleteTexture(this.textureId);
+			Graphics.DeleteTexture(this.textureId);
 			Window.Current.Log(string.Format("texture {0} deleted", this.textureId));
 			disposed = true;
 		}
@@ -164,39 +141,25 @@ namespace Aiv.Fast2D
 		public void SetRepeatX(bool repeat = true)
 		{
 			this.Bind();
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, repeat ? (int)TextureWrapMode.Repeat : (int)TextureWrapMode.ClampToEdge);
+			Graphics.TextureSetRepeatX(repeat);
 		}
 
 		public void SetRepeatY(bool repeat = true)
 		{
 			this.Bind();
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, repeat ? (int)TextureWrapMode.Repeat : (int)TextureWrapMode.ClampToEdge);
+			Graphics.TextureSetRepeatY(repeat);
 		}
 
 		public void SetLinear(bool mipMap = false)
 		{
 			this.Bind();
-			if (mipMap)
-			{
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-			}
-			else {
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-			}
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+			Graphics.TextureSetLinear(mipMap);
 		}
 
 		public void SetNearest(bool mipMap = false)
 		{
 			this.Bind();
-			if (mipMap)
-			{
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
-			}
-			else {
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-			}
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+			Graphics.TextureSetNearest(mipMap);
 		}
 
 		~Texture()

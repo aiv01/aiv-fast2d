@@ -304,5 +304,53 @@ namespace Aiv.Fast2D
 		{
 			GL.BindBuffer(BufferTarget.ArrayBuffer, id);
 		}
+
+		public static int NewTexture()
+		{
+			return GL.GenTexture();
+		}
+
+		public static void TextureBitmap(int width, int height, byte[] bitmap, int mipMap = 0)
+		{
+#if !__MOBILE__
+			GL.TexImage2D<byte>(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba8, width / (int)Math.Pow(2, mipMap), height / (int)Math.Pow(2, mipMap), 0, PixelFormat.Rgba, PixelType.UnsignedByte, bitmap);
+#else
+            GL.TexImage2D(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba, width / (int)Math.Pow(2, mipMap), height / (int)Math.Pow(2, mipMap), 0, OpenTK.Graphics.ES30.PixelFormat.Rgba, PixelType.UnsignedByte, bitmap);
+#endif
+		}
+
+		public static void TextureSetRepeatX(bool repeat = true)
+		{
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, repeat ? (int)TextureWrapMode.Repeat : (int)TextureWrapMode.ClampToEdge);
+		}
+
+		public static void TextureSetRepeatY(bool repeat = true)
+		{
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, repeat ? (int)TextureWrapMode.Repeat : (int)TextureWrapMode.ClampToEdge);
+		}
+
+		public static void TextureSetLinear(bool mipMap = false)
+		{
+			if (mipMap)
+			{
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+			}
+			else {
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+			}
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+		}
+
+		public static void TextureSetNearest(bool mipMap = false)
+		{
+			if (mipMap)
+			{
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
+			}
+			else {
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+			}
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+		}
 	}
 }
