@@ -95,6 +95,7 @@ namespace Aiv.Fast2D
             }
         }
 
+        
         private static string simpleVertexShader = @"
 #version 330 core
 
@@ -192,7 +193,22 @@ void main(){
     gl_FragColor += color;
 }";
 
+        private static string simpleVertexShaderDirectX = @"
+float4 main(float2 position : VERTEX, float2 uv : UV, float4 vc : VC) : SV_POSITION
+{
+	return float4(position, 0, 1);
+}";
+        private static string simpleFragmentShaderDirectX = @"
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+	return float4(1.0, 0.0, 0.0, 1.0);
+}";
+
+#if __SHARPDX__
+        private static Shader simpleShader = new Shader(simpleVertexShaderDirectX, simpleFragmentShaderDirectX, null, null, new string[] { "VERTEX", "UV", "VC" }, new int[] { 2, 2, 4});
+#else
         private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete, new string[] { "vertex", "uv", "vc" });
+#endif
 
 
 
@@ -266,7 +282,7 @@ void main(){
         {
             if (this.v == null)
                 return;
-            // we use dynamic drawing, could be inefficient for simpler cases, but improves performance in case of complex animations
+            
             Graphics.BufferData(this.vBufferId, this.v);
         }
 
@@ -274,7 +290,7 @@ void main(){
         {
             if (this.uv == null)
                 return;
-            // we use dynamic drawing, could be inefficient for simpler cases, but improves performance in case of complex animations
+
             Graphics.BufferData(this.uvBufferId, this.uv);
         }
 
@@ -282,13 +298,13 @@ void main(){
         {
             if (this.vc == null)
                 return;
-            // we use dynamic drawing, could be inefficient for simpler cases, but improves performance in case of complex animations
+
             Graphics.BufferData(this.vcBufferId, this.vc);
         }
 
         public void Bind()
         {
-            if (!Window.IsObsolete)
+            if (this.vertexArrayId > -1)
             {
                 Graphics.BindArray(this.vertexArrayId);
             }

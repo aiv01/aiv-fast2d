@@ -17,7 +17,6 @@ namespace Aiv.Fast2D.UWP
     public class Game : IGame
     {
         private Window window;
-        private bool requestedExit;
 
         public Game(SwapChainPanel panel)
         {

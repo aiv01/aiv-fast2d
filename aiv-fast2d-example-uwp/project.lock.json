@@ -240,6 +240,17 @@
           "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.dll": {}
         }
       },
+      "SharpDX.D3DCompiler/3.1.1": {
+        "dependencies": {
+          "SharpDX": "[3.1.1, )"
+        },
+        "compile": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
+        },
+        "runtime": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
+        }
+      },
       "SharpDX.Direct3D11/3.1.1": {
         "dependencies": {
           "SharpDX": "[3.1.1, )",
@@ -1900,6 +1911,17 @@
         },
         "runtime": {
           "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.dll": {}
+        }
+      },
+      "SharpDX.D3DCompiler/3.1.1": {
+        "dependencies": {
+          "SharpDX": "[3.1.1, )"
+        },
+        "compile": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
+        },
+        "runtime": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
         }
       },
       "SharpDX.Direct3D11/3.1.1": {
@@ -3595,6 +3617,17 @@
         },
         "runtime": {
           "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.dll": {}
+        }
+      },
+      "SharpDX.D3DCompiler/3.1.1": {
+        "dependencies": {
+          "SharpDX": "[3.1.1, )"
+        },
+        "compile": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
+        },
+        "runtime": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
         }
       },
       "SharpDX.Direct3D11/3.1.1": {
@@ -5297,6 +5330,17 @@
           "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.dll": {}
         }
       },
+      "SharpDX.D3DCompiler/3.1.1": {
+        "dependencies": {
+          "SharpDX": "[3.1.1, )"
+        },
+        "compile": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
+        },
+        "runtime": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
+        }
+      },
       "SharpDX.Direct3D11/3.1.1": {
         "dependencies": {
           "SharpDX": "[3.1.1, )",
@@ -6990,6 +7034,17 @@
         },
         "runtime": {
           "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.dll": {}
+        }
+      },
+      "SharpDX.D3DCompiler/3.1.1": {
+        "dependencies": {
+          "SharpDX": "[3.1.1, )"
+        },
+        "compile": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
+        },
+        "runtime": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
         }
       },
       "SharpDX.Direct3D11/3.1.1": {
@@ -8692,6 +8747,17 @@
           "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.dll": {}
         }
       },
+      "SharpDX.D3DCompiler/3.1.1": {
+        "dependencies": {
+          "SharpDX": "[3.1.1, )"
+        },
+        "compile": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
+        },
+        "runtime": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
+        }
+      },
       "SharpDX.Direct3D11/3.1.1": {
         "dependencies": {
           "SharpDX": "[3.1.1, )",
@@ -10385,6 +10451,17 @@
         },
         "runtime": {
           "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.dll": {}
+        }
+      },
+      "SharpDX.D3DCompiler/3.1.1": {
+        "dependencies": {
+          "SharpDX": "[3.1.1, )"
+        },
+        "compile": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
+        },
+        "runtime": {
+          "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll": {}
         }
       },
       "SharpDX.Direct3D11/3.1.1": {
@@ -12518,6 +12595,20 @@
         "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.xml",
         "package/services/metadata/core-properties/b50af458b82b4928a8893558d4802042.psmdcp",
         "SharpDX.nuspec"
+      ]
+    },
+    "SharpDX.D3DCompiler/3.1.1": {
+      "sha512": "+YR3jZ9FDYGT9SIzmDnPgrFN1jkB+SgOUkf/s4BHIfzCTMdViWkpGaNZ6yC4DHm+hIljQxk2C8OLEWoyjCyHRg==",
+      "type": "Package",
+      "files": [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "lib/net45/SharpDX.D3DCompiler.dll",
+        "lib/net45/SharpDX.D3DCompiler.xml",
+        "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.dll",
+        "lib/portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1/SharpDX.D3DCompiler.xml",
+        "package/services/metadata/core-properties/e7dc1dffd30c4c82a63cbc8ddc3c4b41.psmdcp",
+        "SharpDX.D3DCompiler.nuspec"
       ]
     },
     "SharpDX.Direct3D11/3.1.1": {

@@ -180,6 +180,11 @@ namespace Aiv.Fast2D
 
             FinalizeSetup();
 
+            width = (int)context.Width;
+            height = (int)context.Height;
+
+            this.SetViewport(0, 0, width, height);
+
             CompositionTarget.Rendering += this.Update;
             this.game.GameSetup(this);
         }
@@ -200,7 +205,7 @@ namespace Aiv.Fast2D
             ApplyPostProcessingEffects();
 
             // Tell the swap chain to present the buffer.
-            this.swapChain.Present(1, PresentFlags.None, new PresentParameters());
+            this.swapChain.Present(1, PresentFlags.None);
          
             // cleanup graphics resources
             RunGraphicsGC();
