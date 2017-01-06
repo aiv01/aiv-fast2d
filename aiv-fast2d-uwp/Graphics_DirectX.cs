@@ -16,25 +16,91 @@ namespace Aiv.Fast2D
             return internalCounter++;
         }
 
-        private static DeviceContext3 currentContext;
+        private static DeviceContext2 currentContext;
         private static RenderTargetView currentTargetView;
         private static Color currentClearColor;
 
-        private static SharpDX.Direct3D11.Buffer currentBuffer;
+        private static int currentBuffer;
+        private static int currentShader;
 
         private static Dictionary<int, SharpDX.Direct3D11.Buffer> buffers;
+        private static Dictionary<int, DirectXBufferData> buffersData;
+
+        private class DirectXBufferData
+        {
+            public int index;
+            public int elementSize;
+            public DirectXArray array;
+        }
+
+        private class DirectXConstantBuffer
+        {
+            public int index;
+            public SharpDX.Direct3D11.Buffer buffer;
+            public int mode;
+        }
 
         private class DirectXShader
         {
             private VertexShader vs;
             private PixelShader ps;
             private InputLayout inputLayout;
+            private Dictionary<string, DirectXConstantBuffer> constantBuffers;
+            private Dictionary<int, DirectXConstantBuffer> constantBuffersByUid;
 
-            public DirectXShader(VertexShader vs, PixelShader ps, InputLayout layout)
+            public DirectXShader(VertexShader vs, PixelShader ps, InputLayout layout, string[] vertexUniforms, string[] fragmentUniforms)
             {
                 this.vs = vs;
                 this.ps = ps;
                 this.inputLayout = layout;
+                this.constantBuffers = new Dictionary<string, DirectXConstantBuffer>();
+                this.constantBuffersByUid = new Dictionary<int, DirectXConstantBuffer>();
+                int i = 0;
+                if (vertexUniforms != null)
+                {
+                    for (int j = 0; j < vertexUniforms.Length; j++)
+                    {
+                        // alocate space for a float4x4
+                        float[] data = new float[16];
+                        SharpDX.Direct3D11.Buffer constantBuffer = SharpDX.Direct3D11.Buffer.Create(currentContext.Device, BindFlags.ConstantBuffer, data, data.Length * sizeof(float));
+                        constantBuffers[vertexUniforms[j]] = new DirectXConstantBuffer() { index = i, buffer = constantBuffer, mode = 0 };
+                        constantBuffersByUid[i] = constantBuffers[vertexUniforms[j]];
+                        i++;
+                    }
+                }
+                if (fragmentUniforms != null)
+                {
+                    for (int j = 0; j < fragmentUniforms.Length; j++)
+                    {
+                        // alocate space for a float4x4
+                        float[] data = new float[16];
+                        SharpDX.Direct3D11.Buffer constantBuffer = SharpDX.Direct3D11.Buffer.Create(currentContext.Device, BindFlags.ConstantBuffer, data, data.Length * sizeof(float));
+                        constantBuffers[fragmentUniforms[j]] = new DirectXConstantBuffer() { index = i, buffer = constantBuffer, mode = 1 };
+                        constantBuffersByUid[i] = constantBuffers[fragmentUniforms[j]];
+                        i++;
+                    }
+                }
+            }
+
+            public int GetUniform(string name)
+            {
+                return this.constantBuffers[name].index;
+            }
+
+            public void SetUniform<T>(int uid, T value) where T : struct
+            {
+                var buffer = this.constantBuffersByUid[uid].buffer;
+                int slot = this.constantBuffersByUid[uid].index;
+                int mode = this.constantBuffersByUid[uid].mode;
+                currentContext.UpdateSubresource<T>(ref value, buffer);
+                if (mode == 0)
+                {
+                    currentContext.VertexShader.SetConstantBuffer(slot, buffer);
+                }
+                else if (mode == 1)
+                {
+                    currentContext.PixelShader.SetConstantBuffer(slot, buffer);
+                }
             }
 
             public void Use()
@@ -43,7 +109,7 @@ namespace Aiv.Fast2D
                 currentContext.PixelShader.Set(ps);
                 currentContext.InputAssembler.InputLayout = inputLayout;
 
-                for (int i = 0; i < currentArray.Buffers.Count; i++)
+                for (int i = 0; i < currentArray.ActiveBuffers; i++)
                 {
                     currentContext.InputAssembler.SetVertexBuffers(i, currentArray.Buffers[i]);
                 }
@@ -54,19 +120,32 @@ namespace Aiv.Fast2D
 
         private class DirectXArray
         {
-            private List<VertexBufferBinding> buffers;
+            private VertexBufferBinding[] buffers;
+            private int activeBuffers;
+
+            public int ActiveBuffers
+            {
+                get
+                {
+                    return activeBuffers;
+                }
+            }
 
             public DirectXArray()
             {
-                buffers = new List<VertexBufferBinding>();
+
+                buffers = new VertexBufferBinding[8];
+                activeBuffers = 0;
             }
 
             public void SetBuffer(int index, VertexBufferBinding buffer)
             {
-                buffers.Insert(index, buffer);
+                buffers[index] = buffer;
+                if (index + 1 > activeBuffers)
+                    activeBuffers = index + 1;
             }
 
-            public List<VertexBufferBinding> Buffers
+            public VertexBufferBinding[] Buffers
             {
                 get
                 {
@@ -86,6 +165,7 @@ namespace Aiv.Fast2D
             buffers = new Dictionary<int, SharpDX.Direct3D11.Buffer>();
             shaders = new Dictionary<int, DirectXShader>();
             arrays = new Dictionary<int, DirectXArray>();
+            buffersData = new Dictionary<int, DirectXBufferData>();
 
             internalCounter = 0;
         }
@@ -174,13 +254,10 @@ namespace Aiv.Fast2D
 
         public static int NewBuffer()
         {
-            float[] data = new float[]
-            {
-                0, 1,
-                -1, -1,
-                1, 1
-            };
-            SharpDX.Direct3D11.Buffer buffer = SharpDX.Direct3D11.Buffer.Create(currentContext.Device, BindFlags.VertexBuffer, data);
+            // allocate the space for a quad
+            float[] defaultData = new float[6 * 2];
+            BufferDescription bufferDescription = new BufferDescription(defaultData.Length * sizeof(float), ResourceUsage.Dynamic, BindFlags.VertexBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
+            SharpDX.Direct3D11.Buffer buffer = SharpDX.Direct3D11.Buffer.Create(currentContext.Device, defaultData, bufferDescription);
             int id = GetNextId();
             buffers[id] = buffer;
             return id;
@@ -200,15 +277,43 @@ namespace Aiv.Fast2D
             currentContext.Draw(amount, 0);
         }
 
+        private static void RemapVertexBufferBinding(int bufferId)
+        {
+            DirectXBufferData data = buffersData[bufferId];
+            currentArray.SetBuffer(data.index, new VertexBufferBinding(buffers[bufferId], data.elementSize * sizeof(float), 0));
+        }
+
         public static void MapBufferToArray(int bufferId, int index, int elementSize)
         {
             BindBuffer(bufferId);
-            currentArray.SetBuffer(index, new VertexBufferBinding(currentBuffer, elementSize * sizeof(float), 0));
+            buffersData[bufferId] = new DirectXBufferData() { index = index, elementSize = elementSize, array = currentArray };
+            RemapVertexBufferBinding(bufferId);
         }
 
         public static void BufferData(float[] data)
         {
-            //currentContext.UpdateSubresource<float>(data, currentBuffer);
+            DataStream stream;
+            currentContext.MapSubresource(buffers[currentBuffer], MapMode.WriteDiscard, MapFlags.None, out stream);
+            if (stream.Length < data.Length * sizeof(float))
+            {
+                stream.Dispose();
+                currentContext.UnmapSubresource(buffers[currentBuffer], 0);
+                buffers[currentBuffer].Dispose();
+                BufferDescription bufferDescription = new BufferDescription(data.Length * sizeof(float), ResourceUsage.Dynamic, BindFlags.VertexBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
+                SharpDX.Direct3D11.Buffer buffer = SharpDX.Direct3D11.Buffer.Create(currentContext.Device, data, bufferDescription);
+                buffers[currentBuffer] = buffer;
+                RemapVertexBufferBinding(currentBuffer);
+            }
+            unsafe
+            {
+                fixed (float* dataFloat = data)
+                {
+                    IntPtr dataPtr = new IntPtr(dataFloat);
+                    stream.Write(dataPtr, 0, data.Length * sizeof(float));
+                    stream.Dispose();
+                }
+            }
+            currentContext.UnmapSubresource(buffers[currentBuffer], 0);
         }
 
         public static void BufferData(int bufferId, float[] data)
@@ -292,7 +397,7 @@ namespace Aiv.Fast2D
 
         public static void BindBuffer(int id)
         {
-            currentBuffer = buffers[id];
+            currentBuffer = id;
         }
 
         public static int NewTexture()
@@ -324,7 +429,7 @@ namespace Aiv.Fast2D
 
         }
 
-        public static int CompileShader(string vertexModern, string fragmentModern, string vertexObsolete = null, string fragmentObsolete = null, string[] attribs = null, int[] attribsSizes = null)
+        public static int CompileShader(string vertexModern, string fragmentModern, string vertexObsolete = null, string fragmentObsolete = null, string[] attribs = null, int[] attribsSizes = null, string[] vertexUniforms = null, string[] fragmentUniforms = null)
         {
 
             VertexShader vertexShader;
@@ -354,35 +459,40 @@ namespace Aiv.Fast2D
 
             int id = GetNextId();
 
-            shaders[id] = new DirectXShader(vertexShader, fragmentShader, inputLayout);
+            shaders[id] = new DirectXShader(vertexShader, fragmentShader, inputLayout, vertexUniforms, fragmentUniforms);
 
             return id;
         }
 
         public static void BindShader(int shaderId)
         {
-            shaders[shaderId].Use();
+            currentShader = shaderId;
+            shaders[currentShader].Use();
         }
 
         public static int GetShaderUniformId(int shaderId, string name)
         {
-            return -1;
+            return shaders[shaderId].GetUniform(name);
         }
 
         public static void SetShaderUniform(int uid, int value)
         {
+            shaders[currentShader].SetUniform(uid, value);
         }
 
         public static void SetShaderUniform(int uid, float value)
         {
+            shaders[currentShader].SetUniform(uid, value);
         }
 
         public static void SetShaderUniform(int uid, Vector4 value)
         {
+            shaders[currentShader].SetUniform(uid, value);
         }
 
         public static void SetShaderUniform(int uid, Matrix4 value)
         {
+            shaders[currentShader].SetUniform(uid, value);
         }
     }
 }

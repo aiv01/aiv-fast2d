@@ -29,10 +29,10 @@ namespace Aiv.Fast2D
 
         private bool disposed;
 
-        public Shader(string vertexModern, string fragmentModern, string vertexObsolete = null, string fragmentObsolete = null, string[] attribs = null, int[] attibsSizes = null)
+        public Shader(string vertexModern, string fragmentModern, string vertexObsolete = null, string fragmentObsolete = null, string[] attribs = null, int[] attibsSizes = null, string[] vertexUniforms = null, string[] fragmentUniforms = null)
         {
 
-            this.programId = Graphics.CompileShader(vertexModern, fragmentModern, vertexObsolete, fragmentObsolete, attribs, attibsSizes);
+            this.programId = Graphics.CompileShader(vertexModern, fragmentModern, vertexObsolete, fragmentObsolete, attribs, attibsSizes, vertexUniforms, fragmentUniforms);
             this.uniformCache = new Dictionary<string, int>();
         }
 

@@ -363,7 +363,7 @@ namespace Aiv.Fast2D
 			return this._keyboardState.IsKeyDown((Key)key);
 		}
 
-		public string[] Joysticks
+        public string[] Joysticks
 		{
 			get
 			{

@@ -357,7 +357,7 @@ namespace Aiv.Fast2D
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
         }
 
-        public static int CompileShader(string vertexModern, string fragmentModern, string vertexObsolete = null, string fragmentObsolete = null, string[] attribs = null, int[] attribsSizes = null)
+        public static int CompileShader(string vertexModern, string fragmentModern, string vertexObsolete = null, string fragmentObsolete = null, string[] attribs = null, int[] attribsSizes = null, string[] vertexUniforms = null, string[] fragmentUniforms = null)
         {
             string vertex = vertexModern;
             string fragment = fragmentModern;

@@ -95,7 +95,7 @@ namespace Aiv.Fast2D
             }
         }
 
-        
+
         private static string simpleVertexShader = @"
 #version 330 core
 
@@ -194,18 +194,51 @@ void main(){
 }";
 
         private static string simpleVertexShaderDirectX = @"
-float4 main(float2 position : VERTEX, float2 uv : UV, float4 vc : VC) : SV_POSITION
+
+cbuffer b0 : register (b0) {
+    float4x4 mvp;
+}
+
+struct vs_out {
+    float4 position : SV_POSITION;
+    float2 uvout : TEXCOORD;
+    float4 vertex_color : COLOR;
+};
+
+vs_out main(float2 position : VERTEX, float2 uv : UV, float4 vc : VC)
 {
-	return float4(position, 0, 1);
+    vs_out o;
+    o.position = mul(float4(position.x, position.y, 0.0, 1.0), mvp);
+    o.uvout = uv;
+    o.vertex_color = vc;
+	return o;
 }";
         private static string simpleFragmentShaderDirectX = @"
-float4 main(float4 position : SV_POSITION) : SV_TARGET
+cbuffer b1 : register (b1) {
+    float use_texture;
+}
+
+cbuffer b2 : register (b2) {
+    float use_wireframe;
+}
+
+cbuffer b3 : register (b3) {
+    float4 color;
+}
+
+struct vs_out {
+    float4 position : SV_POSITION;
+    float2 uvout : TEXCOORD;
+    float4 vertex_color : COLOR;
+};
+
+float4 main(vs_out i) : SV_TARGET
 {
-	return float4(1.0, 0.0, 0.0, 1.0);
+	return i.vertex_color + color;
 }";
 
 #if __SHARPDX__
-        private static Shader simpleShader = new Shader(simpleVertexShaderDirectX, simpleFragmentShaderDirectX, null, null, new string[] { "VERTEX", "UV", "VC" }, new int[] { 2, 2, 4});
+        private static Shader simpleShader = new Shader(simpleVertexShaderDirectX, simpleFragmentShaderDirectX, null, null, new string[] { "VERTEX", "UV", "VC" }, new int[] { 2, 2, 4 }, new string[] { "mvp" }, new string[] { "use_texture", "use_wireframe", "color", "tex" });
 #else
         private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete, new string[] { "vertex", "uv", "vc" });
 #endif
@@ -282,7 +315,7 @@ float4 main(float4 position : SV_POSITION) : SV_TARGET
         {
             if (this.v == null)
                 return;
-            
+
             Graphics.BufferData(this.vBufferId, this.v);
         }
 
@@ -362,6 +395,10 @@ float4 main(float4 position : SV_POSITION) : SV_TARGET
             }
 
             Matrix4 mvp = m * Window.Current.OrthoMatrix;
+#if __SHARPDX__
+            // transpose the matrix for DirectX
+            mvp.Transpose();
+#endif
 
             // pass the matrix to the shader
             this.shader.SetUniform("mvp", mvp);
@@ -371,13 +408,13 @@ float4 main(float4 position : SV_POSITION) : SV_TARGET
         {
             if (this.v == null || this.uv == null)
                 return;
+            this.Bind();
             // upload fake vcs (if required) to avoid crashes
             if (this.vc == null && this.hasVertexColors)
             {
                 this.vc = new float[this.v.Length * 2];
                 this.UpdateVertexColor();
             }
-            this.Bind();
             tex.Bind();
             if (this.requireUseTexture)
                 this.shader.SetUniform("use_texture", 1f);
@@ -402,13 +439,13 @@ float4 main(float4 position : SV_POSITION) : SV_TARGET
         {
             if (this.v == null || this.uv == null)
                 return;
+            this.Bind();
             // upload fake vcs (if required) to avoid crashes
             if (this.vc == null && this.hasVertexColors)
             {
                 this.vc = new float[this.v.Length * 2];
                 this.UpdateVertexColor();
             }
-            this.Bind();
             Graphics.BindTextureToUnit(textureId, 0);
             if (this.requireUseTexture)
                 this.shader.SetUniform("use_texture", 1f);
@@ -432,6 +469,7 @@ float4 main(float4 position : SV_POSITION) : SV_TARGET
         // simply set the 'color' uniform of the shader
         public virtual void DrawColor(float r, float g, float b, float a = 1)
         {
+            this.Bind();
             this.shader.SetUniform("color", new Vector4(r, g, b, a));
             this.Draw();
             // always reset the color
@@ -452,6 +490,8 @@ float4 main(float4 position : SV_POSITION) : SV_TARGET
             // and check if the shader supports them
             if (!this.hasVertexColors)
                 return;
+
+            this.Bind();
 
             // store original vcs
             float[] vcs_storage = this.vc;
@@ -494,6 +534,7 @@ float4 main(float4 position : SV_POSITION) : SV_TARGET
         {
             if (this.v == null)
                 return;
+            this.Bind();
             // upload fake uvs (if required) to avoid crashes
             if (this.uv == null)
             {
@@ -506,7 +547,6 @@ float4 main(float4 position : SV_POSITION) : SV_TARGET
                 this.vc = new float[this.v.Length * 2];
                 this.UpdateVertexColor();
             }
-            this.Bind();
             // clear current texture
             Graphics.BindTextureToUnit(0, 0);
             if (this.requireUseTexture)
