@@ -5,8 +5,7 @@
     "SharpDX.D3DCompiler": "3.1.1",
     "SharpDX.Direct3D11": "3.1.1",
     "SharpDX.DXGI": "3.1.1",
-    "SharpDX.Mathematics": "3.1.1",
-    "SharpDX.XInput": "3.1.1"
+    "SharpDX.Mathematics": "3.1.1"
   },
   "frameworks": {
     "uap10.0": {}

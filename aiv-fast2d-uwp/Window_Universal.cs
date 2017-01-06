@@ -13,7 +13,7 @@ using SharpDX.DXGI;
 
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using SharpDX.XInput;
+using Windows.Gaming.Input;
 
 namespace Aiv.Fast2D
 {
@@ -103,8 +103,6 @@ namespace Aiv.Fast2D
         private D3D11.DeviceContext2 deviceContext;
         private SwapChain2 swapChain;
 
-        private Controller[] controllers;
-
         private SwapChainPanel context;
 
         private D3D11.RenderTargetView renderTargetView;
@@ -125,8 +123,6 @@ namespace Aiv.Fast2D
 
             this.context = panel;
             this.game = game;
-
-            controllers = new Controller[] { new Controller(UserIndex.One), new Controller(UserIndex.Two), new Controller(UserIndex.Three), new Controller(UserIndex.Four) };
 
             using (D3D11.Device defaultDevice = new D3D11.Device(D3D.DriverType.Hardware, D3D11.DeviceCreationFlags.Debug))
             {
@@ -242,39 +238,41 @@ namespace Aiv.Fast2D
                 string[] joysticks = new string[4];
                 for (int i = 0; i < 4; i++)
                 {
-                    if (controllers[i].IsConnected)
-                        joysticks[i] = controllers[i].ToString();
-                    else
+                    try
+                    {
+                        joysticks[i] = Gamepad.Gamepads[i].ToString();
+                    }
+                    catch
+                    {
                         joysticks[i] = null;
+                    }
                 }
                 return joysticks;
             }
         }
 
-        public Vector2 JoystickAxisLeftRaw(int index)
+        private GamepadReading JoystickGetState(int index)
         {
             try
             {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return new Vector2(gamepad.LeftThumbX, gamepad.LeftThumbY);
+                return Gamepad.Gamepads[index].GetCurrentReading();
             }
             catch
             {
-                return Vector2.Zero;
+                return new GamepadReading();
             }
+        }
+
+        public Vector2 JoystickAxisLeftRaw(int index)
+        {
+            var state = JoystickGetState(index);
+            return new Vector2((float)state.LeftThumbstickX, (float)state.LeftThumbstickY);
         }
 
         public Vector2 JoystickAxisRightRaw(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return new Vector2(gamepad.RightThumbX, gamepad.RightThumbY);
-            }
-            catch
-            {
-                return Vector2.Zero;
-            }
+            var state = JoystickGetState(index);
+            return new Vector2((float)state.RightThumbstickX, (float)state.RightThumbstickY);
         }
 
         private Vector2 SanitizeJoystickVector(Vector2 axis, float threshold)
@@ -303,30 +301,17 @@ namespace Aiv.Fast2D
             return SanitizeJoystickVector(axis, threshold);
         }
 
+
         public float JoystickTriggerLeftRaw(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return gamepad.LeftTrigger;
-            }
-            catch
-            {
-                return 0;
-            }
+            var state = JoystickGetState(index);
+            return (float)state.LeftTrigger;
         }
 
         public float JoystickTriggerRightRaw(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return gamepad.RightTrigger;
-            }
-            catch
-            {
-                return 0;
-            }
+            var state = JoystickGetState(index);
+            return (float)state.RightTrigger;
         }
 
         private float SanitizeJoystickTrigger(float value, float threshold)
@@ -352,209 +337,105 @@ namespace Aiv.Fast2D
 
         public bool JoystickShoulderLeft(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.LeftShoulder) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.LeftShoulder) != 0;
         }
 
         public bool JoystickShoulderRight(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.RightShoulder) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.RightShoulder) != 0;
         }
 
         public bool JoystickLeftStick(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.LeftThumb) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.LeftThumbstick) != 0;
         }
 
         public bool JoystickRightStick(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.RightThumb) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.RightThumbstick) != 0;
         }
 
         public bool JoystickUp(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.DPadUp) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.DPadUp) != 0;
         }
 
         public bool JoystickDown(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.DPadDown) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.DPadDown) != 0;
         }
 
         public bool JoystickRight(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.DPadRight) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.DPadRight) != 0;
         }
 
         public bool JoystickLeft(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.DPadLeft) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.DPadLeft) != 0;
         }
 
         public void JoystickVibrate(int index, float left, float right)
         {
-            Vibration v = new Vibration();
-            v.LeftMotorSpeed = (ushort)(ushort.MaxValue * left);
-            v.RightMotorSpeed = (ushort)(ushort.MaxValue * right);
             try
             {
-                controllers[index].SetVibration(v);
+                GamepadVibration vibration = new GamepadVibration();
+                vibration.LeftMotor = (double)left;
+                vibration.RightMotor = (double)right;
+                Gamepad.Gamepads[index].Vibration = vibration;
             }
             catch { }
+
         }
 
         public bool JoystickA(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.A) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.A) != 0;
         }
 
         public bool JoystickB(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.B) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.B) != 0;
         }
 
         public bool JoystickX(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.X) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.X) != 0;
         }
 
         public bool JoystickBack(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.Back) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.View) != 0;
         }
 
         public bool JoystickStart(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.Start) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.Menu) != 0;
         }
 
         public bool JoystickY(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return (gamepad.Buttons & GamepadButtonFlags.Y) != 0;
-            }
-            catch
-            {
-                return false;
-            }
+            var state = JoystickGetState(index);
+            return (state.Buttons & GamepadButtons.Y) != 0;
         }
 
         public string JoystickDebug(int index)
         {
-            try
-            {
-                Gamepad gamepad = controllers[index].GetState().Gamepad;
-                return gamepad.ToString();
-            }
-            catch
-            {
-                return "Disconnected";
-            }
+            var state = JoystickGetState(index);
+            return state.ToString();
         }
         #endregion
 
