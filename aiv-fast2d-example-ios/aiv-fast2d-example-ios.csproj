@@ -101,7 +101,6 @@
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
     <Reference Include="OpenTK-1.0" />
-    <Reference Include="OpenTK-1.0" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Entitlements.plist" />
