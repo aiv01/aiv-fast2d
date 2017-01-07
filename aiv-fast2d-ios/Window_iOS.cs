@@ -15,6 +15,8 @@ namespace Aiv.Fast2D
 
 		#region touch
 
+		private float touchScale;
+
 		private float touchX;
 		private float touchY;
 
@@ -61,6 +63,12 @@ namespace Aiv.Fast2D
 			this.width = (int)(context.Bounds.Size.Width * UIKit.UIScreen.MainScreen.Scale);
 			this.height = (int)(context.Bounds.Size.Height * UIKit.UIScreen.MainScreen.Scale);
 
+			// use fake scale
+			this.scaleX = 1;
+			this.scaleY = 1;
+
+			this.touchScale = 1f / (float)UIKit.UIScreen.MainScreen.Scale;
+
 			this.SetViewport(0, 0, this.width, this.height);
 
 			Graphics.Setup();
@@ -69,30 +77,26 @@ namespace Aiv.Fast2D
 		public void TouchBegan(float x, float y)
 		{
 			isTouching = true;
-			touchX = x / this.scaleX - this.viewportPosition.X / (this.viewportSize.X / this.OrthoWidth);
-			touchY = y / this.scaleY - this.viewportPosition.Y / (this.viewportSize.Y / this.OrthoHeight);
+			touchX = x / this.touchScale - this.viewportPosition.X / (this.viewportSize.X / this.OrthoWidth);
+			touchY = y / this.touchScale - this.viewportPosition.Y / (this.viewportSize.Y / this.OrthoHeight);
 		}
 
 		public void TouchEnded(float x, float y)
 		{
 			isTouching = false;
-			touchX = x / this.scaleX - this.viewportPosition.X / (this.viewportSize.X / this.OrthoWidth);
-			touchY = y / this.scaleY - this.viewportPosition.Y / (this.viewportSize.Y / this.OrthoHeight);
+			touchX = x / this.touchScale - this.viewportPosition.X / (this.viewportSize.X / this.OrthoWidth);
+			touchY = y / this.touchScale - this.viewportPosition.Y / (this.viewportSize.Y / this.OrthoHeight);
 		}
 
 		public void TouchMoved(float x, float y)
 		{
-			touchX = x / this.scaleX - this.viewportPosition.X / (this.viewportSize.X / this.OrthoWidth);
-			touchY = y / this.scaleY - this.viewportPosition.Y / (this.viewportSize.Y / this.OrthoHeight);
+			touchX = x / this.touchScale - this.viewportPosition.X / (this.viewportSize.X / this.OrthoWidth);
+			touchY = y / this.touchScale - this.viewportPosition.Y / (this.viewportSize.Y / this.OrthoHeight);
 		}
 
 		public Window(GLKView view)
 		{
 			context = view;
-
-			// compute pixel density scale
-			this.scaleX = 1f / (float)UIKit.UIScreen.MainScreen.Scale;
-			this.scaleY = 1f / (float)UIKit.UIScreen.MainScreen.Scale;
 
 
 			// on mobile refresh is capped to 60hz

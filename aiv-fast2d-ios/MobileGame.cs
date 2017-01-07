@@ -41,7 +41,6 @@ namespace Aiv.Fast2D.iOS
 			EAGLContext.SetCurrentContext(context);
 
 			window = new Window(view);
-
 			GameSetup(window);
 		}
 

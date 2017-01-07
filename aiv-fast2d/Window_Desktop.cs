@@ -178,6 +178,9 @@ namespace Aiv.Fast2D
 			Graphics.Setup();
 
 			FinalizeSetup();
+
+			// hack for getting the default framebuffer
+			ResetFrameBuffer();
 		}
 
 

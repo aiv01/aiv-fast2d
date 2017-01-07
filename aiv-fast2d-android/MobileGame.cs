@@ -28,7 +28,8 @@ namespace Aiv.Fast2D.Android
 			protected override void OnLoad(EventArgs e)
 			{
 				base.OnLoad(e);
-
+				// hack for getting the default framebuffer
+				window.ResetFrameBuffer();
 				window.FixMobileViewport();
 				mobileGame.GameSetup(window);
 				// Run the render loop

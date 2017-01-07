@@ -15,6 +15,8 @@ namespace Aiv.Fast2D.Example.iOS
 	{
 		Sprite sprite;
 		Texture alien;
+		RenderTexture fakeScreenTexture;
+		Sprite fakeScreen;
 
 		[Export("initWithCoder:")]
 		public GameViewController(NSCoder coder) : base(coder)
@@ -27,10 +29,16 @@ namespace Aiv.Fast2D.Example.iOS
 			sprite = new Sprite(100, 100);
 
 			alien = new Texture("2.png");
+
+			fakeScreenTexture = new RenderTexture(window.Width, window.Height);
+			fakeScreen = new Sprite(window.Width, window.Height);
 		}
 
 		protected override void GameUpdate(Window window)
 		{
+
+			window.RenderTo(fakeScreenTexture);
+
 			sprite.scale = Vector2.One;
 			sprite.position = window.TouchPosition;
 
@@ -40,6 +48,17 @@ namespace Aiv.Fast2D.Example.iOS
 			sprite.position = Vector2.Zero;
 
 			sprite.DrawTexture(alien);
+
+			window.RenderTo(null);
+
+			fakeScreen.scale = Vector2.One;
+			fakeScreen.position = Vector2.Zero;
+			fakeScreen.DrawTexture(fakeScreenTexture);
+
+			fakeScreen.scale = new Vector2(0.25f, 0.25f);
+			fakeScreen.position = new Vector2(window.Width - fakeScreenTexture.Width * 0.25f, window.Height - fakeScreenTexture.Height * 0.25f);
+			fakeScreen.DrawTexture(fakeScreenTexture);
+
 		}
 	}
 }
