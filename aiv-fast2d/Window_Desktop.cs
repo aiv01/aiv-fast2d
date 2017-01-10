@@ -178,12 +178,12 @@ namespace Aiv.Fast2D
                 this.context.Location = new Point(0, 0);
             }
 
+            watch = new Stopwatch();
+
             // enable vsync by default
             this.SetVSync(true);
 
             FixDimensions(width, height, true);
-
-            watch = new Stopwatch();
 
             this.context.Closed += new EventHandler<EventArgs>(this.Close);
             this.context.Move += (sender, e) =>
@@ -202,15 +202,20 @@ namespace Aiv.Fast2D
             ResetFrameBuffer();
         }
 
+        private bool fixedDeltaTime;
 
         public void SetVSync(bool enable)
         {
             if (enable)
             {
+                this.watch.Stop();
+                this.fixedDeltaTime = true;
                 this.context.VSync = VSyncMode.On;
+                this._deltaTime = 1f / DisplayDevice.Default.RefreshRate;
             }
             else
             {
+                this.fixedDeltaTime = false;
                 this.context.VSync = VSyncMode.Off;
             }
         }
@@ -314,11 +319,14 @@ namespace Aiv.Fast2D
             // get next events
             this.context.ProcessEvents();
 
-            // avoid negative values
-            this._deltaTime = this.watch.Elapsed.TotalSeconds > 0 ? (float)this.watch.Elapsed.TotalSeconds : 0f;
+            if (!fixedDeltaTime)
+            {
+                // avoid negative values
+                this._deltaTime = this.watch.Elapsed.TotalSeconds > 0 ? (float)this.watch.Elapsed.TotalSeconds : 0f;
 
-            this.watch.Reset();
-            this.watch.Start();
+                this.watch.Reset();
+                this.watch.Start();
+            }
 
             // reset and clear
             ResetFrameBuffer();
