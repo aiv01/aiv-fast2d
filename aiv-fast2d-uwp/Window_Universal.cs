@@ -196,6 +196,8 @@ namespace Aiv.Fast2D
             rasterizerDescription.CullMode = D3D11.CullMode.None;
             this.deviceContext.Rasterizer.State = new SharpDX.Direct3D11.RasterizerState(this.device, rasterizerDescription);
 
+            vsync = 1;
+
             CompositionTarget.Rendering += this.Update;
             this.game.GameSetup(this);
 
@@ -203,10 +205,29 @@ namespace Aiv.Fast2D
         }
 
 
+        public void SetFullScreen(bool enable)
+        {
+            this.swapChain.SetFullscreenState(enable, null);
+        }
+
+        private int vsync;
+
+        public void SetVSync(bool enable)
+        {
+            if (enable)
+            {
+                vsync = 1;
+            }
+            else
+            {
+                vsync = 0;
+            }
+        }
 
 
         public void Update(object sender, object e)
         {
+            Debug.WriteLine(this.deltaTime);
 
             // Set the active back buffer and clear it.
             this.deviceContext.OutputMerger.SetRenderTargets(this.renderTargetView);
@@ -218,7 +239,7 @@ namespace Aiv.Fast2D
             ApplyPostProcessingEffects();
 
             // Tell the swap chain to present the buffer.
-            this.swapChain.Present(1, PresentFlags.None);
+            this.swapChain.Present(vsync, PresentFlags.None);
 
             // cleanup graphics resources
             RunGraphicsGC();

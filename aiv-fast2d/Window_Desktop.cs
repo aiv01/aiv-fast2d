@@ -202,20 +202,14 @@ namespace Aiv.Fast2D
             ResetFrameBuffer();
         }
 
-        private bool fixedDeltaTime;
-
         public void SetVSync(bool enable)
         {
             if (enable)
             {
-                this.watch.Stop();
-                this.fixedDeltaTime = true;
                 this.context.VSync = VSyncMode.On;
-                this._deltaTime = 1f / DisplayDevice.Default.RefreshRate;
             }
             else
             {
-                this.fixedDeltaTime = false;
                 this.context.VSync = VSyncMode.Off;
             }
         }
@@ -319,14 +313,12 @@ namespace Aiv.Fast2D
             // get next events
             this.context.ProcessEvents();
 
-            if (!fixedDeltaTime)
-            {
-                // avoid negative values
-                this._deltaTime = this.watch.Elapsed.TotalSeconds > 0 ? (float)this.watch.Elapsed.TotalSeconds : 0f;
+            // avoid negative values
+            this._deltaTime = this.watch.Elapsed.TotalSeconds > 0 ? (float)this.watch.Elapsed.TotalSeconds : 0f;
 
-                this.watch.Reset();
-                this.watch.Start();
-            }
+            this.watch.Reset();
+            this.watch.Start();
+
 
             // reset and clear
             ResetFrameBuffer();
