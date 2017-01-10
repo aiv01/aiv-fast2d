@@ -4,382 +4,384 @@ using OpenTK;
 
 namespace Aiv.Fast2D.Example
 {
-	class Program
-	{
+    class Program
+    {
 
-		class ExampleLogger : ILogger
-		{
-			public void Log(string message)
-			{
-				Console.WriteLine("[Aiv.Fast2D.Example - {0}] {1}", DateTime.Now, message);
-			}
-		}
+        class ExampleLogger : ILogger
+        {
+            public void Log(string message)
+            {
+                Console.WriteLine("[Aiv.Fast2D.Example - {0}] {1}", DateTime.Now, message);
+            }
+        }
 
-		public class Example : Game
-		{
+        public class Example : Game
+        {
 
-			private Texture logoAiv;
-			private Texture alien;
-			private Texture alien2;
+            private Texture logoAiv;
+            private Texture alien;
+            private Texture alien2;
 
-			private Sprite logo;
-			private Tilemap tileMap;
-			private Sprite ship;
-			private Sprite ship2;
-			private Sprite square;
+            private Sprite logo;
+            private Tilemap tileMap;
+            private Sprite ship;
+            private Sprite ship2;
+            private Sprite square;
 
-			private InstancedSprite tiles;
-			private InstancedSprite tiles2;
+            private InstancedSprite tiles;
+            private InstancedSprite tiles2;
 
-			private RenderTexture screen;
-			private RenderTexture fake;
-			private RenderTexture maskedAlien;
+            private RenderTexture screen;
+            private RenderTexture fake;
+            private RenderTexture maskedAlien;
 
-			private Sprite monitor;
+            private Sprite monitor;
 
-			private Rope rope;
+            private Rope rope;
 
-			private Mesh triangle;
-			private Mesh farTriangles;
-			private Mesh colouredTriangle;
+            private Mesh triangle;
+            private Mesh farTriangles;
+            private Mesh colouredTriangle;
 
-			private int index;
-			private float t;
-			private int counter;
-			private int height;
+            private int index;
+            private float t;
+            private int counter;
+            private int height;
 
-			private ParticleSystem particleSystem;
-			private ParticleSystem particleSystem2;
+            private ParticleSystem particleSystem;
+            private ParticleSystem particleSystem2;
 
-			private PostProcessingEffect mainEffect;
+            private PostProcessingEffect mainEffect;
 
-			private Sprite spriteMask;
-			private Texture circleMask;
-			private Texture circleMask2;
+            private Sprite spriteMask;
+            private Texture circleMask;
+            private Texture circleMask2;
 
-			private Sprite maskedObject;
-			private Sprite maskedBackground;
+            private Sprite maskedObject;
+            private Sprite maskedBackground;
 
-			public Example(int width, int height, string title) : base(width, height, title)
-			{
+            public Example(int width, int height, string title) : base(width, height, title)
+            {
 
-			}
+            }
 
-			protected override void GameSetup(Window window)
-			{
-				window.SetLogger(new ExampleLogger());
-				window.SetIcon("Aiv.Fast2D.Example.Assets.2.ico");
+            protected override void GameSetup(Window window)
+            {
+                window.SetLogger(new ExampleLogger());
+                window.SetIcon("Aiv.Fast2D.Example.Assets.2.ico");
 
-				window.SetCursor(false);
+                window.Position = new Vector2(0, 0);
 
-				logoAiv = new Texture("Aiv.Fast2D.Example.Assets.LogoAIV.png");
+                window.SetCursor(false);
 
+                logoAiv = new Texture("Aiv.Fast2D.Example.Assets.LogoAIV.png");
 
-				alien = new Texture("Aiv.Fast2D.Example.Assets.owl.png");
 
+                alien = new Texture("Aiv.Fast2D.Example.Assets.owl.png");
 
-				logo = new Sprite(logoAiv.Width, logoAiv.Height);
 
-				height = 150;
+                logo = new Sprite(logoAiv.Width, logoAiv.Height);
 
-				ship = new Sprite(alien.Width / 10, height);
+                height = 150;
 
-				ship2 = new Sprite(alien.Width / 10, height);
+                ship = new Sprite(alien.Width / 10, height);
 
-				square = new Sprite(100, 100);
+                ship2 = new Sprite(alien.Width / 10, height);
 
-				tiles = new InstancedSprite(100, 100, 3);
-				tiles.SetPosition(0, new Vector2(150, 100));
-				tiles.SetPosition(1, new Vector2(200, 200));
-				tiles.SetPosition(2, new Vector2(500, 500));
+                square = new Sprite(100, 100);
 
-				tiles.SetScale(0, new Vector2(0.5f, 0.5f));
-				tiles.SetScale(1, new Vector2(1.5f, 1.5f));
+                tiles = new InstancedSprite(100, 100, 3);
+                tiles.SetPosition(0, new Vector2(150, 100));
+                tiles.SetPosition(1, new Vector2(200, 200));
+                tiles.SetPosition(2, new Vector2(500, 500));
 
-				tiles2 = new InstancedSprite(20, 20, 30);
+                tiles.SetScale(0, new Vector2(0.5f, 0.5f));
+                tiles.SetScale(1, new Vector2(1.5f, 1.5f));
 
-				screen = new RenderTexture(800, 600);
+                tiles2 = new InstancedSprite(20, 20, 30);
 
-				fake = new RenderTexture(1, 1);
-				fake.Dispose();
+                screen = new RenderTexture(800, 600);
 
-				monitor = new Sprite(100, 100);
-				monitor.position = new Vector2(400, 200);
-
-				index = 0;
-				t = 0;
-
-				window.SetClearColor(100, 100, 100);
-
-				counter = 0;
+                fake = new RenderTexture(1, 1);
+                fake.Dispose();
 
-				particleSystem = new ParticleSystem(2, 2, 100);
-				particleSystem.position = new Vector2(400, 200);
-
-				rope = new Rope(400, 3);
-				rope.position = new Vector2(400, 200);
-				rope.SetDestination(new Vector2(400, 400));
-
-				ship2.pivot = new Vector2(alien.Width / 20, height / 2);
-
-				particleSystem2 = new ParticleSystem(1, 2, 50);
-
-				triangle = new Mesh();
-				triangle.v = new float[] { 100, 100, 50, 200, 150, 200 };
-				triangle.UpdateVertex();
-				triangle.uv = new float[] { 0.5f, 0.5f, 0, 0, 1, 0 };
-				triangle.UpdateUV();
-
-				farTriangles = new Mesh();
-				farTriangles.v = new float[]
-				{
-				300, 100,
-				200, 200,
-				400, 200,
-
-				400, 400,
-				300, 500,
-				500, 500
-				};
-				farTriangles.UpdateVertex();
-
-				colouredTriangle = new Mesh();
-				colouredTriangle.v = new float[]
-				{
-				500, 200,
-				400, 300,
-				600, 300
-				};
-				colouredTriangle.UpdateVertex();
+                monitor = new Sprite(100, 100);
+                monitor.position = new Vector2(400, 200);
+
+                index = 0;
+                t = 0;
+
+                window.SetClearColor(100, 100, 100);
 
-				colouredTriangle.vc = new float[]
-				{
-				1, 0, 0, 0.5f,
-				0, 1, 0, 0.5f,
-				0, 0, 1, 0.5f
-				};
-				colouredTriangle.UpdateVertexColor();
+                counter = 0;
 
-				alien2 = new Texture("Aiv.Fast2D.Example.Assets.2.png");
-				maskedAlien = new RenderTexture(alien2.Width, alien2.Height);
-				spriteMask = new Sprite(50, 50);
+                particleSystem = new ParticleSystem(2, 2, 100);
+                particleSystem.position = new Vector2(400, 200);
+
+                rope = new Rope(400, 3);
+                rope.position = new Vector2(400, 200);
+                rope.SetDestination(new Vector2(400, 400));
+
+                ship2.pivot = new Vector2(alien.Width / 20, height / 2);
+
+                particleSystem2 = new ParticleSystem(1, 2, 50);
+
+                triangle = new Mesh();
+                triangle.v = new float[] { 100, 100, 50, 200, 150, 200 };
+                triangle.UpdateVertex();
+                triangle.uv = new float[] { 0.5f, 0.5f, 0, 0, 1, 0 };
+                triangle.UpdateUV();
 
-				circleMask = new Texture("Aiv.Fast2D.Example.Assets.mask_circle.png");
-				circleMask2 = new Texture("Aiv.Fast2D.Example.Assets.mask_circle2.png");
+                farTriangles = new Mesh();
+                farTriangles.v = new float[]
+                {
+                300, 100,
+                200, 200,
+                400, 200,
+
+                400, 400,
+                300, 500,
+                500, 500
+                };
+                farTriangles.UpdateVertex();
 
-				maskedObject = new Sprite(alien2.Width, alien2.Height);
-				maskedObject.position = new Vector2(200, 200);
-				maskedBackground = new Sprite(alien2.Width, alien2.Height);
+                colouredTriangle = new Mesh();
+                colouredTriangle.v = new float[]
+                {
+                500, 200,
+                400, 300,
+                600, 300
+                };
+                colouredTriangle.UpdateVertex();
 
-				mainEffect = window.AddPostProcessingEffect(new GrayscaleEffect());
-				mainEffect.enabled = false;
+                colouredTriangle.vc = new float[]
+                {
+                1, 0, 0, 0.5f,
+                0, 1, 0, 0.5f,
+                0, 0, 1, 0.5f
+                };
+                colouredTriangle.UpdateVertexColor();
 
-				window.AddPostProcessingEffect(new MaskEffect("Aiv.Fast2D.Example.Assets.mask_circle.png"));
+                alien2 = new Texture("Aiv.Fast2D.Example.Assets.2.png");
+                maskedAlien = new RenderTexture(alien2.Width, alien2.Height);
+                spriteMask = new Sprite(50, 50);
 
-				window.AddPostProcessingEffect(new BlackBands());
+                circleMask = new Texture("Aiv.Fast2D.Example.Assets.mask_circle.png");
+                circleMask2 = new Texture("Aiv.Fast2D.Example.Assets.mask_circle2.png");
 
-				window.AddPostProcessingEffect(new RedBands());
+                maskedObject = new Sprite(alien2.Width, alien2.Height);
+                maskedObject.position = new Vector2(200, 200);
+                maskedBackground = new Sprite(alien2.Width, alien2.Height);
 
-				// insert a postprocessing effect at the specific position
-				window.SetPostProcessingEffect(1, new WASDEffect());
+                mainEffect = window.AddPostProcessingEffect(new GrayscaleEffect());
+                mainEffect.enabled = false;
 
-				window.SetPostProcessingEffect(1, new WobbleEffect(5));
+                window.AddPostProcessingEffect(new MaskEffect("Aiv.Fast2D.Example.Assets.mask_circle.png"));
 
-				tileMap = new Tilemap("Assets/map001.csv", "Assets/tiles_spritesheet.png");
-			}
+                window.AddPostProcessingEffect(new BlackBands());
 
-			protected override void GameUpdate(Window window)
-			{
+                window.AddPostProcessingEffect(new RedBands());
 
-				if (window.GetKey(KeyCode.Right))
-				{
-					tileMap.position += new Vector2(1, 0) * window.deltaTime * 300;
-				}
-				if (window.GetKey(KeyCode.Left))
-				{
-					tileMap.position += new Vector2(-1, 0) * window.deltaTime * 300;
-				}
-				if (window.GetKey(KeyCode.Up))
-				{
-					tileMap.position += new Vector2(0, -1) * window.deltaTime * 300;
-				}
-				if (window.GetKey(KeyCode.Down))
-				{
-					tileMap.position += new Vector2(0, 1) * window.deltaTime * 300;
-				}
+                // insert a postprocessing effect at the specific position
+                window.SetPostProcessingEffect(1, new WASDEffect());
 
-				tileMap.position += window.JoystickAxisRight(0) * window.deltaTime * 300;
+                window.SetPostProcessingEffect(1, new WobbleEffect(5));
 
-				tileMap.Draw();
+                tileMap = new Tilemap("Assets/map001.csv", "Assets/tiles_spritesheet.png");
+            }
 
-				for (int i = 0; i < tiles2.Instances; i++)
-				{
-					tiles2.SetPosition(i, new Vector2(20 * i, 20 * i), true);
-					if (i % 2 == 0)
-					{
-						tiles2.SetAdditiveColor(i, new Vector4(1, -1, -1, 1), true);
-					}
-				}
-				tiles2.UpdatePositions();
-				tiles2.UpdateAdditiveColors();
+            protected override void GameUpdate(Window window)
+            {
 
+                if (window.GetKey(KeyCode.Right))
+                {
+                    tileMap.position += new Vector2(1, 0) * window.deltaTime * 300;
+                }
+                if (window.GetKey(KeyCode.Left))
+                {
+                    tileMap.position += new Vector2(-1, 0) * window.deltaTime * 300;
+                }
+                if (window.GetKey(KeyCode.Up))
+                {
+                    tileMap.position += new Vector2(0, -1) * window.deltaTime * 300;
+                }
+                if (window.GetKey(KeyCode.Down))
+                {
+                    tileMap.position += new Vector2(0, 1) * window.deltaTime * 300;
+                }
 
+                tileMap.position += window.JoystickAxisRight(0) * window.deltaTime * 300;
 
-				ship.position.Y = 10;
-				ship.position += new Vector2(5f, 0) * window.deltaTime;
+                tileMap.Draw();
 
-				ship.scale = new Vector2(1f, 1f);
+                for (int i = 0; i < tiles2.Instances; i++)
+                {
+                    tiles2.SetPosition(i, new Vector2(20 * i, 20 * i), true);
+                    if (i % 2 == 0)
+                    {
+                        tiles2.SetAdditiveColor(i, new Vector4(1, -1, -1, 1), true);
+                    }
+                }
+                tiles2.UpdatePositions();
+                tiles2.UpdateAdditiveColors();
 
-				t += window.deltaTime;
-				if (t > 1f / 24f)
-				{
-					index++;
-					if (index >= 51)
-						index = 0;
-					t = 0;
-				}
-				int x = (index % 10) * (alien.Width / 10);
-				int y = (index / 10) * height;
 
 
-				ship.DrawTexture(alien, x, y, alien.Width / 10, height);
+                ship.position.Y = 10;
+                ship.position += new Vector2(5f, 0) * window.deltaTime;
 
+                ship.scale = new Vector2(1f, 1f);
 
-				square.DrawSolidColor(1f, 0, 0, 0.5f);
+                t += window.deltaTime;
+                if (t > 1f / 24f)
+                {
+                    index++;
+                    if (index >= 51)
+                        index = 0;
+                    t = 0;
+                }
+                int x = (index % 10) * (alien.Width / 10);
+                int y = (index / 10) * height;
 
-				window.SetClearColor(255, 0, 0);
-				window.RenderTo(screen);
 
-				logo.position.Y = 100;
-				logo.position += new Vector2(50f, 0) * window.deltaTime;
-				logo.scale = new Vector2(1f, 1f);
-				logo.DrawTexture(logoAiv);
+                ship.DrawTexture(alien, x, y, alien.Width / 10, height);
 
 
+                square.DrawSolidColor(1f, 0, 0, 0.5f);
 
-				if (window.GetKey(KeyCode.Esc))
-					this.Exit();
+                window.SetClearColor(255, 0, 0);
+                window.RenderTo(screen);
 
-				if (window.GetKey(KeyCode.F))
-				{
-					window.SetFullScreen(true);
-					window.SetResolution(1920, 1080);
-				}
+                logo.position.Y = 100;
+                logo.position += new Vector2(50f, 0) * window.deltaTime;
+                logo.scale = new Vector2(1f, 1f);
+                logo.DrawTexture(logoAiv);
 
-				if (window.GetKey(KeyCode.T))
-				{
-					window.Title = string.Format("Counter = {0}", counter++);
-				}
 
-				if (window.GetKey(KeyCode.R))
-				{
-					ship.SetAdditiveTint(1f, -1f, -1f, 0);
-					//ship.SetMultiplyTint(2f, 0, 0, 1);
-				}
 
-				if (window.GetKey(KeyCode.N))
-				{
-					ship.SetAdditiveTint(0, 0, 0, 0);
-					//ship.SetMultiplyTint(2f, 0, 0, 1);
-				}
+                if (window.GetKey(KeyCode.Esc))
+                    this.Exit();
 
-				window.SetClearColor(100, 100, 100);
-				window.RenderTo(null);
+                if (window.GetKey(KeyCode.F))
+                {
+                    window.SetFullScreen(true);
+                    window.SetResolution(1920, 1080);
+                }
 
+                if (window.GetKey(KeyCode.T))
+                {
+                    window.Title = string.Format("Counter = {0}", counter++);
+                }
 
-				monitor.DrawTexture(screen);
+                if (window.GetKey(KeyCode.R))
+                {
+                    ship.SetAdditiveTint(1f, -1f, -1f, 0);
+                    //ship.SetMultiplyTint(2f, 0, 0, 1);
+                }
 
+                if (window.GetKey(KeyCode.N))
+                {
+                    ship.SetAdditiveTint(0, 0, 0, 0);
+                    //ship.SetMultiplyTint(2f, 0, 0, 1);
+                }
 
+                window.SetClearColor(100, 100, 100);
+                window.RenderTo(null);
 
-				Vector2 newPosition = tiles.GetPosition(2) - Vector2.One * 20f * window.deltaTime;
-				tiles.SetPosition(2, newPosition);
 
-				tiles.DrawSolidColor(0, 1, 1, 1);
+                monitor.DrawTexture(screen);
 
-				tiles2.position.X += 30 * window.deltaTime;
-				tiles2.DrawSolidColor(1, 1, 0, 1);
 
-				particleSystem.Update(window);
 
-				//rope.SetDestination(window.mousePosition);
-				rope.UpdatePhysics(window);
-				rope.DrawSolidColor(1f, 0f, 1f, 1f);
+                Vector2 newPosition = tiles.GetPosition(2) - Vector2.One * 20f * window.deltaTime;
+                tiles.SetPosition(2, newPosition);
 
-				ship2.position = rope.position + rope.Point2;
-				ship2.SetAdditiveTint(-1f, 1f, -1f, 0);
-				ship2.DrawTexture(alien, x, y, alien.Width / 10, height);
+                tiles.DrawSolidColor(0, 1, 1, 1);
 
-				particleSystem2.position = ship2.position;
-				particleSystem2.Update(window);
+                tiles2.position.X += 30 * window.deltaTime;
+                tiles2.DrawSolidColor(1, 1, 0, 1);
 
+                particleSystem.Update(window);
 
+                //rope.SetDestination(window.mousePosition);
+                rope.UpdatePhysics(window);
+                rope.DrawSolidColor(1f, 0f, 1f, 1f);
 
+                ship2.position = rope.position + rope.Point2;
+                ship2.SetAdditiveTint(-1f, 1f, -1f, 0);
+                ship2.DrawTexture(alien, x, y, alien.Width / 10, height);
 
-				farTriangles.DrawColor(0f, 0f, 1f, 1f);
+                particleSystem2.position = ship2.position;
+                particleSystem2.Update(window);
 
-				triangle.v[4] = window.mouseX;
-				triangle.v[5] = window.mouseY;
-				triangle.UpdateVertex();
 
-				if (window.HasFocus)
-				{
-					triangle.DrawTexture(alien);
-				}
-				else
-				{
-					window.SetScissorTest(window.Width / 2 - 200, window.Height / 2 - 200, 400, 400);
-					triangle.DrawColor(1f, 0f, 1f, 1f);
-					window.SetScissorTest(false);
-				}
 
-				window.SetClearColor(0f, 0f, 0f, 0f);
-				window.RenderTo(maskedAlien);
 
-				maskedBackground.DrawTexture(alien2);
-				window.SetMaskedBlending();
-				spriteMask.scale = Vector2.One;
-				spriteMask.position = new Vector2(150, 100);
-				spriteMask.DrawTexture(circleMask);
+                farTriangles.DrawColor(0f, 0f, 1f, 1f);
 
-				spriteMask.scale = new Vector2(2f, 2.7f);
-				spriteMask.position = new Vector2(180, 280);
-				spriteMask.DrawTexture(circleMask2);
+                triangle.v[4] = window.mouseX;
+                triangle.v[5] = window.mouseY;
+                triangle.UpdateVertex();
 
-				window.SetAlphaBlending();
-				window.SetClearColor(0.5f, 0.5f, 0.5f);
-				window.RenderTo(null);
+                if (window.HasFocus)
+                {
+                    triangle.DrawTexture(alien);
+                }
+                else
+                {
+                    window.SetScissorTest(window.Width / 2 - 200, window.Height / 2 - 200, 400, 400);
+                    triangle.DrawColor(1f, 0f, 1f, 1f);
+                    window.SetScissorTest(false);
+                }
 
-				maskedObject.DrawTexture(maskedAlien);
+                window.SetClearColor(0f, 0f, 0f, 0f);
+                window.RenderTo(maskedAlien);
 
-				if (window.GetKey(KeyCode.Space))
-				{
-					mainEffect.enabled = true;
-				}
+                maskedBackground.DrawTexture(alien2);
+                window.SetMaskedBlending();
+                spriteMask.scale = Vector2.One;
+                spriteMask.position = new Vector2(150, 100);
+                spriteMask.DrawTexture(circleMask);
 
-				if (window.GetKey(KeyCode.Return))
-				{
-					mainEffect.enabled = false;
-				}
+                spriteMask.scale = new Vector2(2f, 2.7f);
+                spriteMask.position = new Vector2(180, 280);
+                spriteMask.DrawTexture(circleMask2);
 
-				if (window.GetKey(KeyCode.Num1))
-				{
-					window.SetDefaultOrthographicSize(window.CurrentOrthoGraphicSize + window.deltaTime * 100);
-				}
+                window.SetAlphaBlending();
+                window.SetClearColor(0.5f, 0.5f, 0.5f);
+                window.RenderTo(null);
 
-				colouredTriangle.position = window.mousePosition;
-				colouredTriangle.pivot = new Vector2(500, 250);
-				float triggerRight = window.JoystickTriggerRight(0);
-				float triggerLeft = window.JoystickTriggerLeft(0);
-				colouredTriangle.scale = new Vector2(1 + triggerLeft, 1 + triggerRight);
-				colouredTriangle.Draw();
-			}
+                maskedObject.DrawTexture(maskedAlien);
 
-		}
+                if (window.GetKey(KeyCode.Space))
+                {
+                    mainEffect.enabled = true;
+                }
 
-		static void Main(string[] args)
-		{
-			Example example = new Example(800, 600, "Aiv.Fast2D.Example");
-			example.Run();
-		}
-	}
+                if (window.GetKey(KeyCode.Return))
+                {
+                    mainEffect.enabled = false;
+                }
+
+                if (window.GetKey(KeyCode.Num1))
+                {
+                    window.SetDefaultOrthographicSize(window.CurrentOrthoGraphicSize + window.deltaTime * 100);
+                }
+
+                colouredTriangle.position = window.mousePosition;
+                colouredTriangle.pivot = new Vector2(500, 250);
+                float triggerRight = window.JoystickTriggerRight(0);
+                float triggerLeft = window.JoystickTriggerLeft(0);
+                colouredTriangle.scale = new Vector2(1 + triggerLeft, 1 + triggerRight);
+                colouredTriangle.Draw();
+            }
+
+        }
+
+        static void Main(string[] args)
+        {
+            Example example = new Example(800, 600, "Aiv.Fast2D.Example");
+            example.Run();
+        }
+    }
 }
