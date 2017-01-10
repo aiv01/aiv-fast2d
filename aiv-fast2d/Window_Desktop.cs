@@ -183,10 +183,15 @@ namespace Aiv.Fast2D
 
             FixDimensions(width, height, true);
 
-            this.context.Closed += new EventHandler<EventArgs>(this.Close);
-            this.context.Visible = true;
-
             watch = new Stopwatch();
+
+            this.context.Closed += new EventHandler<EventArgs>(this.Close);
+            this.context.Move += (sender, e) =>
+            {
+                // avoid deltaTime to became huge while moving the window
+                this.watch.Stop();
+            };
+            this.context.Visible = true;
 
             // initialize graphics subsystem
             Graphics.Setup();
