@@ -10,6 +10,7 @@ using SharpDX;
 using D3D11 = SharpDX.Direct3D11;
 using D3D = SharpDX.Direct3D;
 using SharpDX.DXGI;
+using WIC = SharpDX.WIC;
 
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -181,7 +182,7 @@ namespace Aiv.Fast2D
             D3D11.Texture2D backBufferTexture = D3D11.Texture2D.FromSwapChain<D3D11.Texture2D>(this.swapChain, 0);
             this.renderTargetView = new D3D11.RenderTargetView(this.device, backBufferTexture);
 
-            
+
 
             FinalizeSetup();
 
@@ -191,7 +192,7 @@ namespace Aiv.Fast2D
             scaleX = 1;
             scaleY = 1;
 
-            
+
 
             this.SetViewport(0, 0, width, height);
 
@@ -230,7 +231,6 @@ namespace Aiv.Fast2D
 
         public void Update(object sender, object e)
         {
-            Debug.WriteLine(this.deltaTime);
 
             // Set the active back buffer and clear it.
             this.deviceContext.OutputMerger.SetRenderTargets(this.renderTargetView);
@@ -277,14 +277,19 @@ namespace Aiv.Fast2D
 
         private GamepadReading JoystickGetState(int index)
         {
-            try
+            if (Gamepad.Gamepads.Count > index)
             {
-                return Gamepad.Gamepads[index].GetCurrentReading();
+                try
+                {
+
+                    return Gamepad.Gamepads[index].GetCurrentReading();
+                }
+                catch
+                {
+
+                }
             }
-            catch
-            {
-                return new GamepadReading();
-            }
+            return new GamepadReading();
         }
 
         public Vector2 JoystickAxisLeftRaw(int index)
@@ -465,9 +470,16 @@ namespace Aiv.Fast2D
 
         public static byte[] LoadImage(string fileName, bool premultiplied, out int width, out int height)
         {
-            width = 0;
-            height = 0;
-            return null;
+            WIC.ImagingFactory factory = new WIC.ImagingFactory();
+
+            SharpDX.IO.NativeFileStream stream = new SharpDX.IO.NativeFileStream(fileName, SharpDX.IO.NativeFileMode.Open, SharpDX.IO.NativeFileAccess.Read);
+            WIC.BitmapDecoder decoder = new WIC.BitmapDecoder(factory, stream, WIC.DecodeOptions.CacheOnDemand);
+            WIC.BitmapFrameDecode frame = decoder.GetFrame(0);
+            width = frame.Size.Width;
+            height = frame.Size.Height;
+            byte[] data = new byte[width * height * 4];
+            frame.CopyPixels(data, width * 4);
+            return data;
         }
     }
 }
