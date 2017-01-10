@@ -160,12 +160,16 @@ namespace Aiv.Fast2D
 
         private static Dictionary<int, DirectXArray> arrays;
 
+        private static Dictionary<int, SharpDX.Direct3D11.Texture2D> textures;
+        private static int currentTexture;
+
         static Graphics()
         {
             buffers = new Dictionary<int, SharpDX.Direct3D11.Buffer>();
             shaders = new Dictionary<int, DirectXShader>();
             arrays = new Dictionary<int, DirectXArray>();
             buffersData = new Dictionary<int, DirectXBufferData>();
+            textures = new Dictionary<int, Texture2D>();
 
             internalCounter = 0;
         }
@@ -250,6 +254,7 @@ namespace Aiv.Fast2D
 
         public static void BindTextureToUnit(int textureId, int unit)
         {
+            currentTexture = textureId;
         }
 
         public static int NewBuffer()
@@ -402,11 +407,16 @@ namespace Aiv.Fast2D
 
         public static int NewTexture()
         {
-            return -1;
+            Texture2DDescription desc = new Texture2DDescription();
+            Texture2D texture = new Texture2D(currentContext.Device, desc);
+            int id = GetNextId();
+            textures[id] = texture;
+            return id;
         }
 
         public static void TextureBitmap(int width, int height, byte[] bitmap, int mipMap = 0)
         {
+            Texture2D texture = textures[currentTexture];
         }
 
         public static void TextureSetRepeatX(bool repeat = true)

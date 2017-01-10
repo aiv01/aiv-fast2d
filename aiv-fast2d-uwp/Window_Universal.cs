@@ -181,6 +181,8 @@ namespace Aiv.Fast2D
             D3D11.Texture2D backBufferTexture = D3D11.Texture2D.FromSwapChain<D3D11.Texture2D>(this.swapChain, 0);
             this.renderTargetView = new D3D11.RenderTargetView(this.device, backBufferTexture);
 
+            
+
             FinalizeSetup();
 
             width = (int)this.context.RenderSize.Width;
@@ -188,6 +190,8 @@ namespace Aiv.Fast2D
 
             scaleX = 1;
             scaleY = 1;
+
+            
 
             this.SetViewport(0, 0, width, height);
 
@@ -223,7 +227,6 @@ namespace Aiv.Fast2D
                 vsync = 0;
             }
         }
-
 
         public void Update(object sender, object e)
         {
