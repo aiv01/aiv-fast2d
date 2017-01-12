@@ -14,6 +14,10 @@ namespace Aiv.Fast2D.Example.Units
             Window.SetObsoleteMode();
             Window windowFake = new Window(800, 600, "Fake");
 
+			Texture texture = new Texture("Assets/circle.png");
+
+			Sprite circle = new Sprite(texture.Width, texture.Height);
+
             Console.WriteLine(windowFake.Version);
             Console.WriteLine(windowFake.Vendor);
             Console.WriteLine(windowFake.SLVersion);
@@ -85,6 +89,10 @@ namespace Aiv.Fast2D.Example.Units
 
                 triangle.position = new Vector2(2, 2);
                 triangle.DrawColor(1f, 0f, 0f, 1f);
+
+				circle.SetAdditiveTint(-1f, -1f, 1f, -0.5f);
+				circle.scale = new Vector2(0.005f, 0.005f);
+				circle.DrawTexture(texture);
 
                 window.SetViewport(0, 576/2, 1024/2, 576 / 2, 5);
                 window.SetScissorTest(window.CurrentViewportPosition.X, window.CurrentViewportPosition.Y, window.CurrentViewportSize.X, window.CurrentViewportSize.Y);
