@@ -201,7 +201,10 @@ void main(){
 		{
 			DrawSolidColor(r / 255f, g / 255f, b / 255f, a / 255f);
 		}
-
+		public void DrawSolidColor(Vector4 color)
+ +		{
+ +			DrawSolidColor(color.X / 255f, color.Y / 255f, color.Z / 255f, color.W / 255f);
+ +		}
 		public void DrawTexture(Texture tex, int xOffset, int yOffset, int width, int height)
 		{
 			float deltaW = 1f / tex.Width;
