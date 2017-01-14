@@ -103,6 +103,33 @@ void main(){
 		private Vector4 multiplyTint = Vector4.One;
 		private Vector4 additiveTint = Vector4.Zero;
 
+		private bool flipX;
+		private bool flipY;
+
+		public bool FlipX
+		{
+			get
+			{
+				return flipX;
+			}
+			set
+			{
+				flipX = value;
+			}
+		}
+
+		public bool FlipY
+		{
+			get
+			{
+				return flipY;
+			}
+			set
+			{
+				flipY = value;
+			}
+		}
+
 		public Sprite(float width, float height) : base(spriteShader)
 		{
 			this.hasVertexColors = false;
@@ -184,6 +211,20 @@ void main(){
 			float top = yOffset * deltaH;
 			float bottom = (yOffset + height) * deltaH;
 			if (tex.flipped)
+			{
+				float tmp = bottom;
+				bottom = top;
+				top = tmp;
+			}
+
+			if (flipX)
+			{
+				float tmp = left;
+				left = right;
+				right = tmp;
+			}
+
+			if (flipY)
 			{
 				float tmp = bottom;
 				bottom = top;
