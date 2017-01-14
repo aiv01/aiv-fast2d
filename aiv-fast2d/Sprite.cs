@@ -203,7 +203,7 @@ void main(){
 		}
 		public void DrawSolidColor(Vector4 color)
  +		{
- +			DrawSolidColor(color.X / 255f, color.Y / 255f, color.Z / 255f, color.W / 255f);
+ +			DrawSolidColor(color.X, color.Y, color.Z, color.W);
  +		}
 		public void DrawTexture(Texture tex, int xOffset, int yOffset, int width, int height)
 		{
