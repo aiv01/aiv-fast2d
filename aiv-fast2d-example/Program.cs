@@ -196,10 +196,12 @@ namespace Aiv.Fast2D.Example
                 if (window.GetKey(KeyCode.Right))
                 {
                     tileMap.position += new Vector2(1, 0) * window.deltaTime * 300;
+					ship2.FlipX = false;
                 }
                 if (window.GetKey(KeyCode.Left))
                 {
                     tileMap.position += new Vector2(-1, 0) * window.deltaTime * 300;
+					ship2.FlipX = true;
                 }
                 if (window.GetKey(KeyCode.Up))
                 {
