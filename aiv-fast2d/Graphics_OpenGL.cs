@@ -385,18 +385,32 @@ namespace Aiv.Fast2D
             GL.ShaderSource(vertexShaderId, vertex);
             GL.CompileShader(vertexShaderId);
 
-            string vertexShaderCompilationError = GL.GetShaderInfoLog(vertexShaderId);
-            if (vertexShaderCompilationError != null && vertexShaderCompilationError != "")
+            int shaderSuccess = 0;
+
+            GL.GetShader(vertexShaderId, ShaderParameter.CompileStatus, out shaderSuccess);
+
+            if (shaderSuccess == 0)
             {
-                throw new Shader.CompilationException(vertexShaderCompilationError);
+
+                string vertexShaderCompilationError = GL.GetShaderInfoLog(vertexShaderId);
+                if (vertexShaderCompilationError != null && vertexShaderCompilationError != "")
+                {
+                    throw new Shader.CompilationException(vertexShaderCompilationError);
+                }
             }
 
             GL.ShaderSource(fragmentShaderId, fragment);
             GL.CompileShader(fragmentShaderId);
-            string fragmentShaderCompilationError = GL.GetShaderInfoLog(fragmentShaderId);
-            if (fragmentShaderCompilationError != null && fragmentShaderCompilationError != "")
+
+            GL.GetShader(vertexShaderId, ShaderParameter.CompileStatus, out shaderSuccess);
+
+            if (shaderSuccess == 0)
             {
-                throw new Shader.CompilationException(fragmentShaderCompilationError);
+                string fragmentShaderCompilationError = GL.GetShaderInfoLog(fragmentShaderId);
+                if (fragmentShaderCompilationError != null && fragmentShaderCompilationError != "")
+                {
+                    throw new Shader.CompilationException(fragmentShaderCompilationError);
+                }
             }
 
             int programId = GL.CreateProgram();

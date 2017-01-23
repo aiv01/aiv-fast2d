@@ -6,6 +6,7 @@ using Android.OS;
 using Android.Content.Res;
 using Android.Views;
 using Android.Graphics;
+using Android.Hardware;
 
 namespace Aiv.Fast2D
 {
