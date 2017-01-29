@@ -72,7 +72,7 @@ namespace Aiv.Fast2D.Example
 
                 window.Position = new Vector2(0, 0);
 
-                window.SetCursor(false);
+                //window.SetCursor(false);
 
                 logoAiv = new Texture("Aiv.Fast2D.Example.Assets.LogoAIV.png");
 
@@ -318,7 +318,7 @@ namespace Aiv.Fast2D.Example
 
 
 
-
+				farTriangles.position.Y = window.MouseWheel;
                 farTriangles.DrawColor(0f, 0f, 1f, 1f);
 
                 triangle.v[4] = window.mouseX;
