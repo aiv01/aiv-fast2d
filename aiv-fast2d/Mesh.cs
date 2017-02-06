@@ -10,93 +10,95 @@ using OpenTK;
 
 namespace Aiv.Fast2D
 {
-    public class Mesh : IDisposable
-    {
+	public class Mesh : IDisposable
+	{
 
-        private int vertexArrayId;
+		private int vertexArrayId;
 
-        public float[] v;
-        public float[] uv;
-        public float[] vc;
+		public float[] v;
+		public float[] uv;
+		public float[] vc;
 
-        private int vBufferId;
-        private int uvBufferId;
-        private int vcBufferId;
+		private int vBufferId;
+		private int uvBufferId;
+		private int vcBufferId;
 
-        private struct VertexAttrib
-        {
-            public int bufferId;
-            public int elementSize;
+		private struct VertexAttrib
+		{
+			public int bufferId;
+			public int elementSize;
 
-            public VertexAttrib(int bufferId, int elementSize)
-            {
-                this.bufferId = bufferId;
-                this.elementSize = elementSize;
-            }
-        }
+			public VertexAttrib(int bufferId, int elementSize)
+			{
+				this.bufferId = bufferId;
+				this.elementSize = elementSize;
+			}
+		}
 
-        private Dictionary<int, VertexAttrib> customBuffers;
+		private Dictionary<int, VertexAttrib> customBuffers;
 
-        private bool disposed;
+		private bool disposed;
 
-        public bool hasVertexColors;
-
-
-
-        public Shader shader;
-
-        public Vector2 position = Vector2.Zero;
-        public Vector2 scale = Vector2.One;
-
-        public Vector2 pivot = Vector2.Zero;
-
-        public Camera Camera;
-
-        private float rotation;
-
-        public float Rotation
-        {
-            get
-            {
-                return this.rotation;
-            }
-            set
-            {
-                this.rotation = value;
-            }
-        }
-
-        public float EulerRotation
-        {
-            get
-            {
-                return this.rotation * 180f / (float)Math.PI;
-            }
-            set
-            {
-                this.rotation = value * (float)Math.PI / 180f;
-            }
-        }
-
-        // this is called to set uniform in shaders
-        public delegate void ShaderSetupHook(Mesh mesh);
-        protected ShaderSetupHook shaderSetupHook;
-
-        public bool noMatrix;
-
-        protected bool requireUseTexture;
-
-        protected int instances;
-        public int Instances
-        {
-            get
-            {
-                return instances;
-            }
-        }
+		public bool hasVertexColors;
 
 
-        private static string simpleVertexShader = @"
+
+		public Shader shader;
+
+		public Vector2 position = Vector2.Zero;
+		public Vector2 scale = Vector2.One;
+
+		public Vector2 pivot = Vector2.Zero;
+
+		public Camera Camera;
+
+		private float rotation;
+
+		public float Rotation
+		{
+			get
+			{
+				return this.rotation;
+			}
+			set
+			{
+				this.rotation = value;
+			}
+		}
+
+		public float EulerRotation
+		{
+			get
+			{
+				return this.rotation * 180f / (float)Math.PI;
+			}
+			set
+			{
+				this.rotation = value * (float)Math.PI / 180f;
+			}
+		}
+
+		// this is called to set uniform in shaders
+		public delegate void ShaderSetupHook(Mesh mesh);
+		protected ShaderSetupHook shaderSetupHook;
+
+		protected int numberOfAxis;
+
+		public bool noMatrix;
+
+		protected bool requireUseTexture;
+
+		protected int instances;
+		public int Instances
+		{
+			get
+			{
+				return instances;
+			}
+		}
+
+
+		private static string simpleVertexShader = @"
 #version 330 core
 
 layout(location = 0) in vec2 vertex;
@@ -112,7 +114,7 @@ void main(){
         uvout = uv;
         vertex_color = vc;
 }";
-        private static string simpleFragmentShader = @"
+		private static string simpleFragmentShader = @"
 #version 330 core
 
 precision highp float;
@@ -147,7 +149,7 @@ void main(){
     out_color += color;
 }";
 
-        private static string simpleVertexShaderObsolete = @"
+		private static string simpleVertexShaderObsolete = @"
 attribute vec2 vertex;
 attribute vec2 uv;
 attribute vec4 vc;
@@ -161,7 +163,7 @@ void main(){
         uvout = uv;
         vertex_color = vc;
 }";
-        private static string simpleFragmentShaderObsolete = @"
+		private static string simpleFragmentShaderObsolete = @"
 precision mediump float;
 
 uniform vec4 color;
@@ -193,7 +195,7 @@ void main(){
     gl_FragColor += color;
 }";
 
-        private static string simpleVertexShaderDirectX = @"
+		private static string simpleVertexShaderDirectX = @"
 
 cbuffer b0 : register (b0) {
     float4x4 mvp;
@@ -213,7 +215,7 @@ vs_out main(float2 position : VERTEX, float2 uv : UV, float4 vc : VC)
     o.vertex_color = vc;
 	return o;
 }";
-        private static string simpleFragmentShaderDirectX = @"
+		private static string simpleFragmentShaderDirectX = @"
 cbuffer b1 : register (b1) {
     float use_texture;
 }
@@ -240,139 +242,140 @@ float4 main(vs_out i) : SV_TARGET
 #if __SHARPDX__
         private static Shader simpleShader = new Shader(simpleVertexShaderDirectX, simpleFragmentShaderDirectX, null, null, new string[] { "VERTEX", "UV", "VC" }, new int[] { 2, 2, 4 }, new string[] { "mvp" }, new string[] { "use_texture", "use_wireframe", "color", "tex" });
 #else
-        private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete, new string[] { "vertex", "uv", "vc" });
+		private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete, new string[] { "vertex", "uv", "vc" });
 #endif
 
 
 
-        public Mesh(Shader shader = null)
-        {
+		public Mesh(Shader shader = null, int numberOfAxis = 2)
+		{
 
-            this.customBuffers = new Dictionary<int, VertexAttrib>();
+			this.customBuffers = new Dictionary<int, VertexAttrib>();
+			this.numberOfAxis = numberOfAxis;
 
-            // use VAO if possible
-            this.vertexArrayId = Graphics.NewArray();
-            if (this.vertexArrayId > -1)
-            {
-                this.Bind();
-            }
+			// use VAO if possible
+			this.vertexArrayId = Graphics.NewArray();
+			if (this.vertexArrayId > -1)
+			{
+				this.Bind();
+			}
 
-            // vertex
-            this.vBufferId = Graphics.NewBuffer();
-            Graphics.MapBufferToArray(this.vBufferId, 0, 2);
+			// vertex
+			this.vBufferId = Graphics.NewBuffer();
+			Graphics.MapBufferToArray(this.vBufferId, 0, numberOfAxis);
 
-            // uv
-            this.uvBufferId = Graphics.NewBuffer();
-            Graphics.MapBufferToArray(this.uvBufferId, 1, 2);
+			// uv
+			this.uvBufferId = Graphics.NewBuffer();
+			Graphics.MapBufferToArray(this.uvBufferId, 1, 2);
 
-            // vc
-            this.vcBufferId = Graphics.NewBuffer();
-            Graphics.MapBufferToArray(this.vcBufferId, 2, 4);
+			// vc
+			this.vcBufferId = Graphics.NewBuffer();
+			Graphics.MapBufferToArray(this.vcBufferId, 2, 4);
 
-            if (shader == null)
-            {
-                shader = simpleShader;
-                shader.SetUniform("tex", 0);
-            }
+			if (shader == null)
+			{
+				shader = simpleShader;
+				shader.SetUniform("tex", 0);
+			}
 
-            this.shader = shader;
+			this.shader = shader;
 
-            this.noMatrix = false;
-            this.hasVertexColors = true;
-            this.requireUseTexture = true;
-        }
+			this.noMatrix = false;
+			this.hasVertexColors = true;
+			this.requireUseTexture = true;
+		}
 
-        protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0)
-        {
-            this.Bind();
+		protected int NewFloatBuffer(int attribArrayId, int elementSize, float[] data, int divisor = 0)
+		{
+			this.Bind();
 
-            int bufferId = Graphics.NewBuffer();
-            Graphics.MapBufferToArray(bufferId, attribArrayId, elementSize);
+			int bufferId = Graphics.NewBuffer();
+			Graphics.MapBufferToArray(bufferId, attribArrayId, elementSize);
 
-            if (divisor > 0)
-            {
-                Graphics.SetArrayDivisor(attribArrayId, divisor);
-            }
+			if (divisor > 0)
+			{
+				Graphics.SetArrayDivisor(attribArrayId, divisor);
+			}
 
-            Graphics.BufferData(data);
-            this.customBuffers[attribArrayId] = new VertexAttrib(bufferId, elementSize);
-            return bufferId;
-        }
+			Graphics.BufferData(data);
+			this.customBuffers[attribArrayId] = new VertexAttrib(bufferId, elementSize);
+			return bufferId;
+		}
 
-        protected void UpdateFloatBuffer(int bufferId, float[] data, int offset = 0)
-        {
-            Graphics.BufferSubData(bufferId, data, offset);
-        }
+		protected void UpdateFloatBuffer(int bufferId, float[] data, int offset = 0)
+		{
+			Graphics.BufferSubData(bufferId, data, offset);
+		}
 
-        public void Update()
-        {
-            this.UpdateVertex();
-            this.UpdateUV();
-            this.UpdateVertexColor();
-        }
+		public void Update()
+		{
+			this.UpdateVertex();
+			this.UpdateUV();
+			this.UpdateVertexColor();
+		}
 
-        public void UpdateVertex()
-        {
-            if (this.v == null)
-                return;
+		public void UpdateVertex()
+		{
+			if (this.v == null)
+				return;
 
-            Graphics.BufferData(this.vBufferId, this.v);
-        }
+			Graphics.BufferData(this.vBufferId, this.v);
+		}
 
-        public void UpdateUV()
-        {
-            if (this.uv == null)
-                return;
+		public void UpdateUV()
+		{
+			if (this.uv == null)
+				return;
 
-            Graphics.BufferData(this.uvBufferId, this.uv);
-        }
+			Graphics.BufferData(this.uvBufferId, this.uv);
+		}
 
-        public void UpdateVertexColor()
-        {
-            if (this.vc == null)
-                return;
+		public void UpdateVertexColor()
+		{
+			if (this.vc == null)
+				return;
 
-            Graphics.BufferData(this.vcBufferId, this.vc);
-        }
+			Graphics.BufferData(this.vcBufferId, this.vc);
+		}
 
-        public void Bind()
-        {
-            if (this.vertexArrayId > -1)
-            {
-                Graphics.BindArray(this.vertexArrayId);
-            }
-            else
-            {
-                // vertex
-                Graphics.MapBufferToArray(this.vBufferId, 0, 2);
-                // uv
-                Graphics.MapBufferToArray(this.uvBufferId, 1, 2);
-                // vc
-                Graphics.MapBufferToArray(this.vcBufferId, 2, 4);
+		public void Bind()
+		{
+			if (this.vertexArrayId > -1)
+			{
+				Graphics.BindArray(this.vertexArrayId);
+			}
+			else
+			{
+				// vertex
+				Graphics.MapBufferToArray(this.vBufferId, 0, numberOfAxis);
+				// uv
+				Graphics.MapBufferToArray(this.uvBufferId, 1, 2);
+				// vc
+				Graphics.MapBufferToArray(this.vcBufferId, 2, 4);
 
-                // custom buffers
-                foreach (int customAttribId in this.customBuffers.Keys)
-                {
-                    int customBufferId = this.customBuffers[customAttribId].bufferId;
-                    int customBufferElementSize = this.customBuffers[customAttribId].elementSize;
-                    Graphics.MapBufferToArray(customBufferId, customAttribId, customBufferElementSize);
-                }
-            }
-        }
+				// custom buffers
+				foreach (int customAttribId in this.customBuffers.Keys)
+				{
+					int customBufferId = this.customBuffers[customAttribId].bufferId;
+					int customBufferElementSize = this.customBuffers[customAttribId].elementSize;
+					Graphics.MapBufferToArray(customBufferId, customAttribId, customBufferElementSize);
+				}
+			}
+		}
 
-        // here we update translations, scaling and rotations
-        private void ApplyMatrix()
-        {
-            if (this.noMatrix)
-                return;
+		// here we update translations, scaling and rotations
+		protected virtual void ApplyMatrix()
+		{
+			if (this.noMatrix)
+				return;
 #if __SHARPDX__
             Matrix4 m = Matrix4.Translation(-this.pivot.X, -this.pivot.Y, 0) *
                 Matrix4.Scaling(this.scale.X, this.scale.Y, 1) *
                 Matrix4.RotationZ(this.rotation) *
                 Matrix4.Translation(this.position.X, this.position.Y, 0);
 #else
-            // WARNING !!! OpenTK uses row-major while OpenGL uses column-major
-            Matrix4 m =
+			// WARNING !!! OpenTK uses row-major while OpenGL uses column-major
+			Matrix4 m =
 				Matrix4.CreateTranslation(-this.pivot.X, -this.pivot.Y, 0) *
 #if !__MOBILE__
 				Matrix4.CreateScale(this.scale.X, this.scale.Y, 1) *
@@ -385,237 +388,237 @@ float4 main(vs_out i) : SV_TARGET
 #endif
 
 
-            if (this.Camera != null)
-            {
-                m *= this.Camera.Matrix();
-            }
-            else if (Window.Current.CurrentCamera != null)
-            {
-                m *= Window.Current.CurrentCamera.Matrix();
-            }
+			if (this.Camera != null)
+			{
+				m *= this.Camera.Matrix();
+			}
+			else if (Window.Current.CurrentCamera != null)
+			{
+				m *= Window.Current.CurrentCamera.Matrix();
+			}
 
-            Matrix4 mvp = m * Window.Current.OrthoMatrix;
+			Matrix4 mvp = m * Window.Current.OrthoMatrix;
 #if __SHARPDX__
             // transpose the matrix for DirectX
             mvp.Transpose();
 #endif
 
-            // pass the matrix to the shader
-            this.shader.SetUniform("mvp", mvp);
-        }
+			// pass the matrix to the shader
+			this.shader.SetUniform("mvp", mvp);
+		}
 
-        public virtual void DrawTexture(Texture tex)
-        {
-            if (this.v == null || this.uv == null)
-                return;
-            this.Bind();
-            // upload fake vcs (if required) to avoid crashes
-            if (this.vc == null && this.hasVertexColors)
-            {
-                this.vc = new float[this.v.Length * 2];
-                this.UpdateVertexColor();
-            }
-            tex.Bind();
-            if (this.requireUseTexture)
-                this.shader.SetUniform("use_texture", 1f);
-            this.shader.Use();
-            if (this.shaderSetupHook != null)
-            {
-                this.shaderSetupHook(this);
-            }
-            this.ApplyMatrix();
-            if (instances <= 1)
-            {
-                Graphics.DrawArrays(this.v.Length / 2);
-            }
-            else
-            {
-                Graphics.DrawArraysInstanced(this.v.Length / 2, instances);
-            }
-        }
+		public virtual void DrawTexture(Texture tex)
+		{
+			if (this.v == null || this.uv == null)
+				return;
+			this.Bind();
+			// upload fake vcs (if required) to avoid crashes
+			if (this.vc == null && this.hasVertexColors)
+			{
+				this.vc = new float[(this.v.Length / numberOfAxis) * 4];
+				this.UpdateVertexColor();
+			}
+			tex.Bind();
+			if (this.requireUseTexture)
+				this.shader.SetUniform("use_texture", 1f);
+			this.shader.Use();
+			if (this.shaderSetupHook != null)
+			{
+				this.shaderSetupHook(this);
+			}
+			this.ApplyMatrix();
+			if (instances <= 1)
+			{
+				Graphics.DrawArrays(this.v.Length / numberOfAxis);
+			}
+			else
+			{
+				Graphics.DrawArraysInstanced(this.v.Length / numberOfAxis, instances);
+			}
+		}
 
-        // fast version of drawtexture without UV re-upload
-        public virtual void DrawTexture(int textureId)
-        {
-            if (this.v == null || this.uv == null)
-                return;
-            this.Bind();
-            // upload fake vcs (if required) to avoid crashes
-            if (this.vc == null && this.hasVertexColors)
-            {
-                this.vc = new float[this.v.Length * 2];
-                this.UpdateVertexColor();
-            }
-            Graphics.BindTextureToUnit(textureId, 0);
-            if (this.requireUseTexture)
-                this.shader.SetUniform("use_texture", 1f);
-            this.shader.Use();
-            if (this.shaderSetupHook != null)
-            {
-                this.shaderSetupHook(this);
-            }
-            this.ApplyMatrix();
-            if (instances <= 1)
-            {
-                Graphics.DrawArrays(this.v.Length / 2);
-            }
-            else
-            {
-                Graphics.DrawArraysInstanced(this.v.Length / 2, instances);
-            }
-        }
+		// fast version of drawtexture without UV re-upload
+		public virtual void DrawTexture(int textureId)
+		{
+			if (this.v == null || this.uv == null)
+				return;
+			this.Bind();
+			// upload fake vcs (if required) to avoid crashes
+			if (this.vc == null && this.hasVertexColors)
+			{
+				this.vc = new float[(this.v.Length / numberOfAxis) * 4];
+				this.UpdateVertexColor();
+			}
+			Graphics.BindTextureToUnit(textureId, 0);
+			if (this.requireUseTexture)
+				this.shader.SetUniform("use_texture", 1f);
+			this.shader.Use();
+			if (this.shaderSetupHook != null)
+			{
+				this.shaderSetupHook(this);
+			}
+			this.ApplyMatrix();
+			if (instances <= 1)
+			{
+				Graphics.DrawArrays(this.v.Length / numberOfAxis);
+			}
+			else
+			{
+				Graphics.DrawArraysInstanced(this.v.Length / numberOfAxis, instances);
+			}
+		}
 
 
-        // simply set the 'color' uniform of the shader
-        public virtual void DrawColor(float r, float g, float b, float a = 1)
-        {
-            this.Bind();
-            this.shader.SetUniform("color", new Vector4(r, g, b, a));
-            this.Draw();
-            // always reset the color
-            this.shader.SetUniform("color", Vector4.Zero);
-        }
+		// simply set the 'color' uniform of the shader
+		public virtual void DrawColor(float r, float g, float b, float a = 1)
+		{
+			this.Bind();
+			this.shader.SetUniform("color", new Vector4(r, g, b, a));
+			this.Draw();
+			// always reset the color
+			this.shader.SetUniform("color", Vector4.Zero);
+		}
 
-        public virtual void DrawColor(int r, int g, int b, int a = 255)
-        {
-            DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
-        }
+		public virtual void DrawColor(int r, int g, int b, int a = 255)
+		{
+			DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
+		}
 
-        public virtual void DrawWireframe(float r, float g, float b, float a = 1, float tickness = 0.02f)
-        {
-            if (this.v == null)
-                return;
+		public virtual void DrawWireframe(float r, float g, float b, float a = 1, float tickness = 0.02f)
+		{
+			if (this.v == null)
+				return;
 
-            // check if vcs neet to be temporarily stored
-            // and check if the shader supports them
-            if (!this.hasVertexColors)
-                return;
+			// check if vcs neet to be temporarily stored
+			// and check if the shader supports them
+			if (!this.hasVertexColors)
+				return;
 
-            this.Bind();
+			this.Bind();
 
-            // store original vcs
-            float[] vcs_storage = this.vc;
+			// store original vcs
+			float[] vcs_storage = this.vc;
 
-            int numVcs = this.v.Length * 2;
-            this.vc = new float[numVcs];
-            for (int i = 0; i < numVcs; i += 12)
-            {
-                this.vc[i] = 1f;
-                this.vc[i + 1] = 0f;
-                this.vc[i + 2] = 0f;
+			int numVcs = (this.v.Length / numberOfAxis) * 4;
+			this.vc = new float[numVcs];
+			for (int i = 0; i < numVcs; i += 12)
+			{
+				this.vc[i] = 1f;
+				this.vc[i + 1] = 0f;
+				this.vc[i + 2] = 0f;
 
-                this.vc[i + 4] = 0f;
-                this.vc[i + 5] = 1f;
-                this.vc[i + 6] = 0f;
+				this.vc[i + 4] = 0f;
+				this.vc[i + 5] = 1f;
+				this.vc[i + 6] = 0f;
 
-                this.vc[i + 8] = 0f;
-                this.vc[i + 9] = 0f;
-                this.vc[i + 10] = 1f;
-            }
-            this.UpdateVertexColor();
+				this.vc[i + 8] = 0f;
+				this.vc[i + 9] = 0f;
+				this.vc[i + 10] = 1f;
+			}
+			this.UpdateVertexColor();
 
-            this.shader.SetUniform("color", new Vector4(r, g, b, a));
-            this.shader.SetUniform("use_wireframe", tickness);
-            this.Draw();
-            this.shader.SetUniform("use_wireframe", -1f);
-            // always reset the color
-            this.shader.SetUniform("color", Vector4.Zero);
-            // reset old vcs (could be null)
-            this.vc = vcs_storage;
-        }
+			this.shader.SetUniform("color", new Vector4(r, g, b, a));
+			this.shader.SetUniform("use_wireframe", tickness);
+			this.Draw();
+			this.shader.SetUniform("use_wireframe", -1f);
+			// always reset the color
+			this.shader.SetUniform("color", Vector4.Zero);
+			// reset old vcs (could be null)
+			this.vc = vcs_storage;
+		}
 
-        public virtual void DrawWireframe(int r, int g, int b, int a = 255, float tickness = 0.02f)
-        {
-            DrawWireframe(r / 255f, g / 255f, b / 255f, a / 255f, tickness);
-        }
+		public virtual void DrawWireframe(int r, int g, int b, int a = 255, float tickness = 0.02f)
+		{
+			DrawWireframe(r / 255f, g / 255f, b / 255f, a / 255f, tickness);
+		}
 
-        // simple draw without textures (useful for subclasses)
-        public void Draw(ShaderSetupHook hook = null)
-        {
-            if (this.v == null)
-                return;
-            this.Bind();
-            // upload fake uvs (if required) to avoid crashes
-            if (this.uv == null)
-            {
-                this.uv = new float[this.v.Length];
-                this.UpdateUV();
-            }
-            // upload fake vcs (if required) to avoid crashes
-            if (this.vc == null && this.hasVertexColors)
-            {
-                this.vc = new float[this.v.Length * 2];
-                this.UpdateVertexColor();
-            }
-            // clear current texture
-            Graphics.BindTextureToUnit(0, 0);
-            if (this.requireUseTexture)
-                this.shader.SetUniform("use_texture", -1f);
+		// simple draw without textures (useful for subclasses)
+		public void Draw(ShaderSetupHook hook = null)
+		{
+			if (this.v == null)
+				return;
+			this.Bind();
+			// upload fake uvs (if required) to avoid crashes
+			if (this.uv == null)
+			{
+				this.uv = new float[this.v.Length];
+				this.UpdateUV();
+			}
+			// upload fake vcs (if required) to avoid crashes
+			if (this.vc == null && this.hasVertexColors)
+			{
+				this.vc = new float[(this.v.Length / numberOfAxis) * 4];
+				this.UpdateVertexColor();
+			}
+			// clear current texture
+			Graphics.BindTextureToUnit(0, 0);
+			if (this.requireUseTexture)
+				this.shader.SetUniform("use_texture", -1f);
 
-            this.shader.Use();
-            if (hook != null)
-            {
-                hook(this);
-            }
-            else if (this.shaderSetupHook != null)
-            {
-                this.shaderSetupHook(this);
-            }
+			this.shader.Use();
+			if (hook != null)
+			{
+				hook(this);
+			}
+			else if (this.shaderSetupHook != null)
+			{
+				this.shaderSetupHook(this);
+			}
 
-            this.ApplyMatrix();
-            if (instances <= 1)
-            {
-                Graphics.DrawArrays(this.v.Length / 2);
-            }
-            else
-            {
-                Graphics.DrawArraysInstanced(this.v.Length / 2, instances);
-            }
-        }
+			this.ApplyMatrix();
+			if (instances <= 1)
+			{
+				Graphics.DrawArrays(this.v.Length / numberOfAxis);
+			}
+			else
+			{
+				Graphics.DrawArraysInstanced(this.v.Length / numberOfAxis, instances);
+			}
+		}
 
-        public void Dispose()
-        {
-            if (disposed)
-                return;
+		public void Dispose()
+		{
+			if (disposed)
+				return;
 
-            Graphics.DeleteBuffer(this.vBufferId);
-            Graphics.DeleteBuffer(this.uvBufferId);
-            Graphics.DeleteBuffer(this.vcBufferId);
-            if (this.vertexArrayId > -1)
-                Graphics.DeleteArray(this.vertexArrayId);
+			Graphics.DeleteBuffer(this.vBufferId);
+			Graphics.DeleteBuffer(this.uvBufferId);
+			Graphics.DeleteBuffer(this.vcBufferId);
+			if (this.vertexArrayId > -1)
+				Graphics.DeleteArray(this.vertexArrayId);
 
-            Window.Current.Log(string.Format("buffer {0} deleted", this.vBufferId));
-            Window.Current.Log(string.Format("buffer {0} deleted", this.uvBufferId));
-            Window.Current.Log(string.Format("buffer {0} deleted", this.vcBufferId));
+			Window.Current.Log(string.Format("buffer {0} deleted", this.vBufferId));
+			Window.Current.Log(string.Format("buffer {0} deleted", this.uvBufferId));
+			Window.Current.Log(string.Format("buffer {0} deleted", this.vcBufferId));
 
-            foreach (VertexAttrib customAttrib in this.customBuffers.Values)
-            {
+			foreach (VertexAttrib customAttrib in this.customBuffers.Values)
+			{
 
-                Graphics.DeleteBuffer(customAttrib.bufferId);
+				Graphics.DeleteBuffer(customAttrib.bufferId);
 
-                Window.Current.Log(string.Format("buffer {0} deleted", customAttrib.bufferId));
-            }
+				Window.Current.Log(string.Format("buffer {0} deleted", customAttrib.bufferId));
+			}
 
-            Window.Current.Log(string.Format("vertexArray {0} deleted", this.vertexArrayId));
-            disposed = true;
-        }
+			Window.Current.Log(string.Format("vertexArray {0} deleted", this.vertexArrayId));
+			disposed = true;
+		}
 
-        ~Mesh()
-        {
-            if (disposed)
-                return;
-            Window.Current.bufferGC.Add(this.vBufferId);
-            Window.Current.bufferGC.Add(this.uvBufferId);
-            Window.Current.bufferGC.Add(this.vcBufferId);
-            foreach (VertexAttrib customAttrib in this.customBuffers.Values)
-            {
-                Window.Current.bufferGC.Add(customAttrib.bufferId);
-            }
-            Window.Current.vaoGC.Add(this.vertexArrayId);
+		~Mesh()
+		{
+			if (disposed)
+				return;
+			Window.Current.bufferGC.Add(this.vBufferId);
+			Window.Current.bufferGC.Add(this.uvBufferId);
+			Window.Current.bufferGC.Add(this.vcBufferId);
+			foreach (VertexAttrib customAttrib in this.customBuffers.Values)
+			{
+				Window.Current.bufferGC.Add(customAttrib.bufferId);
+			}
+			Window.Current.vaoGC.Add(this.vertexArrayId);
 
-            disposed = true;
-        }
+			disposed = true;
+		}
 
-    }
+	}
 }
 
