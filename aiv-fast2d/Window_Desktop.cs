@@ -52,6 +52,9 @@ namespace Aiv.Fast2D
 		ShiftRight = Key.ShiftRight,
 		ShiftLeft = Key.ShiftLeft,
 
+		CtrlRight = Key.ControlRight,
+		CtrlLeft = Key.ControlLeft,
+
 		Keypad0 = Key.Keypad0,
 		Keypad1 = Key.Keypad1,
 		Keypad2 = Key.Keypad2,
