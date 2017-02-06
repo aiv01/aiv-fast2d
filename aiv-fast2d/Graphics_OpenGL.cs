@@ -74,9 +74,29 @@ namespace Aiv.Fast2D
             GL.Disable(EnableCap.DepthTest);
         }
 
+		private static bool depthTestEnabled;
+
+		public static void EnableDepthTest() {
+			GL.Enable(EnableCap.DepthTest);
+			depthTestEnabled = true;
+		}
+
+		public static void DisableDepthTest()
+		{
+			GL.Disable(EnableCap.DepthTest);
+			depthTestEnabled = false;
+		}
+
         public static void ClearColor()
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+			if (!depthTestEnabled)
+			{
+				GL.Clear(ClearBufferMask.ColorBufferBit);
+			}
+			else
+			{
+				GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);	
+			}
         }
 
         public static void DeleteBuffer(int id)

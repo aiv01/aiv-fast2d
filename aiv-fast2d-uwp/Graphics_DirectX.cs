@@ -204,6 +204,14 @@ namespace Aiv.Fast2D
             SetAlphaBlending();
         }
 
+		public static void EnableDepthTest()
+		{
+		}
+
+		public static void DisableDepthTest()
+		{
+		}
+
         public static void ClearColor()
         {
             currentContext.ClearRenderTargetView(currentTargetView, currentClearColor);
