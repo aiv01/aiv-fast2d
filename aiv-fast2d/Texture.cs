@@ -1,7 +1,4 @@
 ﻿using System;
-using OpenTK.Graphics.OpenGL;
-using System.Drawing;
-using System.Runtime.InteropServices;
 
 namespace Aiv.Fast2D
 {
@@ -12,178 +9,166 @@ namespace Aiv.Fast2D
 		private int width;
 		private int height;
 		private byte[] bitmap;
+		protected bool premultiplied;
+
+		public bool flipped = false;
+
+		public int Id
+		{
+			get
+			{
+				return textureId;
+			}
+		}
 
 		private bool disposed;
 
-		public int Width {
-			get {
+		public int Width
+		{
+			get
+			{
 				return this.width;
 			}
 		}
 
-		public int Height {
-			get {
+		public int Height
+		{
+			get
+			{
 				return this.height;
 			}
 		}
 
-		public byte[] Bitmap {
-			get {
+		public float Ratio
+		{
+			get
+			{
+				return (float)this.Width / (float)this.Height;
+			}
+		}
+
+		public byte[] Bitmap
+		{
+			get
+			{
 				return this.bitmap;
 			}
 		}
 
-		public Texture (bool linear = false, bool repeatX = false, bool repeatY = false, bool mipMap = false)
+		public bool IsPremultiplied
 		{
-			GL.ActiveTexture (TextureUnit.Texture0);
-			this.textureId = GL.GenTexture ();
-
-			this.Bind ();
-
-			if (linear) {
-				this.SetLinear (mipMap);
-			} else {
-				this.SetNearest (mipMap);
+			get
+			{
+				return premultiplied;
 			}
-
-			this.SetRepeatX (repeatX);
-
-			this.SetRepeatY (repeatY);
 		}
 
-		public Texture (int width, int height, bool linear = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this (linear, repeatX, repeatY, mipMap)
+		public Texture(bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false)
+		{
+			this.textureId = Graphics.NewTexture();
+
+			this.Bind();
+
+			if (nearest)
+			{
+				this.SetNearest(mipMap);
+			}
+			else {
+				this.SetLinear(mipMap);
+			}
+
+			this.SetRepeatX(repeatX);
+
+			this.SetRepeatY(repeatY);
+		}
+
+		public Texture(int width, int height, bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this(nearest, repeatX, repeatY, mipMap)
 		{
 			this.width = width;
 			this.height = height;
 			this.bitmap = new byte[this.width * this.height * 4];
-			this.Update ();
+			this.Update();
 		}
 
-		private byte[] LoadImage (string fileName, out int width, out int height)
+
+		public Texture(string fileName, bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this(nearest, repeatX, repeatY, mipMap)
 		{
-			byte[] bitmap = null;
-			using (Bitmap image = new Bitmap (fileName)) {
-				// to avoid losing a ref
-				Bitmap _image = image;
-				bitmap = new byte[image.Width * image.Height * 4];
-				width = image.Width;
-				height = image.Height;
-				// if the image is not rgba, let's fix it
-				if (image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppArgb) {
-					Bitmap tmpBitmap = new Bitmap (image.Width, image.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-					using (Graphics gfx = Graphics.FromImage (tmpBitmap)) {
-						gfx.DrawImageUnscaled (image, 0, 0);
-					}
-					_image = tmpBitmap;
-				}
-
-				System.Drawing.Imaging.BitmapData data = _image.LockBits (new Rectangle (0, 0, width, height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-				Marshal.Copy (data.Scan0, bitmap, 0, bitmap.Length);
-				_image.UnlockBits (data);
-
-				for (int y = 0; y < _image.Height; y++) {
-					for (int x = 0; x < _image.Width; x++) {
-						int position = (y * _image.Width * 4) + (x * 4);
-						// bgra -> rgba
-						byte b = bitmap [position];
-						byte r = bitmap [position + 2];
-						bitmap [position] = r;
-						bitmap [position + 2] = b;
-					}
-				}
-			}
-
-			return bitmap;
+			this.premultiplied = true;
+			this.bitmap = Window.LoadImage(fileName, premultiplied, out this.width, out this.height);
+			this.Update();
 		}
 
-		public Texture (string fileName, bool linear = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this (linear, repeatX, repeatY, mipMap)
+		public void Update(byte[] bitmap, int mipMap = 0)
 		{
-			this.bitmap = this.LoadImage (fileName, out this.width, out this.height);
-			this.Update ();
-		}
-
-		public void Update (byte[]bitmap, int mipMap = 0)
-		{
-			this.Bind ();
+			this.Bind();
 			if (mipMap == 0)
 				this.bitmap = bitmap;
-			GL.TexImage2D<byte> (TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba, this.width / (int)Math.Pow (2, mipMap), this.height / (int)Math.Pow (2, mipMap), 0, PixelFormat.Rgba, PixelType.UnsignedByte, this.bitmap);
+			Graphics.TextureBitmap(width, height, bitmap, mipMap);
 		}
 
-		public void Update (int mipMap = 0)
+		public void Update(int mipMap = 0)
 		{
-			this.Update (this.bitmap, mipMap);
+			this.Update(this.bitmap, mipMap);
 		}
 
-		public void AddMipMap (int mipMap, string fileName)
+		public void AddMipMap(int mipMap, string fileName)
 		{
-			int width;
-			int height;
-			byte[] bitmap = this.LoadImage (fileName, out width, out height);
-			int expectedWidth = this.width / (int)Math.Pow (2, mipMap);
-			int expectedHeight = this.height / (int)Math.Pow (2, mipMap);
+			int mipMapWidth;
+			int mipMapHeight;
+			this.premultiplied = true;
+			byte[] mipMapBitmap = Window.LoadImage(fileName, premultiplied, out mipMapWidth, out mipMapHeight);
+			int expectedWidth = this.width / (int)Math.Pow(2, mipMap);
+			int expectedHeight = this.height / (int)Math.Pow(2, mipMap);
 
 			if (width != expectedWidth || height != expectedHeight)
-				throw new Exception ("invalid mipmap size");
+				throw new Exception("invalid mipmap size");
 
-			this.Update (bitmap, mipMap);
+			this.Update(mipMapBitmap, mipMap);
 		}
 
-		public void Bind ()
+		public void Bind()
 		{
-			GL.ActiveTexture (TextureUnit.Texture0);
-			GL.BindTexture (TextureTarget.Texture2D, this.textureId);
+			Graphics.BindTextureToUnit(this.textureId, 0);
 		}
 
-		public void Dispose ()
+		public void Dispose()
 		{
 			if (disposed)
 				return;
-			GL.DeleteTexture (this.textureId);
+			Graphics.DeleteTexture(this.textureId);
+			Window.Current.Log(string.Format("texture {0} deleted", this.textureId));
 			disposed = true;
 		}
 
-		public void SetRepeatX (bool repeat = true)
+		public void SetRepeatX(bool repeat = true)
 		{
-			this.Bind ();
-			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureWrapS, repeat ? (int)TextureWrapMode.Repeat : (int)TextureWrapMode.ClampToBorder);
+			this.Bind();
+			Graphics.TextureSetRepeatX(repeat);
 		}
 
-		public void SetRepeatY (bool repeat = true)
+		public void SetRepeatY(bool repeat = true)
 		{
-			this.Bind ();
-			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureWrapT, repeat ? (int)TextureWrapMode.Repeat : (int)TextureWrapMode.ClampToBorder);
+			this.Bind();
+			Graphics.TextureSetRepeatY(repeat);
 		}
 
-		public void SetLinear (bool mipMap = false)
+		public void SetLinear(bool mipMap = false)
 		{
-			this.Bind ();
-			if (mipMap) {
-				GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-				GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.LinearMipmapLinear);
-			} else {
-				GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-				GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
-			}
+			this.Bind();
+			Graphics.TextureSetLinear(mipMap);
 		}
 
-		public void SetNearest (bool mipMap = false)
+		public void SetNearest(bool mipMap = false)
 		{
-			this.Bind ();
-			if (mipMap) {
-				GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
-				GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.NearestMipmapNearest);
-			} else {
-				GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-				GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-			}
+			this.Bind();
+			Graphics.TextureSetNearest(mipMap);
 		}
 
-		~Texture ()
+		~Texture()
 		{
 			if (disposed)
 				return;
-			Context.textureGC.Add (this.textureId);
+			Window.Current.textureGC.Add(this.textureId);
 			disposed = true;
 		}
 	}
