@@ -279,6 +279,12 @@ namespace Aiv.Fast2D
 			this.FixDimensions(width, height);
 		}
 
+		public void SetSize(int width, int height)
+		{
+			this.context.WindowState = WindowState.Normal;
+			this.FixDimensions(width, height);
+		}
+
 		public void SetCursor(bool enable)
 		{
 			this.context.CursorVisible = enable;
@@ -387,6 +393,78 @@ namespace Aiv.Fast2D
 			get
 			{
 				return this._mouseState.WheelPrecise;
+			}
+		}
+
+		public bool MouseButton1
+		{
+			get
+			{
+				return this._mouseState.IsButtonDown(MouseButton.Button1);
+			}
+		}
+
+		public bool MouseButton2
+		{
+			get
+			{
+				return this._mouseState.IsButtonDown(MouseButton.Button2);
+			}
+		}
+
+		public bool MouseButton3
+		{
+			get
+			{
+				return this._mouseState.IsButtonDown(MouseButton.Button3);
+			}
+		}
+
+		public bool MouseButton4
+		{
+			get
+			{
+				return this._mouseState.IsButtonDown(MouseButton.Button4);
+			}
+		}
+
+		public bool MouseButton5
+		{
+			get
+			{
+				return this._mouseState.IsButtonDown(MouseButton.Button5);
+			}
+		}
+
+		public bool MouseButton6
+		{
+			get
+			{
+				return this._mouseState.IsButtonDown(MouseButton.Button6);
+			}
+		}
+
+		public bool MouseButton7
+		{
+			get
+			{
+				return this._mouseState.IsButtonDown(MouseButton.Button7);
+			}
+		}
+
+		public bool MouseButton8
+		{
+			get
+			{
+				return this._mouseState.IsButtonDown(MouseButton.Button8);
+			}
+		}
+
+		public bool MouseButton9
+		{
+			get
+			{
+				return this._mouseState.IsButtonDown(MouseButton.Button9);
 			}
 		}
 

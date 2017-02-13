@@ -60,6 +60,8 @@ namespace Aiv.Fast2D.Example
             private Sprite maskedObject;
             private Sprite maskedBackground;
 
+			private float deltaTimeAccumulator;
+
             public Example(int width, int height, string title) : base(width, height, title)
             {
 
@@ -212,6 +214,12 @@ namespace Aiv.Fast2D.Example
                     tileMap.position += new Vector2(0, 1) * window.deltaTime * 300;
                 }
 
+				if (window.GetKey(KeyCode.CtrlLeft))
+				{
+					deltaTimeAccumulator += window.deltaTime;
+					window.SetSize(window.Width, (int)(300 * (1 + Math.Abs(Math.Sin(deltaTimeAccumulator)))));
+				}
+ 
                 tileMap.position += window.JoystickAxisRight(0) * window.deltaTime * 300;
 
                 tileMap.Draw();
