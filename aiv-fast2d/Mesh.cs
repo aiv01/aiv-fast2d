@@ -82,6 +82,8 @@ namespace Aiv.Fast2D
         public delegate void ShaderSetupHook(Mesh mesh);
         protected ShaderSetupHook shaderSetupHook;
 
+        protected int numberOfAxis;
+
         public bool noMatrix;
 
         protected bool requireUseTexture;
@@ -245,10 +247,11 @@ float4 main(vs_out i) : SV_TARGET
 
 
 
-        public Mesh(Shader shader = null)
+        public Mesh(Shader shader = null, int numberOfAxis = 2)
         {
 
             this.customBuffers = new Dictionary<int, VertexAttrib>();
+            this.numberOfAxis = numberOfAxis;
 
             // use VAO if possible
             this.vertexArrayId = Graphics.NewArray();
@@ -259,7 +262,7 @@ float4 main(vs_out i) : SV_TARGET
 
             // vertex
             this.vBufferId = Graphics.NewBuffer();
-            Graphics.MapBufferToArray(this.vBufferId, 0, 2);
+            Graphics.MapBufferToArray(this.vBufferId, 0, numberOfAxis);
 
             // uv
             this.uvBufferId = Graphics.NewBuffer();
@@ -344,7 +347,7 @@ float4 main(vs_out i) : SV_TARGET
             else
             {
                 // vertex
-                Graphics.MapBufferToArray(this.vBufferId, 0, 2);
+                Graphics.MapBufferToArray(this.vBufferId, 0, numberOfAxis);
                 // uv
                 Graphics.MapBufferToArray(this.uvBufferId, 1, 2);
                 // vc
@@ -361,7 +364,7 @@ float4 main(vs_out i) : SV_TARGET
         }
 
         // here we update translations, scaling and rotations
-        private void ApplyMatrix()
+        protected virtual void ApplyMatrix()
         {
             if (this.noMatrix)
                 return;
@@ -373,15 +376,15 @@ float4 main(vs_out i) : SV_TARGET
 #else
             // WARNING !!! OpenTK uses row-major while OpenGL uses column-major
             Matrix4 m =
-				Matrix4.CreateTranslation(-this.pivot.X, -this.pivot.Y, 0) *
+                Matrix4.CreateTranslation(-this.pivot.X, -this.pivot.Y, 0) *
 #if !__MOBILE__
-				Matrix4.CreateScale(this.scale.X, this.scale.Y, 1) *
+                Matrix4.CreateScale(this.scale.X, this.scale.Y, 1) *
 #else
                 Matrix4.Scale(this.scale.X, this.scale.Y, 1) *
 #endif
-				Matrix4.CreateRotationZ(this.rotation) *
-				// here we do not re-add the pivot, so translation is pivot based too
-				Matrix4.CreateTranslation(this.position.X, this.position.Y, 0);
+                Matrix4.CreateRotationZ(this.rotation) *
+                // here we do not re-add the pivot, so translation is pivot based too
+                Matrix4.CreateTranslation(this.position.X, this.position.Y, 0);
 #endif
 
 
@@ -412,7 +415,7 @@ float4 main(vs_out i) : SV_TARGET
             // upload fake vcs (if required) to avoid crashes
             if (this.vc == null && this.hasVertexColors)
             {
-                this.vc = new float[this.v.Length * 2];
+                this.vc = new float[(this.v.Length / numberOfAxis) * 4];
                 this.UpdateVertexColor();
             }
             tex.Bind();
@@ -426,11 +429,11 @@ float4 main(vs_out i) : SV_TARGET
             this.ApplyMatrix();
             if (instances <= 1)
             {
-                Graphics.DrawArrays(this.v.Length / 2);
+                Graphics.DrawArrays(this.v.Length / numberOfAxis);
             }
             else
             {
-                Graphics.DrawArraysInstanced(this.v.Length / 2, instances);
+                Graphics.DrawArraysInstanced(this.v.Length / numberOfAxis, instances);
             }
         }
 
@@ -443,7 +446,7 @@ float4 main(vs_out i) : SV_TARGET
             // upload fake vcs (if required) to avoid crashes
             if (this.vc == null && this.hasVertexColors)
             {
-                this.vc = new float[this.v.Length * 2];
+                this.vc = new float[(this.v.Length / numberOfAxis) * 4];
                 this.UpdateVertexColor();
             }
             Graphics.BindTextureToUnit(textureId, 0);
@@ -457,11 +460,11 @@ float4 main(vs_out i) : SV_TARGET
             this.ApplyMatrix();
             if (instances <= 1)
             {
-                Graphics.DrawArrays(this.v.Length / 2);
+                Graphics.DrawArrays(this.v.Length / numberOfAxis);
             }
             else
             {
-                Graphics.DrawArraysInstanced(this.v.Length / 2, instances);
+                Graphics.DrawArraysInstanced(this.v.Length / numberOfAxis, instances);
             }
         }
 
@@ -496,7 +499,7 @@ float4 main(vs_out i) : SV_TARGET
             // store original vcs
             float[] vcs_storage = this.vc;
 
-            int numVcs = this.v.Length * 2;
+            int numVcs = (this.v.Length / numberOfAxis) * 4;
             this.vc = new float[numVcs];
             for (int i = 0; i < numVcs; i += 12)
             {
@@ -544,7 +547,7 @@ float4 main(vs_out i) : SV_TARGET
             // upload fake vcs (if required) to avoid crashes
             if (this.vc == null && this.hasVertexColors)
             {
-                this.vc = new float[this.v.Length * 2];
+                this.vc = new float[(this.v.Length / numberOfAxis) * 4];
                 this.UpdateVertexColor();
             }
             // clear current texture
@@ -565,11 +568,11 @@ float4 main(vs_out i) : SV_TARGET
             this.ApplyMatrix();
             if (instances <= 1)
             {
-                Graphics.DrawArrays(this.v.Length / 2);
+                Graphics.DrawArrays(this.v.Length / numberOfAxis);
             }
             else
             {
-                Graphics.DrawArraysInstanced(this.v.Length / 2, instances);
+                Graphics.DrawArraysInstanced(this.v.Length / numberOfAxis, instances);
             }
         }
 

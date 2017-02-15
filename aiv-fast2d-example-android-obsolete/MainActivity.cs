@@ -7,66 +7,62 @@ using OpenTK;
 
 namespace Aiv.Fast2D.Android.Example.Obsolete
 {
-	[Activity(Label = "aiv_fast2d_example_android_obsolete",
-		MainLauncher = true,
-		Icon = "@drawable/icon",
-		ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden
-#if __ANDROID_11__
-		, HardwareAccelerated = false
-#endif
-		, ScreenOrientation = ScreenOrientation.Landscape
-		)]
-	public class MainActivity : MobileGame
-	{
+    [Activity(Label = "Aiv.Fast2D.Android.Example.Obsolete",
+        MainLauncher = true,
+        Icon = "@drawable/icon",
+        ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden
+        , ScreenOrientation = ScreenOrientation.Landscape
+        )]
+    public class MainActivity : MobileGame
+    {
 
-		private Mesh mesh001;
-		private Texture alienTexture;
-		private Sprite alien;
+        private Mesh mesh001;
+        private Texture alienTexture;
+        private Sprite alien;
 
 
-		protected override void GameSetup(Window window)
-		{
-			window.SetClearColor(0f, 1f, 1f);
-			mesh001 = new Mesh();
-			mesh001.v = new float[]
-			{
-				100, 100,
-				50, 200,
-				150, 200
-			};
-			mesh001.UpdateVertex();
+        protected override void GameSetup(Window window)
+        {
+            window.SetDefaultOrthographicSize(10);
+            window.SetClearColor(0f, 1f, 1f);
+            mesh001 = new Mesh();
+            mesh001.v = new float[]
+            {
+                5, 5,
+                2.5f, 10,
+                7.5f, 10
+            };
+            mesh001.UpdateVertex();
 
-			alienTexture = new Texture("Assets/2.png");
-			alien = new Sprite(alienTexture.Width, alienTexture.Height);
+            alienTexture = new Texture("Assets/2.png");
+            alien = new Sprite(3 * alienTexture.Ratio, 3);
 
-			window.AddPostProcessingEffect(new GrayscaleEffect());
+            window.AddPostProcessingEffect(new GrayscaleEffect());
 
-		}
+        }
 
-		protected override void GameUpdate(Window window)
-		{
-			if (window.IsTouching)
-			{
+        protected override void GameUpdate(Window window)
+        {
+            if (window.IsTouching)
+            {
 
-				window.Vibrate(1000);
+                window.Vibrate(1000);
+            }
+            else
+            {
+                window.CancelVibration();
+            }
 
-			}
-			else
-			{
-				window.CancelVibration();
-			}
+            mesh001.DrawColor(0f, 1f, 0f, 1f);
 
-			mesh001.DrawColor(0f, 1f, 0f, 1f);
+            alien.SetAdditiveTint(0f, 0, 0, 0);
+            alien.position = window.TouchPosition;
+            alien.DrawTexture(alienTexture);
 
-			alien.SetAdditiveTint(0f, 0, 0, 0);
-			alien.position = window.TouchPosition;
-			alien.DrawTexture(alienTexture);
-
-			alien.SetAdditiveTint(1f, 0, 0, 0);
-			alien.position = new Vector2(100, 100);
-			alien.DrawTexture(alienTexture);
-
-		}
-	}
+            alien.SetAdditiveTint(1f, 0, 0, 0);
+            alien.position = new Vector2(5, 5);
+            alien.DrawTexture(alienTexture);
+        }
+    }
 }
 

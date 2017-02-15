@@ -159,6 +159,42 @@ namespace Aiv.Fast2D
         private int defaultFramebuffer;
         private bool collectedDefaultFrameBuffer;
 
+        protected float zNear;
+        protected float zFar;
+
+
+        public void SetZNearZFar(float near, float far)
+        {
+            zNear = near;
+            zFar = far;
+            this.SetViewport(0, 0, this.width, this.height);
+        }
+
+        public float ZNear
+        {
+            get
+            {
+                return zNear;
+            }
+        }
+
+        public float ZFar
+        {
+            get
+            {
+                return zFar;
+            }
+        }
+
+        public void EnableDepthTest()
+        {
+            Graphics.EnableDepthTest();
+        }
+
+        public void DisableDepthTest()
+        {
+            Graphics.EnableDepthTest();
+        }
 
         private float defaultOrthographicSize;
 
@@ -197,6 +233,11 @@ namespace Aiv.Fast2D
             {
                 return opened;
             }
+        }
+
+        public void Exit(int code = 0)
+        {
+            System.Environment.Exit(code);
         }
 
         // used for dpi management
@@ -477,6 +518,11 @@ namespace Aiv.Fast2D
 
         public void SetViewport(int x, int y, int width, int height, float orthoSize = 0, bool virtualScreen = false)
         {
+            if (zNear == 0 && zFar == 0)
+            {
+                zNear = -1;
+                zFar = 1;
+            }
             // store values before changes
             this.viewportPosition = new Vector2(x, y);
             this.viewportSize = new Vector2(width, height);
@@ -506,21 +552,21 @@ namespace Aiv.Fast2D
 #if __SHARPDX__
             if (orthoSize > 0)
             {
-                Matrix4.OrthoOffCenterRH(0, orthoSize * this._aspectRatio, orthoSize, 0, -1.0f, 1.0f, out this.orthoMatrix);
+                Matrix4.OrthoOffCenterRH(0, orthoSize * this._aspectRatio, orthoSize, 0, zNear, zFar, out this.orthoMatrix);
             }
             else
             {
-                Matrix4.OrthoOffCenterRH(0, width, height, 0, -1.0f, 1.0f, out this.orthoMatrix);
+                Matrix4.OrthoOffCenterRH(0, width, height, 0, zNear, zFar, out this.orthoMatrix);
             }
 #else
             if (orthoSize > 0)
-			{
-                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, orthoSize * this._aspectRatio, orthoSize, 0, -1.0f, 1.0f);
-			}
-			else
-			{
-				this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -1.0f, 1.0f);
-			}
+            {
+                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, orthoSize * this._aspectRatio, orthoSize, 0, zNear, zFar);
+            }
+            else
+            {
+                this.orthoMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, zNear, zFar);
+            }
 #endif
 
             this.currentOrthographicSize = orthoSize;

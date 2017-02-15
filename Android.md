@@ -1,49 +1,30 @@
 ```cs
+using System;
 using Android.App;
 using Android.OS;
 using Android.Content.PM;
-
-using Aiv.Fast2D;
 using Aiv.Fast2D.Android;
+using OpenTK;
 
-
-namespace ExampleAivMobileGame
+namespace ExampleApp
 {
-	
-	[Activity(Label = "ExampleAivMobileGame",
-				ConfigurationChanges = ConfigChanges.KeyboardHidden,
-				ScreenOrientation = ScreenOrientation.SensorLandscape,
-				MainLauncher = true,
-				Icon = "@mipmap/icon")]
-	public class MainActivity : Activity
+	[Activity(Label = "ExampleApp",
+		MainLauncher = true,
+		Icon = "@drawable/icon",
+		ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden,
+                ScreenOrientation = ScreenOrientation.Landscape
+		)]
+	public class MainActivity : MobileGame
 	{
 
-		Sprite sprite002;
-
-		protected override void OnCreate(Bundle bundle)
-		{
-			base.OnCreate(bundle);
-
-			// MobileGame is exposed by Aiv.Fast2D.Android
-			MobileGame view = new MobileGame(this, Setup, Update);
-			SetContentView(view);
-
+		protected override void GameSetup(Window window)
+		{	
 		}
 
-		// load textures, create meshes and so on...
-		private void Setup(Window window)
+		protected override void GameUpdate(Window window)
 		{
-			sprite002 = new Sprite(400, 200);
-		}
-
-		// rendering cycle
-		private void Update(Window window)
-		{
-			sprite002.position = window.TouchPosition;
-			sprite002.DrawSolidColor(0, 1, 1, 1f);
-
-			window.Update();
 		}
 	}
 }
+
 ```

@@ -48,7 +48,6 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Graphics_OpenGL.cs" />
     <Compile Include="Window_Desktop.cs" />
-    <Compile Include="Game.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="OpenTK.dll.config" />

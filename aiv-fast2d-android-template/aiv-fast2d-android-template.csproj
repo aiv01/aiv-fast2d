@@ -5,12 +5,12 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{9D21F8CA-285C-476B-BBC1-5923E361F5E4}</ProjectGuid>
+    <ProjectGuid>{C598668D-55A3-4A0E-9ADB-39685CBCA14F}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AIv.Fast2D.Example.Android.Obsolete</RootNamespace>
-    <AssemblyName>aiv-fast2d-example-android-obsolete</AssemblyName>
+    <RootNamespace>AIv.Fast2D_Android_Game1</RootNamespace>
+    <AssemblyName>AIv.Fast2D Android Game1</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <AndroidApplication>true</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
@@ -42,23 +42,18 @@
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="aiv-fast2d-android, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Aiv.Fast2D.Android.0.9.9.7\lib\MonoAndroid\aiv-fast2d-android.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Mono.Android" />
-    <Reference Include="mscorlib" />
     <Reference Include="OpenTK-1.0" />
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GrayscaleEffect.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\AboutResources.txt" />
-    <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\Main.axml">
@@ -72,18 +67,11 @@
     <AndroidResource Include="Resources\drawable\Icon.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\aiv-fast2d-android\aiv-fast2d-android.csproj">
-      <Project>{d932686e-1501-467b-8fde-4f16137c9876}</Project>
-      <Name>aiv-fast2d-android</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidAsset Include="..\aiv-fast2d-example\Assets\2.png">
-      <Link>Assets\2.png</Link>
-    </AndroidAsset>
+    <Folder Include="Assets\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

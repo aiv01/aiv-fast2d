@@ -15,7 +15,7 @@ namespace Aiv.Fast2D.Example
             }
         }
 
-        public class Example : Game
+        public class Example
         {
 
             private Texture logoAiv;
@@ -60,13 +60,14 @@ namespace Aiv.Fast2D.Example
             private Sprite maskedObject;
             private Sprite maskedBackground;
 
-            public Example(int width, int height, string title) : base(width, height, title)
-            {
+            private float deltaTimeAccumulator;
 
-            }
+            private Window window;
 
-            protected override void GameSetup(Window window)
+            public Example()
             {
+                window = new Window(800, 600, "Aiv.Fast2D.Example");
+
                 window.SetLogger(new ExampleLogger());
                 window.SetIcon("Aiv.Fast2D.Example.Assets.2.ico");
 
@@ -190,18 +191,27 @@ namespace Aiv.Fast2D.Example
                 tileMap = new Tilemap("Assets/map001.csv", "Assets/tiles_spritesheet.png");
             }
 
-            protected override void GameUpdate(Window window)
+            public void Run()
+            {
+                while (window.IsOpened)
+                {
+                    Update();
+                    window.Update();
+                }
+            }
+
+            private void Update()
             {
 
                 if (window.GetKey(KeyCode.Right))
                 {
                     tileMap.position += new Vector2(1, 0) * window.deltaTime * 300;
-					ship2.FlipX = false;
+                    ship2.FlipX = false;
                 }
                 if (window.GetKey(KeyCode.Left))
                 {
                     tileMap.position += new Vector2(-1, 0) * window.deltaTime * 300;
-					ship2.FlipX = true;
+                    ship2.FlipX = true;
                 }
                 if (window.GetKey(KeyCode.Up))
                 {
@@ -210,6 +220,12 @@ namespace Aiv.Fast2D.Example
                 if (window.GetKey(KeyCode.Down))
                 {
                     tileMap.position += new Vector2(0, 1) * window.deltaTime * 300;
+                }
+
+                if (window.GetKey(KeyCode.CtrlLeft))
+                {
+                    deltaTimeAccumulator += window.deltaTime;
+                    window.SetSize(window.Width, (int)(300 * (1 + Math.Abs(Math.Sin(deltaTimeAccumulator)))));
                 }
 
                 tileMap.position += window.JoystickAxisRight(0) * window.deltaTime * 300;
@@ -262,7 +278,7 @@ namespace Aiv.Fast2D.Example
 
 
                 if (window.GetKey(KeyCode.Esc))
-                    this.Exit();
+                    window.Exit();
 
                 if (window.GetKey(KeyCode.F))
                 {
@@ -318,7 +334,7 @@ namespace Aiv.Fast2D.Example
 
 
 
-				farTriangles.position.Y = window.MouseWheel;
+                farTriangles.position.Y = window.MouseWheel;
                 farTriangles.DrawColor(0f, 0f, 1f, 1f);
 
                 triangle.v[4] = window.mouseX;
@@ -382,7 +398,7 @@ namespace Aiv.Fast2D.Example
 
         static void Main(string[] args)
         {
-            Example example = new Example(800, 600, "Aiv.Fast2D.Example");
+            Example example = new Example();
             example.Run();
         }
     }

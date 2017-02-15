@@ -8,7 +8,7 @@ using OpenTK;
 
 namespace Aiv.Fast2D.Android.Example
 {
-	[Activity(Label = "aiv_fast2d_example_android",
+	[Activity(Label = "Aiv.Fast2D.Android.Example",
 		MainLauncher = true,
 		Icon = "@drawable/icon",
 		ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden

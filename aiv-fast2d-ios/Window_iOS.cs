@@ -77,21 +77,21 @@ namespace Aiv.Fast2D
 		public void TouchBegan(float x, float y)
 		{
 			isTouching = true;
-			touchX = x / this.touchScale - this.viewportPosition.X / (this.viewportSize.X / this.OrthoWidth);
-			touchY = y / this.touchScale - this.viewportPosition.Y / (this.viewportSize.Y / this.OrthoHeight);
+			touchX = (x / this.touchScale - this.viewportPosition.X) / (this.viewportSize.X / this.OrthoWidth);
+			touchY = (y / this.touchScale - this.viewportPosition.Y) / (this.viewportSize.Y / this.OrthoHeight);
 		}
 
 		public void TouchEnded(float x, float y)
 		{
 			isTouching = false;
-			touchX = x / this.touchScale - this.viewportPosition.X / (this.viewportSize.X / this.OrthoWidth);
-			touchY = y / this.touchScale - this.viewportPosition.Y / (this.viewportSize.Y / this.OrthoHeight);
+			touchX = (x / this.touchScale - this.viewportPosition.X) / (this.viewportSize.X / this.OrthoWidth);
+			touchY = (y / this.touchScale - this.viewportPosition.Y) / (this.viewportSize.Y / this.OrthoHeight);
 		}
 
 		public void TouchMoved(float x, float y)
 		{
-			touchX = x / this.touchScale - this.viewportPosition.X / (this.viewportSize.X / this.OrthoWidth);
-			touchY = y / this.touchScale - this.viewportPosition.Y / (this.viewportSize.Y / this.OrthoHeight);
+			touchX = (x / this.touchScale - this.viewportPosition.X) / (this.viewportSize.X / this.OrthoWidth);
+			touchY = (y / this.touchScale - this.viewportPosition.Y) / (this.viewportSize.Y / this.OrthoHeight);
 		}
 
 		public Window(GLKView view)
