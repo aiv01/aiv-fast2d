@@ -65,12 +65,10 @@ namespace Aiv.Fast2D
             Graphics.Setup();
         }
 
-
-
-        public void Vibrate(long amount)
+        public void Vibrate(float amount)
         {
             Vibrator vibrator = (Vibrator)this.context.Context.GetSystemService(global::Android.Content.Context.VibratorService);
-            vibrator.Vibrate(amount);
+			vibrator.Vibrate((long)(amount * 1000));
         }
 
         public void CancelVibration()
@@ -88,7 +86,6 @@ namespace Aiv.Fast2D
                 return assets;
             }
         }
-
 
         public Window(AndroidGameView gameView)
         {
@@ -108,7 +105,7 @@ namespace Aiv.Fast2D
             this.context.Touch += (sender, e) =>
             {
                 switch (e.Event.Action)
-                {
+				{
                     case MotionEventActions.Move:
                         touchX = (e.Event.GetX() / this.scaleX - this.viewportPosition.X) / (this.viewportSize.X / this.OrthoWidth);
                         touchY = (e.Event.GetY() / this.scaleY - this.viewportPosition.Y) / (this.viewportSize.Y / this.OrthoHeight);
