@@ -11,11 +11,8 @@ namespace Aiv.Fast2D.Android.Example
 	[Activity(Label = "Aiv.Fast2D.Android.Example",
 		MainLauncher = true,
 		Icon = "@drawable/icon",
-		ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden
-#if __ANDROID_11__
-		, HardwareAccelerated = false
-#endif
-		, ScreenOrientation = ScreenOrientation.Landscape
+		ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden,
+		ScreenOrientation = ScreenOrientation.Landscape
 		)]
 	public class MainActivity : MobileGame
 	{
@@ -47,7 +44,7 @@ namespace Aiv.Fast2D.Android.Example
 				alien.position = window.TouchPosition;
 				if ((sprite001.position - window.TouchPosition).Length < 100)
 				{
-					window.Vibrate(1000);
+					window.Vibrate(1f);
 				}
 			}
 			else

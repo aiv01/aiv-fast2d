@@ -15,6 +15,7 @@ namespace Aiv.Fast2D
 
 layout(location = 0) in vec2 vertex;
 layout(location = 1) in vec2 uv;
+
 uniform mat4 mvp;
 
 out vec2 uvout;

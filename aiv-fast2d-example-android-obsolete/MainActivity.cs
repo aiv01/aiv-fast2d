@@ -35,7 +35,7 @@ namespace Aiv.Fast2D.Android.Example.Obsolete
             mesh001.UpdateVertex();
 
             alienTexture = new Texture("Assets/2.png");
-            alien = new Sprite(3 * alienTexture.Ratio, 3);
+            alien = new Sprite(5 * alienTexture.Ratio, 5);
 
             window.AddPostProcessingEffect(new GrayscaleEffect());
 
@@ -46,7 +46,7 @@ namespace Aiv.Fast2D.Android.Example.Obsolete
             if (window.IsTouching)
             {
 
-                window.Vibrate(1000);
+                window.Vibrate(2);
             }
             else
             {
