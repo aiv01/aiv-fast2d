@@ -83,6 +83,13 @@ namespace Aiv.Fast2D
             Graphics.SetShaderUniform(uid, value);
         }
 
+		public void SetUniform(string name, Vector3 value)
+		{
+			this.Use();
+			int uid = this.GetUniform(name);
+			Graphics.SetShaderUniform(uid, value);
+		}
+
         public void Dispose()
         {
             if (disposed)

@@ -23,7 +23,7 @@ namespace Aiv.Fast2D
 
 		public Camera() : this(0, 0) { }
 
-		public Matrix4 Matrix()
+		public virtual Matrix4 Matrix()
 		{
 #if __SHARPDX__
             return Matrix4.Translation(-this.position.X + this.pivot.X, -this.position.Y + this.pivot.Y, 0);

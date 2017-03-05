@@ -397,7 +397,7 @@ float4 main(vs_out i) : SV_TARGET
                 m *= Window.Current.CurrentCamera.Matrix();
             }
 
-            Matrix4 mvp = m * Window.Current.OrthoMatrix;
+			Matrix4 mvp = m * Window.Current.ProjectionMatrix;
 #if __SHARPDX__
             // transpose the matrix for DirectX
             mvp.Transpose();
@@ -483,6 +483,11 @@ float4 main(vs_out i) : SV_TARGET
         {
             DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
         }
+
+		public virtual void DrawColor(Vector4 color)
+		{
+			DrawColor(color.X, color.Y, color.Z, color.W);
+		}
 
         public virtual void DrawWireframe(float r, float g, float b, float a = 1, float tickness = 0.02f)
         {
