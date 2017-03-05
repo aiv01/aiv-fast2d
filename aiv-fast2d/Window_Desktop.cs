@@ -88,6 +88,7 @@ namespace Aiv.Fast2D
 		F9 = Key.F9,
 		F10 = Key.F10,
 
+        Tab = Key.Tab,
 	}
 
 	public partial class Window
