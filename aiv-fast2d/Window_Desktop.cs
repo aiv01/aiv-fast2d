@@ -88,7 +88,7 @@ namespace Aiv.Fast2D
 		F9 = Key.F9,
 		F10 = Key.F10,
 
-        Tab = Key.Tab,
+		Tab = Key.Tab,
 	}
 
 	public partial class Window
@@ -159,11 +159,11 @@ namespace Aiv.Fast2D
 			}
 		}
 
-		public Window(string title) : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true)
+		public Window(string title, int depthSize = 16, int antialiasingSamples = 0, int stencilBuffers = 0) : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true, depthSize, antialiasingSamples, stencilBuffers)
 		{
 		}
 
-		public Window(int width, int height, string title, bool fullScreen = false)
+		public Window(int width, int height, string title, bool fullScreen = false, int depthSize = 16, int antialiasingSamples = 0, int stencilBuffers = 0)
 		{
 			// force opengl 3.3 this is a good compromise
 			int major = 3;
@@ -173,7 +173,7 @@ namespace Aiv.Fast2D
 				major = 2;
 				minor = 2;
 			}
-			this.context = new GameWindow(width, height, OpenTK.Graphics.GraphicsMode.Default, title,
+			this.context = new GameWindow(width, height, new OpenTK.Graphics.GraphicsMode(32, depthSize, stencilBuffers, antialiasingSamples), title,
 				fullScreen ? GameWindowFlags.Fullscreen : GameWindowFlags.FixedWindow,
 				DisplayDevice.Default, major, minor, OpenTK.Graphics.GraphicsContextFlags.Default);
 
@@ -199,6 +199,9 @@ namespace Aiv.Fast2D
 
 			// initialize graphics subsystem
 			Graphics.Setup();
+
+			if (antialiasingSamples > 0)
+				Graphics.EnableMultisampling();
 
 			FinalizeSetup();
 
@@ -362,6 +365,30 @@ namespace Aiv.Fast2D
 			get
 			{
 				return new Vector2(mouseX, mouseY);
+			}
+		}
+
+		public float RawMouseX
+		{
+			get
+			{
+				return OpenTK.Input.Mouse.GetState().X;
+			}
+		}
+
+		public float RawMouseY
+		{
+			get
+			{
+				return OpenTK.Input.Mouse.GetState().Y;
+			}
+		}
+
+		public Vector2 RawMousePosition
+		{
+			get
+			{
+				return new Vector2(RawMouseX, RawMouseY);
 			}
 		}
 
@@ -663,7 +690,8 @@ namespace Aiv.Fast2D
 			{
 				image = new Bitmap(imageStream);
 			}
-			else {
+			else
+			{
 				image = new Bitmap(fileName);
 			}
 

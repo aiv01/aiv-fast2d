@@ -100,6 +100,11 @@ namespace Aiv.Fast2D
 			GL.CullFace(CullFaceMode.Front);
 		}
 
+		public static void EnableMultisampling()
+		{
+			GL.Enable(EnableCap.Multisample);
+		}
+
 		public static void CullFacesDisable()
 		{
 			GL.Disable(EnableCap.CullFace);

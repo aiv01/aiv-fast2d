@@ -68,6 +68,8 @@ namespace Aiv.Fast2D.Example
             {
                 window = new Window(800, 600, "Aiv.Fast2D.Example");
 
+				//window.CullBackFaces();
+
                 window.SetLogger(new ExampleLogger());
                 window.SetIcon("Aiv.Fast2D.Example.Assets.2.ico");
 

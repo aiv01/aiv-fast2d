@@ -13,6 +13,15 @@ namespace Aiv.Fast2D
 		public Vector2 position;
 		public Vector2 pivot = Vector2.Zero;
 
+		public virtual bool HasProjection
+		{
+			get
+			{
+				return false;
+			}
+		}
+
+
 		public Camera(float x, float y)
 		{
 			this.position = new Vector2(x, y);
@@ -28,8 +37,13 @@ namespace Aiv.Fast2D
 #if __SHARPDX__
             return Matrix4.Translation(-this.position.X + this.pivot.X, -this.position.Y + this.pivot.Y, 0);
 #else
-            return Matrix4.CreateTranslation(-this.position.X + this.pivot.X, -this.position.Y + this.pivot.Y, 0);
+			return Matrix4.CreateTranslation(-this.position.X + this.pivot.X, -this.position.Y + this.pivot.Y, 0);
 #endif
+		}
+
+		public virtual Matrix4 ProjectionMatrix()
+		{
+			return Matrix4.Identity;
 		}
 	}
 }

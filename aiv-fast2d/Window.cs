@@ -219,12 +219,6 @@ namespace Aiv.Fast2D
 			this.SetViewport(0, 0, this.width, this.height);
 		}
 
-		private float perspectiveFov;
-		public void SetPerspective(float fov)
-		{
-			perspectiveFov = (float)(fov * Math.PI / 180f);
-		}
-
 		private static Window current;
 
 		public static Window Current
@@ -591,14 +585,8 @@ namespace Aiv.Fast2D
 			}
 			else
 			{
-				if (perspectiveFov > 0)
-				{
-					this.projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(perspectiveFov, this._aspectRatio, zNear, zFar);
-				}
-				else
-				{
-					this.projectionMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, zNear, zFar);
-				}
+				this.projectionMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, zNear, zFar);
+
 			}
 #endif
 
