@@ -343,6 +343,24 @@ namespace Aiv.Fast2D
 #endif
 		}
 
+		public static void FrameBufferTextureDepth(int id)
+		{
+#if !__MOBILE__
+			if (Window.IsObsolete)
+			{
+				GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, id, 0);
+			}
+			else
+			{
+				GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, id, 0);
+			}
+#else
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferSlot.DepthAttachment, TextureTarget.Texture2D, id, 0);
+#endif
+			GL.DrawBuffer(DrawBufferMode.None);
+			GL.ReadBuffer(ReadBufferMode.None);
+		}
+
 		public static void BindArray(int id)
 		{
 			GL.BindVertexArray(id);
@@ -365,6 +383,20 @@ namespace Aiv.Fast2D
 #else
             GL.TexImage2D(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba, width / (int)Math.Pow(2, mipMap), height / (int)Math.Pow(2, mipMap), 0, OpenTK.Graphics.ES30.PixelFormat.Rgba, PixelType.UnsignedByte, bitmap);
 #endif
+		}
+
+		public static void TextureDepth(int width, int height, int depthSize = 16)
+		{
+			PixelInternalFormat format = PixelInternalFormat.DepthComponent16;
+			if (depthSize == 24)
+			{
+				format = PixelInternalFormat.DepthComponent24;
+			}
+			else if (depthSize == 32)
+			{
+				format = PixelInternalFormat.DepthComponent32;
+			}
+			GL.TexImage2D(TextureTarget.Texture2D, 0, format, width, height, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 		}
 
 		public static void TextureSetRepeatX(bool repeat = true)

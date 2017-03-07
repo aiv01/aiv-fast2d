@@ -5,7 +5,7 @@ namespace Aiv.Fast2D
 	public class Texture : IDisposable
 	{
 
-		private int textureId;
+		protected int textureId;
 		private int width;
 		private int height;
 		private byte[] bitmap;
@@ -73,7 +73,8 @@ namespace Aiv.Fast2D
 			{
 				this.SetNearest(mipMap);
 			}
-			else {
+			else
+			{
 				this.SetLinear(mipMap);
 			}
 
@@ -126,9 +127,9 @@ namespace Aiv.Fast2D
 			this.Update(mipMapBitmap, mipMap);
 		}
 
-		public void Bind()
+		public void Bind(int unit = 0)
 		{
-			Graphics.BindTextureToUnit(this.textureId, 0);
+			Graphics.BindTextureToUnit(this.textureId, unit);
 		}
 
 		public void Dispose()

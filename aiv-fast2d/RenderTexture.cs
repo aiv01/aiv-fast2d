@@ -4,7 +4,7 @@ namespace Aiv.Fast2D
 {
     public class RenderTexture : Texture
     {
-        private int frameBuffer;
+        protected int frameBuffer;
 
         public int FrameBuffer
         {
