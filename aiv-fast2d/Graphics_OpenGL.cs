@@ -102,7 +102,9 @@ namespace Aiv.Fast2D
 
 		public static void EnableMultisampling()
 		{
+#if !__MOBILE__
 			GL.Enable(EnableCap.Multisample);
+#endif
 		}
 
 		public static void CullFacesDisable()
@@ -192,9 +194,9 @@ namespace Aiv.Fast2D
 		public static int NewBuffer()
 		{
 #if __MOBILE__
-            int[] tmpStore = new int[1];
-            GL.GenBuffers(1, tmpStore);
-            return tmpStore[0];
+			int[] tmpStore = new int[1];
+			GL.GenBuffers(1, tmpStore);
+			return tmpStore[0];
 #else
 			return GL.GenBuffer();
 #endif
@@ -209,9 +211,9 @@ namespace Aiv.Fast2D
 #if !__MOBILE__
 				vao = GL.GenVertexArray();
 #else
-                int[] tmpStore = new int[1];
-                GL.GenVertexArrays(1, tmpStore);
-                vao = tmpStore[0];
+				int[] tmpStore = new int[1];
+				GL.GenVertexArrays(1, tmpStore);
+				vao = tmpStore[0];
 #endif
 			}
 			return vao;
@@ -223,7 +225,7 @@ namespace Aiv.Fast2D
 #if !__MOBILE__
 			GL.DrawArrays(PrimitiveType.Triangles, 0, amount);
 #else
-      		GL.DrawArrays(BeginMode.Triangles, 0, amount);
+			GL.DrawArrays(BeginMode.Triangles, 0, amount);
 #endif
 		}
 
@@ -239,7 +241,7 @@ namespace Aiv.Fast2D
 #if !__MOBILE__
 			GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsageHint.DynamicDraw);
 #else
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsage.DynamicDraw);
+			GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsage.DynamicDraw);
 #endif
 		}
 
@@ -255,7 +257,7 @@ namespace Aiv.Fast2D
 #if !__MOBILE__
 			GL.BufferSubData<float>(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)), data.Length * sizeof(float), data);
 #else
-            GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)), (IntPtr)(data.Length * sizeof(float)), data);
+			GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)), (IntPtr)(data.Length * sizeof(float)), data);
 #endif
 		}
 
@@ -320,9 +322,9 @@ namespace Aiv.Fast2D
 #if !__MOBILE__
 			return GL.GenFramebuffer();
 #else
-            int[] tmp_values = new int[1];
-            GL.GenFramebuffers(1, tmp_values);
-            return tmp_values[0];
+			int[] tmp_values = new int[1];
+			GL.GenFramebuffers(1, tmp_values);
+			return tmp_values[0];
 #endif
 		}
 
@@ -339,7 +341,7 @@ namespace Aiv.Fast2D
 				GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, id, 0);
 			}
 #else
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferSlot.ColorAttachment0, TextureTarget.Texture2D, id, 0);
+			GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferSlot.ColorAttachment0, TextureTarget.Texture2D, id, 0);
 #endif
 		}
 
@@ -355,9 +357,11 @@ namespace Aiv.Fast2D
 				GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, id, 0);
 			}
 #else
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferSlot.DepthAttachment, TextureTarget.Texture2D, id, 0);
+			GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferSlot.DepthAttachment, TextureTarget.Texture2D, id, 0);
 #endif
+#if !__MOBILE__
 			GL.DrawBuffer(DrawBufferMode.None);
+#endif
 			GL.ReadBuffer(ReadBufferMode.None);
 		}
 
@@ -381,12 +385,13 @@ namespace Aiv.Fast2D
 #if !__MOBILE__
 			GL.TexImage2D<byte>(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba8, width / (int)Math.Pow(2, mipMap), height / (int)Math.Pow(2, mipMap), 0, PixelFormat.Rgba, PixelType.UnsignedByte, bitmap);
 #else
-            GL.TexImage2D(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba, width / (int)Math.Pow(2, mipMap), height / (int)Math.Pow(2, mipMap), 0, OpenTK.Graphics.ES30.PixelFormat.Rgba, PixelType.UnsignedByte, bitmap);
+			GL.TexImage2D(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba, width / (int)Math.Pow(2, mipMap), height / (int)Math.Pow(2, mipMap), 0, OpenTK.Graphics.ES30.PixelFormat.Rgba, PixelType.UnsignedByte, bitmap);
 #endif
 		}
 
 		public static void TextureDepth(int width, int height, int depthSize = 16)
 		{
+#if !__MOBILE__
 			PixelInternalFormat format = PixelInternalFormat.DepthComponent16;
 			if (depthSize == 24)
 			{
@@ -397,6 +402,7 @@ namespace Aiv.Fast2D
 				format = PixelInternalFormat.DepthComponent32;
 			}
 			GL.TexImage2D(TextureTarget.Texture2D, 0, format, width, height, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+#endif
 		}
 
 		public static void TextureSetRepeatX(bool repeat = true)

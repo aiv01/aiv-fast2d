@@ -546,6 +546,11 @@ float4 main(vs_out i) : SV_TARGET
 			DrawWireframe(r / 255f, g / 255f, b / 255f, a / 255f, tickness);
 		}
 
+		public virtual void DrawWireframe(Vector4 color, float tickness = 0.02f)
+		{
+			DrawWireframe(color.X, color.Y, color.Z, color.W, tickness);
+		}
+
 		// simple draw without textures (useful for subclasses)
 		public void Draw(ShaderSetupHook hook = null)
 		{
