@@ -498,6 +498,7 @@ float4 main(vs_out i) : SV_TARGET
 			DrawColor(color.X, color.Y, color.Z, color.W);
 		}
 
+		private float[] wireframceCache;
 		public virtual void DrawWireframe(float r, float g, float b, float a = 1, float tickness = 0.02f)
 		{
 			if (this.v == null)
@@ -510,26 +511,32 @@ float4 main(vs_out i) : SV_TARGET
 
 			this.Bind();
 
-			// store original vcs
-			float[] vcs_storage = this.vc;
-
-			int numVcs = (this.v.Length / numberOfAxis) * 4;
-			this.vc = new float[numVcs];
-			for (int i = 0; i < numVcs; i += 12)
+			if (wireframceCache == null)
 			{
-				this.vc[i] = 1f;
-				this.vc[i + 1] = 0f;
-				this.vc[i + 2] = 0f;
 
-				this.vc[i + 4] = 0f;
-				this.vc[i + 5] = 1f;
-				this.vc[i + 6] = 0f;
+				int numVcs = (this.v.Length / numberOfAxis) * 4;
+				wireframceCache = new float[numVcs];
+				for (int i = 0; i < numVcs; i += 12)
+				{
+					wireframceCache[i] = 1f;
+					wireframceCache[i + 1] = 0f;
+					wireframceCache[i + 2] = 0f;
 
-				this.vc[i + 8] = 0f;
-				this.vc[i + 9] = 0f;
-				this.vc[i + 10] = 1f;
+					wireframceCache[i + 4] = 0f;
+					wireframceCache[i + 5] = 1f;
+					wireframceCache[i + 6] = 0f;
+
+					wireframceCache[i + 8] = 0f;
+					wireframceCache[i + 9] = 0f;
+					wireframceCache[i + 10] = 1f;
+				}
 			}
-			this.UpdateVertexColor();
+
+			if (this.vc != wireframceCache)
+			{
+				this.vc = wireframceCache;
+				this.UpdateVertexColor();
+			}
 
 			this.shader.SetUniform("color", new Vector4(r, g, b, a));
 			this.shader.SetUniform("use_wireframe", tickness);
@@ -537,8 +544,6 @@ float4 main(vs_out i) : SV_TARGET
 			this.shader.SetUniform("use_wireframe", -1f);
 			// always reset the color
 			this.shader.SetUniform("color", Vector4.Zero);
-			// reset old vcs (could be null)
-			this.vc = vcs_storage;
 		}
 
 		public virtual void DrawWireframe(int r, int g, int b, int a = 255, float tickness = 0.02f)
