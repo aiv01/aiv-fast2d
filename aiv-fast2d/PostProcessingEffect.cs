@@ -8,6 +8,7 @@ namespace Aiv.Fast2D
 		public bool enabled;
 
 		protected Mesh screenMesh = new Mesh();
+		protected bool useDepth;
 
 		private static string vertexShader = @"
 #version 330 core
@@ -43,7 +44,7 @@ void main(){
 			}
 		}
 
-		public PostProcessingEffect(string fragmentShader, string fragmentShaderObsolete = null)
+		public PostProcessingEffect(string fragmentShader, string fragmentShaderObsolete = null, bool useDepth = false)
 		{
 			string[] attribs = null;
 			if (fragmentShaderObsolete != null)
@@ -52,6 +53,8 @@ void main(){
 			}
 			screenMesh = new Mesh(new Shader(vertexShader, fragmentShader, vertexShaderObsolete, fragmentShaderObsolete, attribs));
 			screenMesh.hasVertexColors = false;
+
+			this.useDepth = useDepth;
 
 			screenMesh.v = new float[]
 			{
@@ -86,7 +89,7 @@ void main(){
 
 		public void Setup(Window window)
 		{
-			renderTexture = new RenderTexture(window.ScaledWidth, window.ScaledHeight);
+			renderTexture = new RenderTexture(window.ScaledWidth, window.ScaledHeight, this.useDepth);
 		}
 
 		public void Apply(Window window)

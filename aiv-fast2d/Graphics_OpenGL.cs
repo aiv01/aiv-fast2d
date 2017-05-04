@@ -345,6 +345,16 @@ namespace Aiv.Fast2D
 #endif
 		}
 
+		public static void FrameBufferAttachDepth(int width, int height)
+		{
+#if !__MOBILE__
+			int depthBuffer = GL.GenRenderbuffer();
+			GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, depthBuffer);
+			GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent, width, height);
+			GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, depthBuffer);
+#endif
+		}
+
 		public static void FrameBufferTextureDepth(int id)
 		{
 #if !__MOBILE__
@@ -460,8 +470,8 @@ namespace Aiv.Fast2D
 #endif
 			}
 #if __MOBILE__
-            vertex = vertex.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
-            fragment = fragment.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
+			vertex = vertex.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
+			fragment = fragment.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
 #endif
 			int vertexShaderId = GL.CreateShader(ShaderType.VertexShader);
 			int fragmentShaderId = GL.CreateShader(ShaderType.FragmentShader);

@@ -2,27 +2,29 @@
 
 namespace Aiv.Fast2D
 {
-    public class RenderTexture : Texture
-    {
-        protected int frameBuffer;
+	public class RenderTexture : Texture
+	{
+		protected int frameBuffer;
 
-        public int FrameBuffer
-        {
-            get
-            {
-                return frameBuffer;
-            }
-        }
+		public int FrameBuffer
+		{
+			get
+			{
+				return frameBuffer;
+			}
+		}
 
-        public RenderTexture(int width, int height) : base(width, height)
-        {
+		public RenderTexture(int width, int height, bool withDepth = false) : base(width, height)
+		{
 			frameBuffer = Graphics.NewFrameBuffer();
 			Graphics.BindFrameBuffer(frameBuffer);
 			Graphics.FrameBufferTexture(this.Id);
+			if (withDepth)
+				Graphics.FrameBufferAttachDepth(width, height);
 			Graphics.BindFrameBuffer(Graphics.GetDefaultFrameBuffer());
-            this.flipped = true;
-        }
+			this.flipped = true;
+		}
 
-       
-    }
+
+	}
 }
