@@ -30,6 +30,7 @@ namespace Aiv.Fast2D
 			if (depthOnly)
 			{
 				Graphics.DepthTexture(width, height, depthSize);
+				Graphics.TextureSetNearest();
 				Graphics.FrameBufferDepthTexture(this.Id);
 				Graphics.FrameBufferDisableDraw();
 			}
@@ -43,6 +44,7 @@ namespace Aiv.Fast2D
 				// attach a depth texture
 				depthTexture = Graphics.NewTexture();
 				Graphics.BindTextureToUnit(depthTexture, 0);
+				Graphics.TextureSetNearest();
 				Graphics.DepthTexture(width, height, depthSize);
 				Graphics.FrameBufferDepthTexture(depthTexture);
 			}
