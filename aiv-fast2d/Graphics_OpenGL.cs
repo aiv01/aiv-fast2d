@@ -345,17 +345,7 @@ namespace Aiv.Fast2D
 #endif
 		}
 
-		public static void FrameBufferAttachDepth(int width, int height)
-		{
-#if !__MOBILE__
-			int depthBuffer = GL.GenRenderbuffer();
-			GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, depthBuffer);
-			GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent, width, height);
-			GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, depthBuffer);
-#endif
-		}
-
-		public static void FrameBufferTextureDepth(int id)
+		public static void FrameBufferDepthTexture(int id)
 		{
 #if !__MOBILE__
 			if (Window.IsObsolete)
@@ -369,10 +359,6 @@ namespace Aiv.Fast2D
 #else
 			GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferSlot.DepthAttachment, TextureTarget.Texture2D, id, 0);
 #endif
-#if !__MOBILE__
-			GL.DrawBuffer(DrawBufferMode.None);
-#endif
-			GL.ReadBuffer(ReadBufferMode.None);
 		}
 
 		public static void BindArray(int id)
@@ -399,8 +385,10 @@ namespace Aiv.Fast2D
 #endif
 		}
 
-		public static void TextureDepth(int width, int height, int depthSize = 16)
+		public static int DepthTexture(int width, int height, int depthSize = 16)
 		{
+			int id = NewTexture();
+			BindTextureToUnit(id, 0);
 #if !__MOBILE__
 			PixelInternalFormat format = PixelInternalFormat.DepthComponent16;
 			if (depthSize == 24)
@@ -413,6 +401,7 @@ namespace Aiv.Fast2D
 			}
 			GL.TexImage2D(TextureTarget.Texture2D, 0, format, width, height, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 #endif
+			return id;
 		}
 
 		public static void TextureSetRepeatX(bool repeat = true)
@@ -423,6 +412,22 @@ namespace Aiv.Fast2D
 		public static void TextureSetRepeatY(bool repeat = true)
 		{
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, repeat ? (int)TextureWrapMode.Repeat : (int)TextureWrapMode.ClampToEdge);
+		}
+
+		public static void TextureClampToBorderX(float r, float g, float b, float a = 1)
+		{
+#if !__MOBILE__
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new float[] { r, g, b, a });
+#endif
+		}
+
+		public static void TextureClampToBorderY(float r, float g, float b, float a = 1)
+		{
+#if !__MOBILE__
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new float[] { r, g, b, a });
+#endif
 		}
 
 		public static void TextureSetLinear(bool mipMap = false)

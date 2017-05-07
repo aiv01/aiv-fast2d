@@ -9,6 +9,7 @@ namespace Aiv.Fast2D
 
 		protected Mesh screenMesh = new Mesh();
 		protected bool useDepth;
+		protected int depthSize;
 
 		private static string vertexShader = @"
 #version 330 core
@@ -44,7 +45,7 @@ void main(){
 			}
 		}
 
-		public PostProcessingEffect(string fragmentShader, string fragmentShaderObsolete = null, bool useDepth = false)
+		public PostProcessingEffect(string fragmentShader, string fragmentShaderObsolete = null, bool useDepth = false, int depthSize = 16)
 		{
 			string[] attribs = null;
 			if (fragmentShaderObsolete != null)
@@ -55,6 +56,7 @@ void main(){
 			screenMesh.hasVertexColors = false;
 
 			this.useDepth = useDepth;
+			this.depthSize = depthSize;
 
 			screenMesh.v = new float[]
 			{
@@ -89,12 +91,25 @@ void main(){
 
 		public void Setup(Window window)
 		{
-			renderTexture = new RenderTexture(window.ScaledWidth, window.ScaledHeight, this.useDepth);
+			renderTexture = new RenderTexture(window.ScaledWidth, window.ScaledHeight, this.useDepth, this.depthSize);
 		}
 
 		public void Apply(Window window)
 		{
-			screenMesh.DrawTexture(renderTexture);
+			if (!this.useDepth)
+			{
+				screenMesh.DrawTexture(renderTexture);
+			}
+			else
+			{
+				screenMesh.Draw((m) =>
+				{
+					Graphics.BindTextureToUnit(renderTexture.Id, 0);
+					Graphics.BindTextureToUnit(renderTexture.DepthId, 1);
+					m.shader.SetUniform("tex", 0);
+					m.shader.SetUniform("depth_tex", 1);
+				});
+			}
 		}
 
 		public virtual void Update(Window window)
