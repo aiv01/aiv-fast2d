@@ -361,6 +361,14 @@ namespace Aiv.Fast2D
 #endif
 		}
 
+		public static void FrameBufferDisableDraw()
+		{
+#if !__MOBILE__
+			GL.DrawBuffer(DrawBufferMode.None);
+#endif
+			GL.ReadBuffer(ReadBufferMode.None);
+		}
+
 		public static void BindArray(int id)
 		{
 			GL.BindVertexArray(id);
@@ -385,10 +393,8 @@ namespace Aiv.Fast2D
 #endif
 		}
 
-		public static int DepthTexture(int width, int height, int depthSize = 16)
+		public static void DepthTexture(int width, int height, int depthSize = 16)
 		{
-			int id = NewTexture();
-			BindTextureToUnit(id, 0);
 #if !__MOBILE__
 			PixelInternalFormat format = PixelInternalFormat.DepthComponent16;
 			if (depthSize == 24)
@@ -401,7 +407,6 @@ namespace Aiv.Fast2D
 			}
 			GL.TexImage2D(TextureTarget.Texture2D, 0, format, width, height, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 #endif
-			return id;
 		}
 
 		public static void TextureSetRepeatX(bool repeat = true)

@@ -23,15 +23,27 @@ namespace Aiv.Fast2D
 			}
 		}
 
-		public RenderTexture(int width, int height, bool withDepth = false, int depthSize = 16) : base(width, height)
+		public RenderTexture(int width, int height, bool withDepth = false, int depthSize = 16, bool depthOnly = false) : base(width, height)
 		{
 			frameBuffer = Graphics.NewFrameBuffer();
 			Graphics.BindFrameBuffer(frameBuffer);
-			Graphics.FrameBufferTexture(this.Id);
+			if (depthOnly)
+			{
+				Graphics.DepthTexture(width, height, depthSize);
+				Graphics.FrameBufferDepthTexture(this.Id);
+				Graphics.FrameBufferDisableDraw();
+			}
+			else
+			{
+				Graphics.FrameBufferTexture(this.Id);
+			}
 			depthTexture = -1;
 			if (withDepth)
 			{
-				depthTexture = Graphics.DepthTexture(width, height, depthSize);
+				// attach a depth texture
+				depthTexture = Graphics.NewTexture();
+				Graphics.BindTextureToUnit(depthTexture, 0);
+				Graphics.DepthTexture(width, height, depthSize);
 				Graphics.FrameBufferDepthTexture(depthTexture);
 			}
 			Graphics.BindFrameBuffer(Graphics.GetDefaultFrameBuffer());
