@@ -2,16 +2,16 @@
 
 namespace Aiv.Fast2D
 {
-	public class PostProcessingEffect
-	{
+    public class PostProcessingEffect
+    {
 
-		public bool enabled;
+        public bool enabled;
 
-		protected Mesh screenMesh = new Mesh();
-		protected bool useDepth;
-		protected int depthSize;
+        protected Mesh screenMesh = new Mesh();
+        protected bool useDepth;
+        protected int depthSize;
 
-		private static string vertexShader = @"
+        private static string vertexShader = @"
 #version 330 core
 
 layout(location = 0) in vec2 screen_vertex;
@@ -24,7 +24,7 @@ void main(){
         uv = screen_uv;
 }";
 
-		private static string vertexShaderObsolete = @"
+        private static string vertexShaderObsolete = @"
 attribute vec2 screen_vertex;
 attribute vec2 screen_uv;
 
@@ -35,86 +35,89 @@ void main(){
         uv = screen_uv;
 }";
 
-		protected RenderTexture renderTexture;
+        protected RenderTexture renderTexture;
 
-		public RenderTexture RenderTexture
-		{
-			get
-			{
-				return renderTexture;
-			}
-		}
+        public RenderTexture RenderTexture
+        {
+            get
+            {
+                return renderTexture;
+            }
+        }
 
-		public PostProcessingEffect(string fragmentShader, string fragmentShaderObsolete = null, bool useDepth = false, int depthSize = 16)
-		{
-			string[] attribs = null;
-			if (fragmentShaderObsolete != null)
-			{
-				attribs = new string[] { "screen_vertex", "screen_uv" };
-			}
-			screenMesh = new Mesh(new Shader(vertexShader, fragmentShader, vertexShaderObsolete, fragmentShaderObsolete, attribs));
-			screenMesh.hasVertexColors = false;
+        public PostProcessingEffect(string fragmentShader, string fragmentShaderObsolete = null, bool useDepth = false, int depthSize = 16)
+        {
+            string[] attribs = null;
+            if (fragmentShaderObsolete != null)
+            {
+                attribs = new string[] { "screen_vertex", "screen_uv" };
+            }
+            screenMesh = new Mesh(new Shader(vertexShader, fragmentShader, vertexShaderObsolete, fragmentShaderObsolete, attribs));
+            screenMesh.hasVertexColors = false;
 
-			this.useDepth = useDepth;
-			this.depthSize = depthSize;
+            this.useDepth = useDepth;
+            this.depthSize = depthSize;
 
-			screenMesh.v = new float[]
-			{
-					-1, 1,
-					1, 1,
-					1, -1,
+            screenMesh.v = new float[]
+            {
+                    -1, 1,
+                    1, 1,
+                    1, -1,
 
-					1,-1,
-					-1, -1,
-					-1, 1
-			};
+                    1,-1,
+                    -1, -1,
+                    -1, 1
+            };
 
-			screenMesh.uv = new float[]
-			{
-					0, 1,
-					1, 1,
-					1, 0,
+            screenMesh.uv = new float[]
+            {
+                    0, 1,
+                    1, 1,
+                    1, 0,
 
-					1, 0,
-					0, 0,
-					0, 1
-			};
+                    1, 0,
+                    0, 0,
+                    0, 1
+            };
 
-			// upload both vertices and uvs
-			screenMesh.Update();
-			screenMesh.noMatrix = true;
+            // upload both vertices and uvs
+            screenMesh.Update();
+            screenMesh.noMatrix = true;
 
-			// enabled by default
-			this.enabled = true;
+            // enabled by default
+            this.enabled = true;
 
-		}
+        }
 
-		public void Setup(Window window)
-		{
-			renderTexture = new RenderTexture(window.ScaledWidth, window.ScaledHeight, this.useDepth, this.depthSize);
-		}
+        public void Setup(Window window)
+        {
+            renderTexture = new RenderTexture(window.ScaledWidth, window.ScaledHeight, this.useDepth, this.depthSize);
+        }
 
-		public void Apply(Window window)
-		{
-			if (!this.useDepth)
-			{
-				screenMesh.DrawTexture(renderTexture);
-			}
-			else
-			{
-				screenMesh.Draw((m) =>
-				{
-					Graphics.BindTextureToUnit(renderTexture.Id, 0);
-					Graphics.BindTextureToUnit(renderTexture.DepthId, 1);
-					m.shader.SetUniform("tex", 0);
-					m.shader.SetUniform("depth_tex", 1);
-				});
-			}
-		}
+        public void Apply(RenderTexture inRenderTexture = null)
+        {
+            if (inRenderTexture == null)
+                inRenderTexture = renderTexture;
 
-		public virtual void Update(Window window)
-		{
+            if (!this.useDepth)
+            {
+                screenMesh.DrawTexture(inRenderTexture);
+            }
+            else
+            {
+                screenMesh.Draw((m) =>
+                {
+                    Graphics.BindTextureToUnit(inRenderTexture.Id, 0);
+                    Graphics.BindTextureToUnit(inRenderTexture.DepthId, 1);
+                    m.shader.SetUniform("tex", 0);
+                    m.shader.SetUniform("depth_tex", 1);
+                });
+            }
+        }
 
-		}
-	}
+        public virtual void Update(Window window)
+        {
+
+        }
+    }
 }

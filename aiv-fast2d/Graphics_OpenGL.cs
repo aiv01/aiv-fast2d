@@ -88,6 +88,18 @@ namespace Aiv.Fast2D
 			depthTestEnabled = false;
 		}
 
+        public static void TextureGetPixels(int mipMap, byte[] data)
+        {
+            
+            GL.GetTexImage<byte>(TextureTarget.Texture2D, mipMap, PixelFormat.Rgba, PixelType.UnsignedByte, data);
+        }
+
+        public static void DepthTextureGetPixels(int id, int mipMap, float[] data)
+        {
+
+            GL.GetTexImage<float>(TextureTarget.Texture2D, mipMap, PixelFormat.Rgba, PixelType.Float, data);
+        }
+
 		public static void CullBackFaces()
 		{
 			GL.Enable(EnableCap.CullFace);

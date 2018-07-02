@@ -52,6 +52,10 @@ namespace Aiv.Fast2D
 			this.flipped = true;
 		}
 
+        public void ApplyPostProcessingEffect(PostProcessingEffect effect)
+        {
+            effect.Apply(this);
+        }
 
 	}
 }

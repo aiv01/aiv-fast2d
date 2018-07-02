@@ -193,7 +193,7 @@ namespace Aiv.Fast2D
 
 		public void DisableDepthTest()
 		{
-			Graphics.EnableDepthTest();
+			Graphics.DisableDepthTest();
 		}
 
 		public void CullFrontFaces()
@@ -403,7 +403,7 @@ namespace Aiv.Fast2D
 					// custom update cycle
 					postProcessingEffects[i].Update(this);
 					// blit to the next render destination
-					postProcessingEffects[i].Apply(this);
+					postProcessingEffects[i].Apply();
 
 				}
 			}
