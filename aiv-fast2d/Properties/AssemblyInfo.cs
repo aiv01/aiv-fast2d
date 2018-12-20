@@ -7,9 +7,9 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle ("aiv-fast2d")]
 [assembly: AssemblyDescription ("Hardware accelerated 2D library")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("20Tab S.r.l., Aiv S.r.l.")]
+[assembly: AssemblyCompany ("Aiv S.r.l., Roberto De Ioris")]
 [assembly: AssemblyProduct ("")]
-[assembly: AssemblyCopyright ("20Tab S.r.l., Aiv S.r.l.")]
+[assembly: AssemblyCopyright ("Aiv S.r.l., Roberto De Ioris")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 
