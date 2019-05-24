@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Aiv.Fast2D
 {
@@ -37,12 +38,21 @@ void main(){
 
         protected RenderTexture renderTexture;
 
+        protected Dictionary<string, Texture> textures;
+
         public RenderTexture RenderTexture
         {
             get
             {
                 return renderTexture;
             }
+        }
+
+        public void AddTexture(string name, Texture texture)
+        {
+            if (textures == null)
+                textures = new Dictionary<string, Texture>();
+            textures.Add(name, texture);
         }
 
         public PostProcessingEffect(string fragmentShader, string fragmentShaderObsolete = null, bool useDepth = false, int depthSize = 16)
@@ -98,6 +108,17 @@ void main(){
         {
             if (inRenderTexture == null)
                 inRenderTexture = renderTexture;
+
+            if (textures != null)
+            {
+                int texture_unit = 2;
+                foreach (string uniform in textures.Keys)
+                {
+                    Graphics.BindTextureToUnit(textures[uniform].Id, texture_unit);
+                    screenMesh.shader.SetUniform(uniform, texture_unit);
+                    texture_unit++;
+                }
+            }
 
             if (!this.useDepth)
             {

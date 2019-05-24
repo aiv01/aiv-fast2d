@@ -55,6 +55,31 @@ void main() {
         }
     }
 
+    class Masker : PostProcessingEffect
+    {
+        private static string fragmentShader = @"
+#version 330 core
+
+precision highp float;
+
+in vec2 uv;
+
+uniform sampler2D tex;
+uniform sampler2D mask;
+
+out vec4 color;
+
+void main() {
+    color = texture(tex, uv) * texture(mask, uv).a;
+}
+";
+
+        public Masker() : base(fragmentShader)
+        {
+
+        }
+    }
+
     class MainClass
     {
         public static void Main(string[] args)
@@ -81,6 +106,13 @@ void main() {
             // in opengl, textures are flipped on the y axis
             dumbTexture.flipped = true;
 
+            Masker masker = new Masker();
+            masker.AddTexture("mask", new Texture("Assets/star.png"));
+
+            window.AddPostProcessingEffect(masker);
+
+            window.SetClearColor(0, 0, 255, 255);
+
             while (window.IsOpened)
             {
 
@@ -98,9 +130,11 @@ void main() {
 
                 final.DrawTexture(screen);
 
-                byte []data = screen.Download();
+                byte[] data = screen.Download();
                 dumbTexture.Update(data);
                 lowAngle.DrawTexture(dumbTexture);
+
+                GC.Collect();
 
                 window.Update();
             }
