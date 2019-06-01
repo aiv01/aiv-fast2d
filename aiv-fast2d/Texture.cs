@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Aiv.Fast2D
 {
@@ -96,6 +97,13 @@ namespace Aiv.Fast2D
         {
             this.premultiplied = true;
             this.bitmap = Window.LoadImage(fileName, premultiplied, out this.width, out this.height);
+            this.Update();
+        }
+
+        public Texture(Stream stream, bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this(nearest, repeatX, repeatY, mipMap)
+        {
+            this.premultiplied = true;
+            this.bitmap = Window.LoadImage(stream, premultiplied, out this.width, out this.height);
             this.Update();
         }
 
