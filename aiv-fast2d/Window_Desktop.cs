@@ -702,7 +702,6 @@ namespace Aiv.Fast2D
 
                 image = new Bitmap(imageStream);
 
-
                 using (image)
                 {
                     // to avoid losing a ref
@@ -713,12 +712,7 @@ namespace Aiv.Fast2D
                     // if the image is not rgba, let's fix it
                     if (image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppArgb)
                     {
-                        Bitmap tmpBitmap = new Bitmap(image.Width, image.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                        using (System.Drawing.Graphics gfx = System.Drawing.Graphics.FromImage(tmpBitmap))
-                        {
-                            gfx.DrawImageUnscaled(image, 0, 0);
-                        }
-                        _image = tmpBitmap;
+                        _image = image.Clone(new Rectangle(0, 0, image.Width, image.Height), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                     }
 
                     System.Drawing.Imaging.BitmapData data = _image.LockBits(new Rectangle(0, 0, width, height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
@@ -746,6 +740,10 @@ namespace Aiv.Fast2D
                         }
                     }
                 }
+
+
+                imageStream.Close();
+
                 return bitmap;
             }
         }
