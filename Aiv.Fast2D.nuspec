@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Aiv.Fast2D</id>
-    <version>0.15.4</version>
+    <version>0.15.5</version>
     <authors>Aiv, Roberto De Ioris</authors>
     <owners>Aiv, Roberto De Ioris</owners>
     <licenseUrl>https://github.com/aiv01/aiv-fast2d/blob/master/LICENSE</licenseUrl>
@@ -10,7 +10,7 @@
     <iconUrl>https://avatars2.githubusercontent.com/u/15378741</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Hardware accelerated 2d drawing library</description>
-    <releaseNotes>added support for opengl ivec4</releaseNotes>
+    <releaseNotes>added support foropengl int buffers</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>aiv gaming 2d drawing opengl</tags>
     <dependencies>

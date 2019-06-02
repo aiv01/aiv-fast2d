@@ -264,14 +264,28 @@ namespace Aiv.Fast2D
 #endif
 		}
 
-		public static void BufferData(int bufferId, float[] data)
+        public static void BufferData(int[] data)
+        {
+#if !__MOBILE__
+            GL.BufferData<int>(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(int)), data, BufferUsageHint.DynamicDraw);
+#else
+			GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(int)), data, BufferUsage.DynamicDraw);
+#endif
+        }
+
+        public static void BufferData(int bufferId, float[] data)
 		{
 			GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
 			BufferData(data);
 		}
 
+        public static void BufferData(int bufferId, int[] data)
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
+            BufferData(data);
+        }
 
-		public static void BufferSubData(float[] data, int offset = 0)
+        public static void BufferSubData(float[] data, int offset = 0)
 		{
 #if !__MOBILE__
 			GL.BufferSubData<float>(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)), data.Length * sizeof(float), data);
@@ -280,13 +294,28 @@ namespace Aiv.Fast2D
 #endif
 		}
 
-		public static void BufferSubData(int bufferId, float[] data, int offset = 0)
+        public static void BufferSubData(int[] data, int offset = 0)
+        {
+#if !__MOBILE__
+            GL.BufferSubData<int>(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(int)), data.Length * sizeof(int), data);
+#else
+			GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(int)), (IntPtr)(data.Length * sizeof(int)), data);
+#endif
+        }
+
+        public static void BufferSubData(int bufferId, float[] data, int offset = 0)
 		{
 			GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
 			BufferSubData(data, offset);
 		}
 
-		public static string Version
+        public static void BufferSubData(int bufferId, int[] data, int offset = 0)
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
+            BufferSubData(data, offset);
+        }
+
+        public static string Version
 		{
 			get
 			{
