@@ -248,7 +248,14 @@ namespace Aiv.Fast2D
 			GL.VertexAttribPointer(index, elementSize, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
 		}
 
-		public static void BufferData(float[] data)
+        public static void MapBufferToIntArray(int bufferId, int index, int elementSize)
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
+            GL.EnableVertexAttribArray(index);
+            GL.VertexAttribIPointer(index, elementSize, VertexAttribIntegerType.Int, 0, IntPtr.Zero);
+        }
+
+        public static void BufferData(float[] data)
 		{
 #if !__MOBILE__
 			GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsageHint.DynamicDraw);
