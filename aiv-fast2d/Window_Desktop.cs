@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using OpenTK.Input;
-using System.Runtime.InteropServices;
+
 
 namespace Aiv.Fast2D
 {
@@ -46,81 +46,6 @@ namespace Aiv.Fast2D
                 return resolutions.ToArray();
             }
         }
-
-        internal static byte[] LoadImage(string fileName, bool premultiplied, out int width, out int height)
-        {
-            Assembly assembly = Assembly.GetEntryAssembly();
-            Stream imageStream = null;
-
-            // if the file in included in the resources, load it as stream
-            if (assembly.GetManifestResourceNames().Contains<string>(fileName))
-            {
-                imageStream = assembly.GetManifestResourceStream(fileName);
-            }
-
-            if (imageStream == null)
-            {
-                imageStream = new FileStream(fileName, FileMode.Open);
-            }
-
-            return LoadImage(imageStream, premultiplied, out width, out height);
-
-        }
-        internal static byte[] LoadImage(Stream imageStream, bool premultiplied, out int width, out int height)
-        {
-            {
-                byte[] bitmap = null;
-                Bitmap image = null;
-
-
-                image = new Bitmap(imageStream);
-
-                using (image)
-                {
-                    // to avoid losing a ref
-                    Bitmap _image = image;
-                    bitmap = new byte[image.Width * image.Height * 4];
-                    width = image.Width;
-                    height = image.Height;
-                    // if the image is not rgba, let's fix it
-                    if (image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppArgb)
-                    {
-                        _image = image.Clone(new Rectangle(0, 0, image.Width, image.Height), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    }
-
-                    System.Drawing.Imaging.BitmapData data = _image.LockBits(new Rectangle(0, 0, width, height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    Marshal.Copy(data.Scan0, bitmap, 0, bitmap.Length);
-                    _image.UnlockBits(data);
-
-                    for (int y = 0; y < _image.Height; y++)
-                    {
-                        for (int x = 0; x < _image.Width; x++)
-                        {
-                            int position = (y * _image.Width * 4) + (x * 4);
-                            // bgra -> rgba
-                            byte b = bitmap[position];
-                            byte r = bitmap[position + 2];
-                            bitmap[position] = r;
-                            bitmap[position + 2] = b;
-                            // premultiply
-                            if (premultiplied)
-                            {
-                                byte a = bitmap[position + 3];
-                                bitmap[position] = (byte)(bitmap[position] * (a / 255f));
-                                bitmap[position + 1] = (byte)(bitmap[position + 1] * (a / 255f));
-                                bitmap[position + 2] = (byte)(bitmap[position + 2] * (a / 255f));
-                            }
-                        }
-                    }
-                }
-
-
-                imageStream.Close();
-
-                return bitmap;
-            }
-        }
-
 
         internal GameWindow Context { get; set; }
         private readonly Stopwatch timer;
