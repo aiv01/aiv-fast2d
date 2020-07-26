@@ -1,9 +1,7 @@
 # aiv-fast2d
-Hardware accelerated 2D library, used by the first year students of "Accademia Italiana Videogiochi"
+Hardware accelerated 2D library, used by the first year students of AIV ("Accademia Italiana Videogiochi")
 
-Supports Windows, MacOSX, Linux, Android and iOS
-
-It is the base for aiv-fast3d too, that adds support for 2.5d and 3d games
+It is the base for aiv-fast3d too, that adds support for 2.5d and 3d games.
 
 ```cs
 // open a window and get a OpenGL context
