@@ -317,11 +317,9 @@ void main(){
 			// WARNING !!! OpenTK uses row-major while OpenGL uses column-major
 			Matrix4 m =
 				Matrix4.CreateTranslation(-this.pivot.X, -this.pivot.Y, 0) *
-#if !__MOBILE__
+
 				Matrix4.CreateScale(this.scale.X, this.scale.Y, 1) *
-#else
-                Matrix4.Scale(this.scale.X, this.scale.Y, 1) *
-#endif
+
 				Matrix4.CreateRotationZ(this.rotation) *
 				// here we do not re-add the pivot, so translation is pivot based too
 				Matrix4.CreateTranslation(this.position.X, this.position.Y, 0);
