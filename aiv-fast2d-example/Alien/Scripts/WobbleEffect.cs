@@ -37,7 +37,7 @@ void main() {
 
         public override void Update(Window window)
         {
-            this.wave += window.deltaTime * this.speed;
+            this.wave += window.DeltaTime * this.speed;
             screenMesh.shader.SetUniform("wave", this.wave);
         }
 

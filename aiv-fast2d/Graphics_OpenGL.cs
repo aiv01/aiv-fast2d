@@ -11,7 +11,7 @@ namespace Aiv.Fast2D
 	{
 		public static void SetContext(Window window)
 		{
-			window.context.MakeCurrent();
+			window.Context.MakeCurrent();
 		}
 
 		public static void BindFrameBuffer(int frameBufferId)

@@ -18,18 +18,20 @@ namespace Aiv.Fast2D.Example.MW
 
 			Sprite circle = new Sprite(texture.Width, texture.Height);
 
+            
             Console.WriteLine(windowFake.Version);
             Console.WriteLine(windowFake.Vendor);
             Console.WriteLine(windowFake.SLVersion);
             Console.WriteLine(windowFake.Renderer);
             Console.WriteLine(windowFake.Extensions);
+            
 
             foreach(string displayName in Window.Displays)
             {
                 Console.WriteLine(displayName);
             }
 
-            windowFake.SetDefaultOrthographicSize(7);
+            windowFake.SetDefaultViewportOrthographicSize(7);
             windowFake.SetClearColor(1f, 0, 0);
             Mesh triangleFake = new Mesh();
             triangleFake.v = new float[]
@@ -52,7 +54,7 @@ namespace Aiv.Fast2D.Example.MW
 
             Window window = new Window(1024, 576, "Units based example");
             window.SetClearColor(0f, 1f, 0f);
-            window.SetDefaultOrthographicSize(10);
+            window.SetDefaultViewportOrthographicSize(10);
 
             Mesh triangle = new Mesh();
             triangle.v = new float[]
@@ -128,10 +130,10 @@ namespace Aiv.Fast2D.Example.MW
                     break;
 
                 if (window.GetKey(KeyCode.Right))
-                    movingCamera.position.X += window.deltaTime;
+                    movingCamera.position.X += window.DeltaTime;
 
                 if (window.GetKey(KeyCode.Left))
-                    movingCamera.position.X -= window.deltaTime;
+                    movingCamera.position.X -= window.DeltaTime;
 
                 pointer.position = window.mousePosition;
                 pointer.DrawSolidColor(1f, 0, 0, 1f);

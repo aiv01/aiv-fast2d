@@ -39,22 +39,22 @@ void main() {
             
             if (window.GetKey(KeyCode.D))
             {
-                center.X += window.deltaTime;
+                center.X += window.DeltaTime;
             }
 
             if (window.GetKey(KeyCode.A))
             {
-                center.X -= window.deltaTime;
+                center.X -= window.DeltaTime;
             }
 
             if (window.GetKey(KeyCode.W))
             {
-                center.Y += window.deltaTime;
+                center.Y += window.DeltaTime;
             }
 
             if (window.GetKey(KeyCode.S))
             {
-                center.Y -= window.deltaTime;
+                center.Y -= window.DeltaTime;
             }
 
             screenMesh.v = new float[]

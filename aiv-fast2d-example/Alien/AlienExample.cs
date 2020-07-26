@@ -207,30 +207,30 @@ namespace Aiv.Fast2D.Example.Alien
 
                 if (window.GetKey(KeyCode.Right))
                 {
-                    tileMap.position += new Vector2(1, 0) * window.deltaTime * 300;
+                    tileMap.position += new Vector2(1, 0) * window.DeltaTime * 300;
                     ship2.FlipX = false;
                 }
                 if (window.GetKey(KeyCode.Left))
                 {
-                    tileMap.position += new Vector2(-1, 0) * window.deltaTime * 300;
+                    tileMap.position += new Vector2(-1, 0) * window.DeltaTime * 300;
                     ship2.FlipX = true;
                 }
                 if (window.GetKey(KeyCode.Up))
                 {
-                    tileMap.position += new Vector2(0, -1) * window.deltaTime * 300;
+                    tileMap.position += new Vector2(0, -1) * window.DeltaTime * 300;
                 }
                 if (window.GetKey(KeyCode.Down))
                 {
-                    tileMap.position += new Vector2(0, 1) * window.deltaTime * 300;
+                    tileMap.position += new Vector2(0, 1) * window.DeltaTime * 300;
                 }
 
                 if (window.GetKey(KeyCode.CtrlLeft))
                 {
-                    deltaTimeAccumulator += window.deltaTime;
+                    deltaTimeAccumulator += window.DeltaTime;
                     window.SetSize(window.Width, (int)(300 * (1 + Math.Abs(Math.Sin(deltaTimeAccumulator)))));
                 }
 
-                tileMap.position += window.JoystickAxisRight(0) * window.deltaTime * 300;
+                tileMap.position += window.JoystickAxisRight(0) * window.DeltaTime * 300;
 
                 tileMap.Draw();
 
@@ -248,11 +248,11 @@ namespace Aiv.Fast2D.Example.Alien
 
 
                 ship.position.Y = 10;
-                ship.position += new Vector2(5f, 0) * window.deltaTime;
+                ship.position += new Vector2(5f, 0) * window.DeltaTime;
 
                 ship.scale = new Vector2(1f, 1f);
 
-                t += window.deltaTime;
+                t += window.DeltaTime;
                 if (t > 1f / 24f)
                 {
                     index++;
@@ -273,7 +273,7 @@ namespace Aiv.Fast2D.Example.Alien
                 window.RenderTo(screen);
 
                 logo.position.Y = 100;
-                logo.position += new Vector2(50f, 0) * window.deltaTime;
+                logo.position += new Vector2(50f, 0) * window.DeltaTime;
                 logo.scale = new Vector2(1f, 1f);
                 logo.DrawTexture(logoAiv);
 
@@ -290,7 +290,7 @@ namespace Aiv.Fast2D.Example.Alien
 
                 if (window.GetKey(KeyCode.T))
                 {
-                    window.Title = string.Format("Counter = {0}", counter++);
+                    window.SetTitle(string.Format("Counter = {0}", counter++));
                 }
 
                 if (window.GetKey(KeyCode.R))
@@ -313,12 +313,12 @@ namespace Aiv.Fast2D.Example.Alien
 
 
 
-                Vector2 newPosition = tiles.GetPosition(2) - Vector2.One * 20f * window.deltaTime;
+                Vector2 newPosition = tiles.GetPosition(2) - Vector2.One * 20f * window.DeltaTime;
                 tiles.SetPosition(2, newPosition);
 
                 tiles.DrawSolidColor(0, 1, 1, 1);
 
-                tiles2.position.X += 30 * window.deltaTime;
+                tiles2.position.X += 30 * window.DeltaTime;
                 tiles2.DrawSolidColor(1, 1, 0, 1);
 
                 particleSystem.Update(window);
@@ -385,7 +385,7 @@ namespace Aiv.Fast2D.Example.Alien
 
                 if (window.GetKey(KeyCode.Num1))
                 {
-                    window.SetDefaultOrthographicSize(window.CurrentOrthoGraphicSize + window.deltaTime * 100);
+                    window.SetDefaultViewportOrthographicSize(window.CurrentViewportOrthographicSize + window.DeltaTime * 100);
                 }
 
                 colouredTriangle.position = window.mousePosition;

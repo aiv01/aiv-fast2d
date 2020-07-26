@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="ILogger.cs" />
     <Compile Include="InstancedSprite.cs" />
+    <Compile Include="KeyCode.cs" />
     <Compile Include="PostProcessingEffect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderTexture.cs" />
