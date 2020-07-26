@@ -115,7 +115,7 @@ void main() {
 
             while (window.IsOpened)
             {
-                sprite.EulerRotation += 30 * window.deltaTime;
+                sprite.EulerRotation += 30 * window.DeltaTime;
 
                 window.RenderTo(screen);
                 sprite.DrawSolidColor(255, 0, 0);

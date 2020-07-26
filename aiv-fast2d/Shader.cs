@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-#if __SHARPDX__
-using SharpDX;
-using Matrix4 = SharpDX.Matrix;
-#else
 using OpenTK;
-#endif
-
 
 namespace Aiv.Fast2D
 {

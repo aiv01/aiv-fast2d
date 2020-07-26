@@ -7,97 +7,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using OpenTK.Input;
-using System.Runtime.InteropServices;
+
 
 namespace Aiv.Fast2D
 {
-    public enum KeyCode
-    {
-        A = Key.A,
-        B = Key.B,
-        C = Key.C,
-        D = Key.D,
-        E = Key.E,
-        F = Key.F,
-        G = Key.G,
-        H = Key.H,
-        I = Key.I,
-        J = Key.J,
-        K = Key.K,
-        L = Key.L,
-        M = Key.M,
-        N = Key.N,
-        O = Key.O,
-        P = Key.P,
-        Q = Key.Q,
-        R = Key.R,
-        S = Key.S,
-        T = Key.T,
-        U = Key.U,
-        V = Key.V,
-        W = Key.W,
-        X = Key.X,
-        Y = Key.Y,
-        Z = Key.Z,
-
-        Space = Key.Space,
-        Return = Key.Enter,
-        Esc = Key.Escape,
-
-        Up = Key.Up,
-        Down = Key.Down,
-        Left = Key.Left,
-        Right = Key.Right,
-
-        ShiftRight = Key.ShiftRight,
-        ShiftLeft = Key.ShiftLeft,
-
-        CtrlRight = Key.ControlRight,
-        CtrlLeft = Key.ControlLeft,
-
-        Keypad0 = Key.Keypad0,
-        Keypad1 = Key.Keypad1,
-        Keypad2 = Key.Keypad2,
-        Keypad3 = Key.Keypad3,
-        Keypad4 = Key.Keypad4,
-        Keypad5 = Key.Keypad5,
-        Keypad6 = Key.Keypad6,
-        Keypad7 = Key.Keypad7,
-        Keypad8 = Key.Keypad8,
-        Keypad9 = Key.Keypad9,
-
-        Num0 = Key.Number0,
-        Num1 = Key.Number1,
-        Num2 = Key.Number2,
-        Num3 = Key.Number3,
-        Num4 = Key.Number4,
-        Num5 = Key.Number5,
-        Num6 = Key.Number6,
-        Num7 = Key.Number7,
-        Num8 = Key.Number8,
-        Num9 = Key.Number9,
-
-        F1 = Key.F1,
-        F2 = Key.F2,
-        F3 = Key.F3,
-        F4 = Key.F4,
-        F5 = Key.F5,
-        F6 = Key.F6,
-        F7 = Key.F7,
-        F8 = Key.F8,
-        F9 = Key.F9,
-        F10 = Key.F10,
-
-        Tab = Key.Tab,
-    }
-
     public partial class Window
     {
-
-        public GameWindow context;
-
-        private Stopwatch watch;
-
+        /// <summary>
+        /// Return the available displays for this computer.
+        /// </summary>
         public static string[] Displays
         {
             get
@@ -113,6 +31,9 @@ namespace Aiv.Fast2D
             }
         }
 
+        /// <summary>
+        /// Return the available resolutions for this computer.
+        /// </summary>
         public static Vector2[] Resolutions
         {
             get
@@ -126,11 +47,116 @@ namespace Aiv.Fast2D
             }
         }
 
+        /// <summary>
+        /// Return the available joysticks for this computer.
+        /// </summary>
+        public static string[] Joysticks {
+            get {
+                string[] joysticks = new string[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    if (GamePad.GetState(i).IsConnected)
+                        joysticks[i] = GamePad.GetName(i);
+                    else
+                        joysticks[i] = null;
+                }
+                return joysticks;
+            }
+        }
+
+        internal GameWindow Context { get; set; }
+        private readonly Stopwatch timer;
+
+
+        /// <summary>
+        /// Create a window using primary device width and height.
+        /// </summary>
+        /// <param name="title">the title for this window</param>
+        /// <param name="depthSize">number of bit for the depth buffer (e.g. 16bit, 32bit, 64bit). Default is 16</param>
+        /// <param name="antialiasingSamples">number of samples for antialiasing. Default is 0</param>
+        /// <param name="stencilSize">number of bit for the stencil buffer. Default is 0</param>
+        public Window(string title, int depthSize = 16, int antialiasingSamples = 0, int stencilSize = 0) 
+            : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true, depthSize, antialiasingSamples, stencilSize)
+        { }
+
+        /// <summary>
+        /// Create a window with a specific width and height
+        /// </summary>
+        /// <param name="width">the width of the window</param>
+        /// <param name="height">the height of the window</param>
+        /// <param name="title">the title for this window</param>
+        /// <param name="fullScreen">if window has to be in full screen mode. Default is false.</param>
+        /// <param name="depthSize">number of bit for the depth buffer (e.g. 16bit, 32bit, 64bit). Default is 16</param>
+        /// <param name="antialiasingSamples">number of samples for antialiasing. Default is 0</param>
+        /// <param name="stencilSize">number of bit for the stencil buffer. Default is 0</param>
+        public Window(int width, int height, string title, 
+            bool fullScreen = false, int depthSize = 16, int antialiasingSamples = 0, int stencilSize = 0)
+        {
+            // force opengl 3.3 this is a good compromise
+            int major = 3;
+            int minor = 3;
+            if (obsoleteMode)
+            {
+                major = 2;
+                minor = 2;
+            }
+            this.Context = new GameWindow(
+                                width, height,
+                                new OpenTK.Graphics.GraphicsMode(32, depthSize, stencilSize, antialiasingSamples),
+                                title,
+                                fullScreen ? GameWindowFlags.Fullscreen : GameWindowFlags.FixedWindow,
+                                DisplayDevice.Default,
+                                major, minor,
+                                OpenTK.Graphics.GraphicsContextFlags.Default);
+
+            if (fullScreen)
+            {
+                this.Context.Location = new Point(0, 0);
+            }
+
+            timer = new Stopwatch();
+
+            // enable vsync by default
+            this.SetVSync(true);
+
+            FixDimensions(width, height, true);
+
+            this.Context.Closed += new EventHandler<EventArgs>(this.CloseHandler);
+            this.Context.Move += (sender, e) =>
+            {
+                // avoid deltaTime to became huge while moving the window
+                this.timer.Stop();
+            };
+            this.Context.Visible = true;
+
+            // initialize graphics subsystem
+            Graphics.Setup();
+
+            if (antialiasingSamples > 0)
+                Graphics.EnableMultisampling();
+
+            FinalizeSetup();
+
+            // hack for getting the default framebuffer
+            ResetFrameBuffer();
+        }
+
+        /// <summary>
+        /// Set resolution for this window.
+        /// </summary>
+        /// <param name="screenWidth"></param>
+        /// <param name="screenHeight"></param>
+        /// <returns></returns>
         public bool SetResolution(int screenWidth, int screenHeight)
         {
             return SetResolution(new Vector2(screenWidth, screenHeight));
         }
 
+        /// <summary>
+        /// Set resolution for this window.
+        /// </summary>
+        /// <param name="newResolution">a vector2 representing x = width and y = height</param>
+        /// <returns></returns>
         public bool SetResolution(Vector2 newResolution)
         {
             foreach (DisplayResolution resolution in DisplayDevice.Default.AvailableResolutions)
@@ -145,193 +171,133 @@ namespace Aiv.Fast2D
             return false;
         }
 
+        /// <summary>
+        /// Get / Set window position
+        /// </summary>
         public Vector2 Position
         {
             get
             {
-                Point location = this.context.Location;
+                Point location = this.Context.Location;
                 return new Vector2(location.X, location.Y);
             }
 
             set
             {
-                this.context.Location = new Point((int)value.X, (int)value.Y);
+                this.Context.Location = new Point((int)value.X, (int)value.Y);
             }
         }
 
-        public Window(string title, int depthSize = 16, int antialiasingSamples = 0, int stencilBuffers = 0) : this(DisplayDevice.Default.Width, DisplayDevice.Default.Height, title, true, depthSize, antialiasingSamples, stencilBuffers)
-        {
-        }
 
-        public Window(int width, int height, string title, bool fullScreen = false, int depthSize = 16, int antialiasingSamples = 0, int stencilBuffers = 0)
-        {
-            // force opengl 3.3 this is a good compromise
-            int major = 3;
-            int minor = 3;
-            if (obsoleteMode)
-            {
-                major = 2;
-                minor = 2;
-            }
-            this.context = new GameWindow(width, height, new OpenTK.Graphics.GraphicsMode(32, depthSize, stencilBuffers, antialiasingSamples), title,
-                fullScreen ? GameWindowFlags.Fullscreen : GameWindowFlags.FixedWindow,
-                DisplayDevice.Default, major, minor, OpenTK.Graphics.GraphicsContextFlags.Default);
-
-            if (fullScreen)
-            {
-                this.context.Location = new Point(0, 0);
-            }
-
-            watch = new Stopwatch();
-
-            // enable vsync by default
-            this.SetVSync(true);
-
-            FixDimensions(width, height, true);
-
-            this.context.Closed += new EventHandler<EventArgs>(this.Close);
-            this.context.Move += (sender, e) =>
-            {
-                // avoid deltaTime to became huge while moving the window
-                this.watch.Stop();
-            };
-            this.context.Visible = true;
-
-            // initialize graphics subsystem
-            Graphics.Setup();
-
-            if (antialiasingSamples > 0)
-                Graphics.EnableMultisampling();
-
-            FinalizeSetup();
-
-            // hack for getting the default framebuffer
-            ResetFrameBuffer();
-        }
-
+        /// <summary>
+        /// Enable or Disable Vertical Sync
+        /// </summary>
+        /// <param name="enabled"><c>true</c> to enable VSync, <c>false</c> otherwise</param>
         public void SetVSync(bool enable)
         {
             if (enable)
             {
-                this.context.VSync = VSyncMode.On;
+                this.Context.VSync = VSyncMode.On;
             }
             else
             {
-                this.context.VSync = VSyncMode.Off;
+                this.Context.VSync = VSyncMode.Off;
             }
         }
 
-        private void Close(object sender, EventArgs args)
-        {
-            this.opened = false;
-        }
-
+        /// <summary>
+        /// Check if this window has focus.
+        /// </summary>
         public bool HasFocus
         {
             get
             {
-                return this.context.Focused;
+                return this.Context.Focused;
             }
         }
 
-        private void FixDimensions(int width, int height, bool first = false)
+        /// <summary>
+		/// Sets Window's Icon
+		/// </summary>
+		/// <param name="path">path to the icon. Should be an .ico file. Path could be either a filesystem path or a resource path</param>
+        public void SetIcon(string path)
         {
-            this.width = width;
-            this.height = height;
-
-            if (!first)
-            {
-                this.context.Width = (int)(this.width * this.scaleX);
-                this.context.Height = (int)(this.height * this.scaleY);
-            }
-            this.scaleX = (float)this.context.Width / (float)this.width;
-            this.scaleY = (float)this.context.Height / (float)this.height;
-
-            // setup viewport
-            this.SetViewport(0, 0, width, height);
-
-            // required for updating context !
-            this.context.Context.Update(this.context.WindowInfo);
-            this.SetClearColor(0f, 0f, 0f, 1f);
-            this.ClearColor();
-            this.context.SwapBuffers();
-        }
-
-        public void SetIcon(string fileName)
-        {
-            Icon icon = null;
-
             Assembly assembly = Assembly.GetEntryAssembly();
 
             // if the file in included in the resources, load it as stream
-            if (assembly.GetManifestResourceNames().Contains<string>(fileName))
+            if (assembly.GetManifestResourceNames().Contains<string>(path))
             {
-                Stream iconStream = assembly.GetManifestResourceStream(fileName);
-                icon = new Icon(iconStream);
-
+                Stream iconStream = assembly.GetManifestResourceStream(path);
+                this.Context.Icon = new Icon(iconStream);
             }
             else
             {
-                icon = new Icon(fileName);
+                this.Context.Icon = new Icon(path);
             }
-            this.context.Icon = icon;
         }
 
+        /// <summary>
+        /// Change Full screen mode for this window
+        /// </summary>
+        /// <param name="enabled"><c>true</c> for full screen, <c>false</c> otherwise</param>
         public void SetFullScreen(bool enable)
         {
-            this.context.WindowState = enable ? WindowState.Fullscreen : WindowState.Normal;
-            this.FixDimensions(width, height);
+            this.Context.WindowState = enable ? WindowState.Fullscreen : WindowState.Normal;
+            this.FixDimensions(Width, Height);
         }
 
+        /// <summary>
+        /// Change size for the this window
+        /// </summary>
+        /// <param name="width">the new width of the window</param>
+        /// <param name="height">the new height of the window</param>
         public void SetSize(int width, int height)
         {
-            this.context.WindowState = WindowState.Normal;
+            this.Context.WindowState = WindowState.Normal;
             this.FixDimensions(width, height);
         }
 
-        public void SetCursor(bool enable)
+
+        /// <summary>
+		/// Sets mouse cursor visibility
+		/// </summary>
+		/// <param name="enabled"><c>true</c> to show mouse, <c>false</c> otherwise</param>
+        public void SetMouseVisible(bool enable)
         {
-            this.context.CursorVisible = enable;
+            this.Context.CursorVisible = enable;
         }
 
-        public string Title
+        /// <summary>
+        /// Set the title for the window
+        /// </summary>
+        public void SetTitle(string text) 
         {
-            get
-            {
-                return this.context.Title;
-            }
-            set
-            {
-                this.context.Title = value;
-            }
+              this.Context.Title = text;
         }
 
 
         public void Update()
         {
+            
 
             // apply postprocessing (if required)
             ApplyPostProcessingEffects();
 
             // redraw
-            this.context.SwapBuffers();
+            this.Context.SwapBuffers();
 
             // cleanup graphics resources
             RunGraphicsGC();
 
             // update input
-            this._keyboardState = Keyboard.GetState();
-            this._mouseState = Mouse.GetCursorState();
+            this.keyboardState = Keyboard.GetState();
+            this.mouseState = Mouse.GetCursorState();
 
             // get next events
-            this.context.ProcessEvents();
+            this.Context.ProcessEvents();
 
-            // avoid negative values
-            this._deltaTime = this.watch.Elapsed.TotalSeconds > 0 ? (float)this.watch.Elapsed.TotalSeconds : 0f;
-
-            this.watch.Reset();
-            this.watch.Start();
-
+            this.DeltaTime = (float)this.timer.Elapsed.TotalSeconds;
+            this.timer.Restart();
 
             // reset and clear
             ResetFrameBuffer();
@@ -339,32 +305,41 @@ namespace Aiv.Fast2D
 
         #region input
 
-        private KeyboardState _keyboardState;
-        private MouseState _mouseState;
+        private KeyboardState keyboardState;
+        private MouseState mouseState;
 
-        public float mouseX
+        /// <summary>
+		/// Returns mouse X position relative to the window
+		/// </summary>
+        public float MouseX
         {
             get
             {
-                Point p = new Point(this._mouseState.X, this._mouseState.Y);
-                return ((float)this.context.PointToClient(p).X / this.scaleX - this.viewportPosition.X) / (this.viewportSize.X / this.OrthoWidth);
+                Point p = new Point(this.mouseState.X, this.mouseState.Y);
+                return ((float)this.Context.PointToClient(p).X / this.scaleX - this.CurrentViewportPosition.X) / (this.CurrentViewportSize.X / this.OrthoWidth);
             }
         }
 
-        public float mouseY
+        /// <summary>
+        /// Returns mouse Y position relative to the window
+        /// </summary>
+        public float MouseY
         {
             get
             {
-                Point p = new Point(this._mouseState.X, this._mouseState.Y);
-                return ((float)this.context.PointToClient(p).Y / this.scaleY - this.viewportPosition.Y) / (this.viewportSize.Y / this.OrthoHeight);
+                Point p = new Point(this.mouseState.X, this.mouseState.Y);
+                return ((float)this.Context.PointToClient(p).Y / this.scaleY - this.CurrentViewportPosition.Y) / (this.CurrentViewportSize.Y / this.OrthoHeight);
             }
         }
 
-        public Vector2 mousePosition
+        /// <summary>
+        /// Returns mouse position relative to the window as a vector2
+        /// </summary>
+        public Vector2 MousePosition
         {
             get
             {
-                return new Vector2(mouseX, mouseY);
+                return new Vector2(MouseX, MouseY);
             }
         }
 
@@ -392,35 +367,47 @@ namespace Aiv.Fast2D
             }
         }
 
-        public bool mouseLeft
+        /// <summary>
+        /// Returns <c>true</c> if mouse left button is pressed, otherwise <c>false</c>
+        /// </summary>
+        public bool MouseLeft
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Left);
+                return this.mouseState.IsButtonDown(MouseButton.Left);
             }
         }
 
-        public bool mouseRight
+        /// <summary>
+        /// Returns <c>true</c> if mouse right button is pressed, otherwise <c>false</c>
+        /// </summary>
+        public bool MouseRight
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Right);
+                return this.mouseState.IsButtonDown(MouseButton.Right);
             }
         }
 
-        public bool mouseMiddle
+        /// <summary>
+        /// Returns <c>true</c> if mouse middle button is pressed, otherwise <c>false</c>
+        /// </summary>
+        public bool MouseMiddle
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Middle);
+                return this.mouseState.IsButtonDown(MouseButton.Middle);
             }
         }
 
+        /// <summary>
+        /// Returns mouse wheel position
+        /// </summary>
         public float MouseWheel
         {
             get
             {
-                return this._mouseState.WheelPrecise;
+                return this.mouseState.WheelPrecise;
             }
         }
 
@@ -428,7 +415,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button1);
+                return this.mouseState.IsButtonDown(MouseButton.Button1);
             }
         }
 
@@ -436,7 +423,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button2);
+                return this.mouseState.IsButtonDown(MouseButton.Button2);
             }
         }
 
@@ -444,7 +431,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button3);
+                return this.mouseState.IsButtonDown(MouseButton.Button3);
             }
         }
 
@@ -452,7 +439,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button4);
+                return this.mouseState.IsButtonDown(MouseButton.Button4);
             }
         }
 
@@ -460,7 +447,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button5);
+                return this.mouseState.IsButtonDown(MouseButton.Button5);
             }
         }
 
@@ -468,7 +455,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button6);
+                return this.mouseState.IsButtonDown(MouseButton.Button6);
             }
         }
 
@@ -476,7 +463,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button7);
+                return this.mouseState.IsButtonDown(MouseButton.Button7);
             }
         }
 
@@ -484,7 +471,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button8);
+                return this.mouseState.IsButtonDown(MouseButton.Button8);
             }
         }
 
@@ -492,30 +479,17 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button9);
+                return this.mouseState.IsButtonDown(MouseButton.Button9);
             }
         }
 
-
+        /// <summary>
+		/// Returns true when <c>key</c> is pressed
+		/// </summary>
+		/// <param name="key">key to check if a <see cref="KeyCode"/> is pressed</param>
         public bool GetKey(KeyCode key)
         {
-            return this._keyboardState.IsKeyDown((Key)key);
-        }
-
-        public string[] Joysticks
-        {
-            get
-            {
-                string[] joysticks = new string[4];
-                for (int i = 0; i < 4; i++)
-                {
-                    if (GamePad.GetState(i).IsConnected)
-                        joysticks[i] = GamePad.GetName(i);
-                    else
-                        joysticks[i] = null;
-                }
-                return joysticks;
-            }
+            return this.keyboardState.IsKeyDown((Key)key);
         }
 
         public Vector2 JoystickAxisLeftRaw(int index)
@@ -672,80 +646,34 @@ namespace Aiv.Fast2D
 
         #endregion
 
-
-
-        public static byte[] LoadImage(string fileName, bool premultiplied, out int width, out int height)
+        private void CloseHandler(object sender, EventArgs args)
         {
-            Assembly assembly = Assembly.GetEntryAssembly();
-            Stream imageStream = null;
-
-            // if the file in included in the resources, load it as stream
-            if (assembly.GetManifestResourceNames().Contains<string>(fileName))
-            {
-                imageStream = assembly.GetManifestResourceStream(fileName);
-            }
-
-            if (imageStream == null)
-            {
-                imageStream = new FileStream(fileName, FileMode.Open);
-            }
-
-            return LoadImage(imageStream, premultiplied, out width, out height);
-
+            this.opened = false;
         }
-        public static byte[] LoadImage(Stream imageStream, bool premultiplied, out int width, out int height)
+
+        private void FixDimensions(int width, int height, bool first = false)
         {
+            this.Width = width;
+            this.Height = height;
+
+            if (!first)
             {
-                byte[] bitmap = null;
-                Bitmap image = null;
-
-
-                image = new Bitmap(imageStream);
-
-                using (image)
-                {
-                    // to avoid losing a ref
-                    Bitmap _image = image;
-                    bitmap = new byte[image.Width * image.Height * 4];
-                    width = image.Width;
-                    height = image.Height;
-                    // if the image is not rgba, let's fix it
-                    if (image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppArgb)
-                    {
-                        _image = image.Clone(new Rectangle(0, 0, image.Width, image.Height), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    }
-
-                    System.Drawing.Imaging.BitmapData data = _image.LockBits(new Rectangle(0, 0, width, height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    Marshal.Copy(data.Scan0, bitmap, 0, bitmap.Length);
-                    _image.UnlockBits(data);
-
-                    for (int y = 0; y < _image.Height; y++)
-                    {
-                        for (int x = 0; x < _image.Width; x++)
-                        {
-                            int position = (y * _image.Width * 4) + (x * 4);
-                            // bgra -> rgba
-                            byte b = bitmap[position];
-                            byte r = bitmap[position + 2];
-                            bitmap[position] = r;
-                            bitmap[position + 2] = b;
-                            // premultiply
-                            if (premultiplied)
-                            {
-                                byte a = bitmap[position + 3];
-                                bitmap[position] = (byte)(bitmap[position] * (a / 255f));
-                                bitmap[position + 1] = (byte)(bitmap[position + 1] * (a / 255f));
-                                bitmap[position + 2] = (byte)(bitmap[position + 2] * (a / 255f));
-                            }
-                        }
-                    }
-                }
-
-
-                imageStream.Close();
-
-                return bitmap;
+                this.Context.Width = (int)(this.Width * this.scaleX);
+                this.Context.Height = (int)(this.Height * this.scaleY);
             }
+            this.scaleX = (float)this.Context.Width / (float)this.Width;
+            this.scaleY = (float)this.Context.Height / (float)this.Height;
+
+            // setup viewport
+            this.SetViewport(0, 0, width, height);
+
+            // required for updating context !
+            this.Context.Context.Update(this.Context.WindowInfo);
+            this.SetClearColor(0f, 0f, 0f, 1f);
+            this.ClearColor();
+            this.Context.SwapBuffers();
         }
+
+
     }
 }

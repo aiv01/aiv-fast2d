@@ -18,18 +18,20 @@ namespace Aiv.Fast2D.Example.MW
 
 			Sprite circle = new Sprite(texture.Width, texture.Height);
 
+            
             Console.WriteLine(windowFake.Version);
             Console.WriteLine(windowFake.Vendor);
             Console.WriteLine(windowFake.SLVersion);
             Console.WriteLine(windowFake.Renderer);
             Console.WriteLine(windowFake.Extensions);
+            
 
             foreach(string displayName in Window.Displays)
             {
                 Console.WriteLine(displayName);
             }
 
-            windowFake.SetDefaultOrthographicSize(7);
+            windowFake.SetDefaultViewportOrthographicSize(7);
             windowFake.SetClearColor(1f, 0, 0);
             Mesh triangleFake = new Mesh();
             triangleFake.v = new float[]
@@ -52,7 +54,7 @@ namespace Aiv.Fast2D.Example.MW
 
             Window window = new Window(1024, 576, "Units based example");
             window.SetClearColor(0f, 1f, 0f);
-            window.SetDefaultOrthographicSize(10);
+            window.SetDefaultViewportOrthographicSize(10);
 
             Mesh triangle = new Mesh();
             triangle.v = new float[]
@@ -84,7 +86,7 @@ namespace Aiv.Fast2D.Example.MW
                 window.ClearColor();
                 window.SetCamera(movingCamera);
                 triangle.scale = new Vector2(1f, 1f);
-                triangle.position = window.mousePosition;
+                triangle.position = window.MousePosition;
                 triangle.DrawColor(0f, 1f, 0f, 1f);
 
                 triangle.position = new Vector2(2, 2);
@@ -100,7 +102,7 @@ namespace Aiv.Fast2D.Example.MW
                 window.ClearColor();
                 window.SetCamera(camera1);
                 triangle.scale = new Vector2(1f, 1f);
-                triangle.position = window.mousePosition;
+                triangle.position = window.MousePosition;
                 triangle.DrawColor(1f, 1f, 0f, 1f);
 
                 window.SetViewport(1024/2, 0, 1024 / 2, 576 / 2, 5);
@@ -109,7 +111,7 @@ namespace Aiv.Fast2D.Example.MW
                 window.ClearColor();
                 window.SetCamera(camera3);
                 triangle.scale = new Vector2(1f, 1f);
-                triangle.position = window.mousePosition;
+                triangle.position = window.MousePosition;
                 triangle.DrawColor(1f, 0f, 0f, 1f);
 
                 triangle.position = new Vector2(2, 2);
@@ -121,26 +123,26 @@ namespace Aiv.Fast2D.Example.MW
                 window.ClearColor();
                 window.SetCamera(camera2);
                 triangle.scale = new Vector2(1f, 1f);
-                triangle.position = window.mousePosition;
+                triangle.position = window.MousePosition;
                 triangle.DrawColor(1f, 0f, 1f, 1f);
 
                 if (window.GetKey(KeyCode.Esc))
                     break;
 
                 if (window.GetKey(KeyCode.Right))
-                    movingCamera.position.X += window.deltaTime;
+                    movingCamera.position.X += window.DeltaTime;
 
                 if (window.GetKey(KeyCode.Left))
-                    movingCamera.position.X -= window.deltaTime;
+                    movingCamera.position.X -= window.DeltaTime;
 
-                pointer.position = window.mousePosition;
+                pointer.position = window.MousePosition;
                 pointer.DrawSolidColor(1f, 0, 0, 1f);
 
                 window.Update();
 
                 windowFake.SetCurrent();
 
-                triangleFake.position = windowFake.mousePosition;
+                triangleFake.position = windowFake.MousePosition;
                 triangleFake.DrawColor(1f, 0f, 1f, 1f);
 
                 wireframeTriangle.DrawWireframe(0f, 1f, 0f);

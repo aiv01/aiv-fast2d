@@ -47,33 +47,33 @@ namespace Aiv.Fast2D.Example
         {
             if (window.GetKey(KeyCode.Right))
             {
-                angle += 0.5f * window.deltaTime;
+                angle += 0.5f * window.DeltaTime;
             }
 
             if (window.GetKey(KeyCode.Left))
             {
-                angle -= 0.5f * window.deltaTime;
+                angle -= 0.5f * window.DeltaTime;
             }
 
             if (window.GetKey(KeyCode.Up))
             {
-                currentLength -= 60 * window.deltaTime;
+                currentLength -= 60 * window.DeltaTime;
                 if (currentLength < 10)
                     currentLength = 10;
             }
 
             if (window.GetKey(KeyCode.Down))
             {
-                currentLength += 60 * window.deltaTime;
+                currentLength += 60 * window.DeltaTime;
                 if (currentLength > maxLength)
                     currentLength = maxLength;
             }
 
 
             float angleAccel = -9.8f * (float)Math.Sin(angle);
-            angleVelocity += angleAccel * window.deltaTime;
+            angleVelocity += angleAccel * window.DeltaTime;
 
-            angle += angleVelocity * window.deltaTime;
+            angle += angleVelocity * window.DeltaTime;
 
             SetDestination(this.position.X + (float)Math.Sin(angle) * currentLength, this.position.Y + (float)Math.Cos(angle) * currentLength);
         }

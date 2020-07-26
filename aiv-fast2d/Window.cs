@@ -1,90 +1,123 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime;
-#if __SHARPDX__
-using SharpDX;
-using Matrix4 = SharpDX.Matrix;
-#else
 using OpenTK;
-#endif
 
 namespace Aiv.Fast2D
 {
-
 	public partial class Window
 	{
-		private Matrix4 projectionMatrix;
-		private float _aspectRatio;
 
-		public Matrix4 ProjectionMatrix
+		#region INTERNALS
+		internal Matrix4 ProjectionMatrix { get; set; }
+
+		#endregion
+
+		/// <summary>
+		/// Return the position of the last activated viewport by <see cref="SetViewport(int, int, int, int, float, bool)"/> method.
+		/// </summary>
+		public Vector2 CurrentViewportPosition { get; internal set; }
+
+		/// <summary>
+		/// Return the size of the last activated viewport by <see cref="SetViewport(int, int, int, int, float, bool)"/> method.
+		/// </summary>
+		public Vector2 CurrentViewportSize { get; internal set; }
+
+
+		/// <summary>
+		/// Return the orthographic size of the last activated viewport by <see cref="SetViewport(int, int, int, int, float, bool)" /> method.
+		/// </summary>
+		public float CurrentViewportOrthographicSize { get; private set; }
+
+
+		private float defaultViewportOrthographicSize;
+		/// <summary>
+		/// Set the default ortographic size to be used for all viewport (if not explicitly passed by <see cref="SetViewport(int, int, int, int, float, bool)"/> method.
+		/// </summary>
+		/// <param name="value"></param>
+		public void SetDefaultViewportOrthographicSize(float value)
 		{
-			get
-			{
-				return this.projectionMatrix;
-			}
+			defaultViewportOrthographicSize = value;
+			this.SetViewport(0, 0, this.Width, this.Height);
 		}
 
-		public float aspectRatio
+		
+		/// <summary>
+		/// Return the width of this <c>Window</c>
+		/// </summary>
+		public int Width { get; private set; }
+
+		/// <summary>
+		/// Return the height of this <c>Window</c>
+		/// </summary>
+        public int Height { get; private set; }
+
+		/// <summary>
+		/// Return the aspect ratio (width / height) of the last activated viewport by <see cref="SetViewport(int, int, int, int, float, bool)" /> method.
+		/// </summary>
+		public float CurrentViewportAspectRatio { get; private set; }
+
+		/// <summary>
+		/// Set the current viewport for this window
+		/// </summary>
+		/// <param name="x">x position of top-left corner where the viewport start</param>
+		/// <param name="y">y position of top-left corner where the viewport start</param>
+		/// <param name="width">the width of the viewport</param>
+		/// <param name="height">the height of the viewport</param>
+		/// <param name="orthoSize">the ortographic size of the viewport (default = 0) </param>
+		/// <param name="virtualScreen">if this viewport is a virtual screen (default = false)</param>
+		public void SetViewport(int x, int y, int width, int height, float orthoSize = 0, bool virtualScreen = false)
 		{
-			get
+			if (zNear == 0 && zFar == 0)
 			{
-				return this._aspectRatio;
+				zNear = -1;
+				zFar = 1;
 			}
+			// store values before changes
+			this.CurrentViewportPosition = new Vector2(x, y);
+			this.CurrentViewportSize = new Vector2(width, height);
+			// fix y as it is downsided in OpenGL
+			y = (this.Height - y) - height;
+			if (virtualScreen)
+			{
+				Graphics.Viewport(0,
+						0,
+						width,
+						height);
+			}
+			else
+			{
+				Graphics.Viewport((int)(x * this.scaleX),
+							(int)(y * this.scaleY),
+							(int)(width * this.scaleX),
+							(int)(height * this.scaleY));
+			}
+
+			this.CurrentViewportAspectRatio = (float)width / (float)height;
+
+			if (orthoSize == 0)
+				orthoSize = this.defaultViewportOrthographicSize;
+
+			// use units instead of pixels ?
+			if (orthoSize > 0)
+			{
+				this.ProjectionMatrix = Matrix4.CreateOrthographicOffCenter(0, orthoSize * this.CurrentViewportAspectRatio, orthoSize, 0, zNear, zFar);
+			}
+			else
+			{
+				this.ProjectionMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, zNear, zFar);
+
+			}
+
+			this.CurrentViewportOrthographicSize = orthoSize;
 		}
 
-		private int width;
-		private int height;
-
-		private Vector2 viewportPosition;
-		private Vector2 viewportSize;
-
-		public Vector2 CurrentViewportPosition
-		{
-			get
-			{
-				return viewportPosition;
-			}
-		}
-
-		public Vector2 CurrentViewportSize
-		{
-			get
-			{
-				return viewportSize;
-			}
-		}
-
-		private float currentOrthographicSize;
-
-		public float CurrentOrthoGraphicSize
-		{
-			get
-			{
-				return currentOrthographicSize;
-			}
-		}
-
-		public int Width
-		{
-			get
-			{
-				return this.width;
-			}
-		}
-
-		public int Height
-		{
-			get
-			{
-				return this.height;
-			}
-		}
 
 		public int ScaledWidth
 		{
 			get
 			{
-				return (int)(this.width * this.scaleX);
+				return (int)(this.Width * this.scaleX);
 			}
 		}
 
@@ -92,7 +125,7 @@ namespace Aiv.Fast2D
 		{
 			get
 			{
-				return (int)(this.height * this.scaleY);
+				return (int)(this.Height * this.scaleY);
 			}
 		}
 
@@ -100,9 +133,9 @@ namespace Aiv.Fast2D
 		{
 			get
 			{
-				if (this.currentOrthographicSize > 0)
-					return this.currentOrthographicSize * this._aspectRatio;
-				return this.width;
+				if (this.CurrentViewportOrthographicSize > 0)
+					return this.CurrentViewportOrthographicSize * this.CurrentViewportAspectRatio;
+				return this.Width;
 			}
 		}
 
@@ -110,9 +143,9 @@ namespace Aiv.Fast2D
 		{
 			get
 			{
-				if (this.currentOrthographicSize > 0)
-					return this.currentOrthographicSize;
-				return this.height;
+				if (this.CurrentViewportOrthographicSize > 0)
+					return this.CurrentViewportOrthographicSize;
+				return this.Height;
 			}
 		}
 
@@ -167,7 +200,7 @@ namespace Aiv.Fast2D
 		{
 			zNear = near;
 			zFar = far;
-			this.SetViewport(0, 0, this.width, this.height);
+			this.SetViewport(0, 0, this.Width, this.Height);
 		}
 
 		public float ZNear
@@ -211,13 +244,6 @@ namespace Aiv.Fast2D
 			Graphics.CullFacesDisable();
 		}
 
-		private float defaultOrthographicSize;
-
-		public void SetDefaultOrthographicSize(float value)
-		{
-			defaultOrthographicSize = value;
-			this.SetViewport(0, 0, this.width, this.height);
-		}
 
 		private static Window current;
 
@@ -259,19 +285,14 @@ namespace Aiv.Fast2D
 		private float scaleX;
 		private float scaleY;
 
-		private float _deltaTime;
-
-		public float deltaTime
-		{
-			get
-			{
-				return _deltaTime;
-			}
-		}
+		/// <summary>
+		/// Time (in seconds) passed since the last <see cref="Update()"/>
+		/// </summary>
+		public float DeltaTime { get; private set; }
 
 
-		#region log
-		private ILogger logger;
+        #region log
+        private ILogger logger;
 
 		public void SetLogger(ILogger logger)
 		{
@@ -449,7 +470,7 @@ namespace Aiv.Fast2D
 		{
 			SetScissorTest(true);
 			Graphics.Scissor((int)(x * this.scaleX),
-					   (int)(((this.height - y) - height) * this.scaleY),
+					   (int)(((this.Height - y) - height) * this.scaleY),
 					   (int)(width * this.scaleX),
 					   (int)(height * this.scaleY));
 		}
@@ -493,7 +514,7 @@ namespace Aiv.Fast2D
 		private void RunGraphicsGC()
 		{
 			// destroy useless resources
-			// use for for avoiding "changing while iterating
+			// use for for avoiding changing while iterating
 			for (int i = 0; i < this.bufferGC.Count; i++)
 			{
 				int _id = this.bufferGC[i];
@@ -535,71 +556,12 @@ namespace Aiv.Fast2D
 			ClearColor();
 		}
 
-
-		public void SetViewport(int x, int y, int width, int height, float orthoSize = 0, bool virtualScreen = false)
-		{
-			if (zNear == 0 && zFar == 0)
-			{
-				zNear = -1;
-				zFar = 1;
-			}
-			// store values before changes
-			this.viewportPosition = new Vector2(x, y);
-			this.viewportSize = new Vector2(width, height);
-			// fix y as it is downsided in OpenGL
-			y = (this.height - y) - height;
-			if (virtualScreen)
-			{
-				Graphics.Viewport(0,
-						0,
-						width,
-						height);
-			}
-			else
-			{
-				Graphics.Viewport((int)(x * this.scaleX),
-							(int)(y * this.scaleY),
-							(int)(width * this.scaleX),
-							(int)(height * this.scaleY));
-			}
-
-			this._aspectRatio = (float)width / (float)height;
-
-			if (orthoSize == 0)
-				orthoSize = this.defaultOrthographicSize;
-
-			// use units instead of pixels ?
-#if __SHARPDX__
-            if (orthoSize > 0)
-            {
-                Matrix4.OrthoOffCenterRH(0, orthoSize * this._aspectRatio, orthoSize, 0, zNear, zFar, out this.projectionMatrix);
-            }
-            else
-            {
-                Matrix4.OrthoOffCenterRH(0, width, height, 0, zNear, zFar, out this.projectionMatrix);
-            }
-#else
-			if (orthoSize > 0)
-			{
-				this.projectionMatrix = Matrix4.CreateOrthographicOffCenter(0, orthoSize * this._aspectRatio, orthoSize, 0, zNear, zFar);
-			}
-			else
-			{
-				this.projectionMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, zNear, zFar);
-
-			}
-#endif
-
-			this.currentOrthographicSize = orthoSize;
-
-		}
-
 		public void RenderTo(RenderTexture renderTexture, bool clear = true, float orthoSize = 0)
 		{
 			if (renderTexture == null)
 			{
 				Graphics.BindFrameBuffer(GetDefaultFrameBuffer());
-				SetViewport(0, 0, this.width, this.height);
+				SetViewport(0, 0, this.Width, this.Height);
 				return;
 			}
 			else

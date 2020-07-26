@@ -62,7 +62,7 @@ namespace Aiv.Fast2D.Example
         {
             for (int i = 0; i < this.instancedSprite.Instances; i++)
             {
-                this.particles[i].life -= window.deltaTime;
+                this.particles[i].life -= window.DeltaTime;
                 if (this.particles[i].life <= 0)
                 {
                     this.particles[i].velocity = new Vector2(RandomFloat(-1, 1), RandomFloat(-1, 0)) * 60f;
@@ -73,8 +73,8 @@ namespace Aiv.Fast2D.Example
                     continue;
                 }
                 Vector2 position = this.instancedSprite.GetPosition(i);
-                this.particles[i].gravity += gravity * window.deltaTime;
-                this.instancedSprite.SetPosition(i, position + (this.particles[i].velocity + this.particles[i].gravity) * window.deltaTime, noUpload: true);
+                this.particles[i].gravity += gravity * window.DeltaTime;
+                this.instancedSprite.SetPosition(i, position + (this.particles[i].velocity + this.particles[i].gravity) * window.DeltaTime, noUpload: true);
             }
             this.instancedSprite.UpdatePositions();
             this.instancedSprite.DrawSolidColor(0, 1, 0, 0.8f);
