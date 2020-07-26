@@ -47,6 +47,23 @@ namespace Aiv.Fast2D
             }
         }
 
+        /// <summary>
+        /// Return the available joysticks for this computer.
+        /// </summary>
+        public static string[] Joysticks {
+            get {
+                string[] joysticks = new string[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    if (GamePad.GetState(i).IsConnected)
+                        joysticks[i] = GamePad.GetName(i);
+                    else
+                        joysticks[i] = null;
+                }
+                return joysticks;
+            }
+        }
+
         internal GameWindow Context { get; set; }
         private readonly Stopwatch timer;
 
@@ -199,29 +216,6 @@ namespace Aiv.Fast2D
             }
         }
 
-        private void FixDimensions(int width, int height, bool first = false)
-        {
-            this.Width = width;
-            this.Height = height;
-
-            if (!first)
-            {
-                this.Context.Width = (int)(this.Width * this.scaleX);
-                this.Context.Height = (int)(this.Height * this.scaleY);
-            }
-            this.scaleX = (float)this.Context.Width / (float)this.Width;
-            this.scaleY = (float)this.Context.Height / (float)this.Height;
-
-            // setup viewport
-            this.SetViewport(0, 0, width, height);
-
-            // required for updating context !
-            this.Context.Context.Update(this.Context.WindowInfo);
-            this.SetClearColor(0f, 0f, 0f, 1f);
-            this.ClearColor();
-            this.Context.SwapBuffers();
-        }
-
         /// <summary>
 		/// Sets Window's Icon
 		/// </summary>
@@ -296,8 +290,8 @@ namespace Aiv.Fast2D
             RunGraphicsGC();
 
             // update input
-            this._keyboardState = Keyboard.GetState();
-            this._mouseState = Mouse.GetCursorState();
+            this.keyboardState = Keyboard.GetState();
+            this.mouseState = Mouse.GetCursorState();
 
             // get next events
             this.Context.ProcessEvents();
@@ -311,32 +305,41 @@ namespace Aiv.Fast2D
 
         #region input
 
-        private KeyboardState _keyboardState;
-        private MouseState _mouseState;
+        private KeyboardState keyboardState;
+        private MouseState mouseState;
 
-        public float mouseX
+        /// <summary>
+		/// Returns mouse X position relative to the window
+		/// </summary>
+        public float MouseX
         {
             get
             {
-                Point p = new Point(this._mouseState.X, this._mouseState.Y);
+                Point p = new Point(this.mouseState.X, this.mouseState.Y);
                 return ((float)this.Context.PointToClient(p).X / this.scaleX - this.CurrentViewportPosition.X) / (this.CurrentViewportSize.X / this.OrthoWidth);
             }
         }
 
-        public float mouseY
+        /// <summary>
+        /// Returns mouse Y position relative to the window
+        /// </summary>
+        public float MouseY
         {
             get
             {
-                Point p = new Point(this._mouseState.X, this._mouseState.Y);
+                Point p = new Point(this.mouseState.X, this.mouseState.Y);
                 return ((float)this.Context.PointToClient(p).Y / this.scaleY - this.CurrentViewportPosition.Y) / (this.CurrentViewportSize.Y / this.OrthoHeight);
             }
         }
 
-        public Vector2 mousePosition
+        /// <summary>
+        /// Returns mouse position relative to the window as a vector2
+        /// </summary>
+        public Vector2 MousePosition
         {
             get
             {
-                return new Vector2(mouseX, mouseY);
+                return new Vector2(MouseX, MouseY);
             }
         }
 
@@ -364,35 +367,47 @@ namespace Aiv.Fast2D
             }
         }
 
-        public bool mouseLeft
+        /// <summary>
+        /// Returns <c>true</c> if mouse left button is pressed, otherwise <c>false</c>
+        /// </summary>
+        public bool MouseLeft
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Left);
+                return this.mouseState.IsButtonDown(MouseButton.Left);
             }
         }
 
-        public bool mouseRight
+        /// <summary>
+        /// Returns <c>true</c> if mouse right button is pressed, otherwise <c>false</c>
+        /// </summary>
+        public bool MouseRight
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Right);
+                return this.mouseState.IsButtonDown(MouseButton.Right);
             }
         }
 
-        public bool mouseMiddle
+        /// <summary>
+        /// Returns <c>true</c> if mouse middle button is pressed, otherwise <c>false</c>
+        /// </summary>
+        public bool MouseMiddle
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Middle);
+                return this.mouseState.IsButtonDown(MouseButton.Middle);
             }
         }
 
+        /// <summary>
+        /// Returns mouse wheel position
+        /// </summary>
         public float MouseWheel
         {
             get
             {
-                return this._mouseState.WheelPrecise;
+                return this.mouseState.WheelPrecise;
             }
         }
 
@@ -400,7 +415,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button1);
+                return this.mouseState.IsButtonDown(MouseButton.Button1);
             }
         }
 
@@ -408,7 +423,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button2);
+                return this.mouseState.IsButtonDown(MouseButton.Button2);
             }
         }
 
@@ -416,7 +431,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button3);
+                return this.mouseState.IsButtonDown(MouseButton.Button3);
             }
         }
 
@@ -424,7 +439,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button4);
+                return this.mouseState.IsButtonDown(MouseButton.Button4);
             }
         }
 
@@ -432,7 +447,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button5);
+                return this.mouseState.IsButtonDown(MouseButton.Button5);
             }
         }
 
@@ -440,7 +455,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button6);
+                return this.mouseState.IsButtonDown(MouseButton.Button6);
             }
         }
 
@@ -448,7 +463,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button7);
+                return this.mouseState.IsButtonDown(MouseButton.Button7);
             }
         }
 
@@ -456,7 +471,7 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button8);
+                return this.mouseState.IsButtonDown(MouseButton.Button8);
             }
         }
 
@@ -464,30 +479,17 @@ namespace Aiv.Fast2D
         {
             get
             {
-                return this._mouseState.IsButtonDown(MouseButton.Button9);
+                return this.mouseState.IsButtonDown(MouseButton.Button9);
             }
         }
 
-
+        /// <summary>
+		/// Returns true when <c>key</c> is pressed
+		/// </summary>
+		/// <param name="key">key to check if a <see cref="KeyCode"/> is pressed</param>
         public bool GetKey(KeyCode key)
         {
-            return this._keyboardState.IsKeyDown((Key)key);
-        }
-
-        public string[] Joysticks
-        {
-            get
-            {
-                string[] joysticks = new string[4];
-                for (int i = 0; i < 4; i++)
-                {
-                    if (GamePad.GetState(i).IsConnected)
-                        joysticks[i] = GamePad.GetName(i);
-                    else
-                        joysticks[i] = null;
-                }
-                return joysticks;
-            }
+            return this.keyboardState.IsKeyDown((Key)key);
         }
 
         public Vector2 JoystickAxisLeftRaw(int index)
@@ -648,6 +650,30 @@ namespace Aiv.Fast2D
         {
             this.opened = false;
         }
+
+        private void FixDimensions(int width, int height, bool first = false)
+        {
+            this.Width = width;
+            this.Height = height;
+
+            if (!first)
+            {
+                this.Context.Width = (int)(this.Width * this.scaleX);
+                this.Context.Height = (int)(this.Height * this.scaleY);
+            }
+            this.scaleX = (float)this.Context.Width / (float)this.Width;
+            this.scaleY = (float)this.Context.Height / (float)this.Height;
+
+            // setup viewport
+            this.SetViewport(0, 0, width, height);
+
+            // required for updating context !
+            this.Context.Context.Update(this.Context.WindowInfo);
+            this.SetClearColor(0f, 0f, 0f, 1f);
+            this.ClearColor();
+            this.Context.SwapBuffers();
+        }
+
 
     }
 }

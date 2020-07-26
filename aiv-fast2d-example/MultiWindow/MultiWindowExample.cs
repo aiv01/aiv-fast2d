@@ -86,7 +86,7 @@ namespace Aiv.Fast2D.Example.MW
                 window.ClearColor();
                 window.SetCamera(movingCamera);
                 triangle.scale = new Vector2(1f, 1f);
-                triangle.position = window.mousePosition;
+                triangle.position = window.MousePosition;
                 triangle.DrawColor(0f, 1f, 0f, 1f);
 
                 triangle.position = new Vector2(2, 2);
@@ -102,7 +102,7 @@ namespace Aiv.Fast2D.Example.MW
                 window.ClearColor();
                 window.SetCamera(camera1);
                 triangle.scale = new Vector2(1f, 1f);
-                triangle.position = window.mousePosition;
+                triangle.position = window.MousePosition;
                 triangle.DrawColor(1f, 1f, 0f, 1f);
 
                 window.SetViewport(1024/2, 0, 1024 / 2, 576 / 2, 5);
@@ -111,7 +111,7 @@ namespace Aiv.Fast2D.Example.MW
                 window.ClearColor();
                 window.SetCamera(camera3);
                 triangle.scale = new Vector2(1f, 1f);
-                triangle.position = window.mousePosition;
+                triangle.position = window.MousePosition;
                 triangle.DrawColor(1f, 0f, 0f, 1f);
 
                 triangle.position = new Vector2(2, 2);
@@ -123,7 +123,7 @@ namespace Aiv.Fast2D.Example.MW
                 window.ClearColor();
                 window.SetCamera(camera2);
                 triangle.scale = new Vector2(1f, 1f);
-                triangle.position = window.mousePosition;
+                triangle.position = window.MousePosition;
                 triangle.DrawColor(1f, 0f, 1f, 1f);
 
                 if (window.GetKey(KeyCode.Esc))
@@ -135,14 +135,14 @@ namespace Aiv.Fast2D.Example.MW
                 if (window.GetKey(KeyCode.Left))
                     movingCamera.position.X -= window.DeltaTime;
 
-                pointer.position = window.mousePosition;
+                pointer.position = window.MousePosition;
                 pointer.DrawSolidColor(1f, 0, 0, 1f);
 
                 window.Update();
 
                 windowFake.SetCurrent();
 
-                triangleFake.position = windowFake.mousePosition;
+                triangleFake.position = windowFake.MousePosition;
                 triangleFake.DrawColor(1f, 0f, 1f, 1f);
 
                 wireframeTriangle.DrawWireframe(0f, 1f, 0f);

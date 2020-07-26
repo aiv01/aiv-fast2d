@@ -339,8 +339,8 @@ namespace Aiv.Fast2D.Example.Alien
                 farTriangles.position.Y = window.MouseWheel;
                 farTriangles.DrawColor(0f, 0f, 1f, 1f);
 
-                triangle.v[4] = window.mouseX;
-                triangle.v[5] = window.mouseY;
+                triangle.v[4] = window.MouseX;
+                triangle.v[5] = window.MouseY;
                 triangle.UpdateVertex();
 
                 if (window.HasFocus)
@@ -388,7 +388,7 @@ namespace Aiv.Fast2D.Example.Alien
                     window.SetDefaultViewportOrthographicSize(window.CurrentViewportOrthographicSize + window.DeltaTime * 100);
                 }
 
-                colouredTriangle.position = window.mousePosition;
+                colouredTriangle.position = window.MousePosition;
                 colouredTriangle.pivot = new Vector2(500, 250);
                 float triggerRight = window.JoystickTriggerRight(0);
                 float triggerLeft = window.JoystickTriggerLeft(0);
