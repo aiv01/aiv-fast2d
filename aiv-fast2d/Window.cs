@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime;
-#if __SHARPDX__
-using SharpDX;
-using Matrix4 = SharpDX.Matrix;
-#else
 using OpenTK;
-#endif
 
 namespace Aiv.Fast2D
 {
@@ -569,16 +564,6 @@ namespace Aiv.Fast2D
 				orthoSize = this.defaultOrthographicSize;
 
 			// use units instead of pixels ?
-#if __SHARPDX__
-            if (orthoSize > 0)
-            {
-                Matrix4.OrthoOffCenterRH(0, orthoSize * this._aspectRatio, orthoSize, 0, zNear, zFar, out this.projectionMatrix);
-            }
-            else
-            {
-                Matrix4.OrthoOffCenterRH(0, width, height, 0, zNear, zFar, out this.projectionMatrix);
-            }
-#else
 			if (orthoSize > 0)
 			{
 				this.projectionMatrix = Matrix4.CreateOrthographicOffCenter(0, orthoSize * this._aspectRatio, orthoSize, 0, zNear, zFar);
@@ -588,10 +573,8 @@ namespace Aiv.Fast2D
 				this.projectionMatrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, zNear, zFar);
 
 			}
-#endif
-
+			
 			this.currentOrthographicSize = orthoSize;
-
 		}
 
 		public void RenderTo(RenderTexture renderTexture, bool clear = true, float orthoSize = 0)

@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
-#if __SHARPDX__
-using SharpDX;
-using Matrix4 = SharpDX.Matrix;
-#else
 using OpenTK;
-#endif
 
 namespace Aiv.Fast2D
 {
@@ -194,56 +188,7 @@ void main(){
     }
     gl_FragColor += color;
 }";
-
-		private static string simpleVertexShaderDirectX = @"
-
-cbuffer b0 : register (b0) {
-    float4x4 mvp;
-}
-
-struct vs_out {
-    float4 position : SV_POSITION;
-    float2 uvout : TEXCOORD;
-    float4 vertex_color : COLOR;
-};
-
-vs_out main(float2 position : VERTEX, float2 uv : UV, float4 vc : VC)
-{
-    vs_out o;
-    o.position = mul(float4(position.x, position.y, 0.0, 1.0), mvp);
-    o.uvout = uv;
-    o.vertex_color = vc;
-	return o;
-}";
-		private static string simpleFragmentShaderDirectX = @"
-cbuffer b1 : register (b1) {
-    float use_texture;
-}
-
-cbuffer b2 : register (b2) {
-    float use_wireframe;
-}
-
-cbuffer b3 : register (b3) {
-    float4 color;
-}
-
-struct vs_out {
-    float4 position : SV_POSITION;
-    float2 uvout : TEXCOORD;
-    float4 vertex_color : COLOR;
-};
-
-float4 main(vs_out i) : SV_TARGET
-{
-	return i.vertex_color + color;
-}";
-
-#if __SHARPDX__
-        private static Shader simpleShader = new Shader(simpleVertexShaderDirectX, simpleFragmentShaderDirectX, null, null, new string[] { "VERTEX", "UV", "VC" }, new int[] { 2, 2, 4 }, new string[] { "mvp" }, new string[] { "use_texture", "use_wireframe", "color", "tex" });
-#else
 		private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete, new string[] { "vertex", "uv", "vc" });
-#endif
 
 
 
@@ -368,12 +313,7 @@ float4 main(vs_out i) : SV_TARGET
 		{
 			if (this.noMatrix)
 				return;
-#if __SHARPDX__
-            Matrix4 m = Matrix4.Translation(-this.pivot.X, -this.pivot.Y, 0) *
-                Matrix4.Scaling(this.scale.X, this.scale.Y, 1) *
-                Matrix4.RotationZ(this.rotation) *
-                Matrix4.Translation(this.position.X, this.position.Y, 0);
-#else
+
 			// WARNING !!! OpenTK uses row-major while OpenGL uses column-major
 			Matrix4 m =
 				Matrix4.CreateTranslation(-this.pivot.X, -this.pivot.Y, 0) *
@@ -385,7 +325,7 @@ float4 main(vs_out i) : SV_TARGET
 				Matrix4.CreateRotationZ(this.rotation) *
 				// here we do not re-add the pivot, so translation is pivot based too
 				Matrix4.CreateTranslation(this.position.X, this.position.Y, 0);
-#endif
+
 
 			Matrix4 projectionMatrix = Window.Current.ProjectionMatrix;
 
@@ -407,10 +347,6 @@ float4 main(vs_out i) : SV_TARGET
 			}
 
 			Matrix4 mvp = m * projectionMatrix;
-#if __SHARPDX__
-            // transpose the matrix for DirectX
-            mvp.Transpose();
-#endif
 
 			// pass the matrix to the shader
 			this.shader.SetUniform("mvp", mvp);

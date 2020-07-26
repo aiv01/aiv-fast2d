@@ -1,10 +1,5 @@
 ﻿using System;
-#if __SHARPDX__
-using SharpDX;
-using Matrix4 = SharpDX.Matrix;
-#else
 using OpenTK;
-#endif
 
 namespace Aiv.Fast2D
 {
@@ -34,11 +29,7 @@ namespace Aiv.Fast2D
 
 		public virtual Matrix4 Matrix()
 		{
-#if __SHARPDX__
-            return Matrix4.Translation(-this.position.X + this.pivot.X, -this.position.Y + this.pivot.Y, 0);
-#else
 			return Matrix4.CreateTranslation(-this.position.X + this.pivot.X, -this.position.Y + this.pivot.Y, 0);
-#endif
 		}
 
 		public virtual Matrix4 ProjectionMatrix()
