@@ -75,7 +75,7 @@ namespace Aiv.Fast2D.Example.MW
 
             
 
-            while (window.opened && windowFake.opened)
+            while (window.IsOpened && windowFake.IsOpened)
             {
 
                 window.SetCurrent();
