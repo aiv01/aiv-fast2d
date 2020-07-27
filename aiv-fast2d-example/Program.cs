@@ -1,5 +1,6 @@
 ﻿using Aiv.Fast2D.Example.Alien;
 using Aiv.Fast2D.Example.CWE;
+using Aiv.Fast2D.Example.DSE;
 using Aiv.Fast2D.Example.MW;
 using Aiv.Fast2D.Example.RenderTextureSample;
 using System;
@@ -16,15 +17,16 @@ namespace Aiv.Fast2D.Example
         {
             Console.WriteLine("=== AivFast2d Example ===");
             Console.WriteLine("Possible examples:");
-            Console.WriteLine("[1] Drawing a Texture");
-            Console.WriteLine("[2] PostEffect on RenderTexture");
-            Console.WriteLine("[3] Alien");
-            Console.WriteLine("[4] Multi Window");
-            Console.WriteLine("[5] Close/Exit Window");
+            Console.WriteLine("[1] Drawing a Sprite");
+            Console.WriteLine("[2] Drawing a Texture");
+            Console.WriteLine("[3] PostEffect on RenderTexture");
+            Console.WriteLine("[4] Alien");
+            Console.WriteLine("[5] Multi Window");
+            Console.WriteLine("[6] Close/Exit Window");
             Console.WriteLine();
 
             int minChoice = 0;
-            int maxChoice = 5;
+            int maxChoice = 6;
             int choice;
             do
             {
@@ -41,11 +43,12 @@ namespace Aiv.Fast2D.Example
                     switch (choice)
                     {
                         case 0: break;
-                        case 1: DrawTextureExample.Run(); break;
-                        case 2: RenderTextureExample.Run(); break;
-                        case 3: AlienExample.Run(); break;
-                        case 4: MultiWindowExample.Run(); break;
-                        case 5: CloseWindowExample.Run(); break;
+                        case 1: DrawSpriteExample.Run(); break;
+                        case 2: DrawTextureExample.Run(); break;
+                        case 3: RenderTextureExample.Run(); break;
+                        case 4: AlienExample.Run(); break;
+                        case 5: MultiWindowExample.Run(); break;
+                        case 6: CloseWindowExample.Run(); break;
                     }
 
                     if (choice == 0) break;
