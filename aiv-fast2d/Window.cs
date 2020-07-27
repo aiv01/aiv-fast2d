@@ -18,10 +18,10 @@ namespace Aiv.Fast2D
 		/// </summary>
 		public Vector2 CurrentViewportPosition { get; internal set; }
 
-		/// <summary>
-		/// Return the size of the last activated viewport by <see cref="SetViewport(int, int, int, int, float, bool)"/> method.
-		/// </summary>
-		public Vector2 CurrentViewportSize { get; internal set; }
+        /// <summary>
+        /// Return the size of the last activated viewport by <see cref="SetViewport(int, int, int, int, float, bool)"/> method.
+        /// </summary>
+        public Vector2 CurrentViewportSize { get; internal set; }
 
 
 		/// <summary>
@@ -266,20 +266,11 @@ namespace Aiv.Fast2D
 			Window.SetCurrent(this);
 		}
 
-		public bool opened = true;
-
-		public bool IsOpened
-		{
-			get
-			{
-				return opened;
-			}
-		}
-
-		public void Exit(int code = 0)
-		{
-			System.Environment.Exit(code);
-		}
+		/// <summary>
+		/// Check if the window is opened
+		/// </summary>
+		public bool IsOpened { get; internal set; }
+		
 
 		// used for dpi management
 		private float scaleX;

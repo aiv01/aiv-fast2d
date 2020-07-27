@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using OpenTK.Input;
-
+using System.Runtime.CompilerServices;
 
 namespace Aiv.Fast2D
 {
@@ -121,7 +121,7 @@ namespace Aiv.Fast2D
 
             FixDimensions(width, height, true);
 
-            this.Context.Closed += new EventHandler<EventArgs>(this.CloseHandler);
+            this.Context.Closed += CloseHandler;
             this.Context.Move += (sender, e) =>
             {
                 // avoid deltaTime to became huge while moving the window
@@ -139,6 +139,8 @@ namespace Aiv.Fast2D
 
             // hack for getting the default framebuffer
             ResetFrameBuffer();
+
+            IsOpened = true;
         }
 
         /// <summary>
@@ -275,11 +277,11 @@ namespace Aiv.Fast2D
               this.Context.Title = text;
         }
 
-
+        /// <summary>
+        /// Present the rendered scene to the user, update events and delta time since last update.
+        /// </summary>
         public void Update()
         {
-            
-
             // apply postprocessing (if required)
             ApplyPostProcessingEffects();
 
@@ -302,6 +304,29 @@ namespace Aiv.Fast2D
             // reset and clear
             ResetFrameBuffer();
         }
+
+        /// <summary>
+        /// Close the window
+        /// </summary>
+        public void Close()
+        {
+            if (!IsOpened) return;
+
+            Context.Close();
+            Context.Dispose();
+            IsOpened = false;
+        }
+
+        /// <summary>
+        /// Close the window and kill the application
+        /// </summary>
+        /// <param name="code">the exit code. Default is 0.</param>
+        public void Exit(int code = 0)
+        {
+            Close();
+            System.Environment.Exit(code);
+        }
+
 
         #region input
 
@@ -648,7 +673,7 @@ namespace Aiv.Fast2D
 
         private void CloseHandler(object sender, EventArgs args)
         {
-            this.opened = false;
+            IsOpened = false;
         }
 
         private void FixDimensions(int width, int height, bool first = false)

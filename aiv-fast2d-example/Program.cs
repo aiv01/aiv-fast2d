@@ -1,4 +1,5 @@
 ﻿using Aiv.Fast2D.Example.Alien;
+using Aiv.Fast2D.Example.CWE;
 using Aiv.Fast2D.Example.MW;
 using Aiv.Fast2D.Example.RenderTextureSample;
 using System;
@@ -19,10 +20,11 @@ namespace Aiv.Fast2D.Example
             Console.WriteLine("[2] PostEffect on RenderTexture");
             Console.WriteLine("[3] Alien");
             Console.WriteLine("[4] Multi Window");
+            Console.WriteLine("[5] Close/Exit Window");
             Console.WriteLine();
 
             int minChoice = 0;
-            int maxChoice = 4;
+            int maxChoice = 5;
             int choice;
             do
             {
@@ -43,6 +45,7 @@ namespace Aiv.Fast2D.Example
                         case 2: RenderTextureExample.Run(); break;
                         case 3: AlienExample.Run(); break;
                         case 4: MultiWindowExample.Run(); break;
+                        case 5: CloseWindowExample.Run(); break;
                     }
 
                     if (choice == 0) break;
