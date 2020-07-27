@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>true</Prefer32Bit>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -52,6 +52,7 @@
     <Compile Include="Alien\Scripts\GrayscaleEffect.cs" />
     <Compile Include="Alien\Scripts\ParticleSystem.cs" />
     <Compile Include="Alien\AlienExample.cs" />
+    <Compile Include="DrawSprite\DrawSpriteExample.cs" />
     <Compile Include="CloseWindow\CloseWindowExample.cs" />
     <Compile Include="DrawTexture\DrawTextureExample.cs" />
     <Compile Include="MultiWindow\MultiWindowExample.cs" />
