@@ -204,6 +204,34 @@ void main(){
 			DrawSolidColor(color.X, color.Y, color.Z, color.W);
 		}
 
+		/// <summary>
+		/// Draw the whole texture
+		/// </summary>
+		/// <param name="tex">the texture used as source</param>
+		public override void DrawTexture(Texture tex)
+		{
+			this.DrawTexture(tex, 0, 0, tex.Width, tex.Height);
+		}
+
+		/// <summary>
+		/// Draw a texture starting at specific offset to the full size of the texture
+		/// </summary>
+		/// <param name="tex">the texture used as source</param>
+		/// <param name="xOffset">offset on x axis</param>
+		/// <param name="yOffset">offset on y axis</param>
+		public void DrawTexture(Texture tex, int xOffset, int yOffset)
+		{
+			this.DrawTexture(tex, xOffset, yOffset, tex.Width, tex.Height);
+		}
+
+		/// <summary>
+		/// Draw a texture starting at specific offset to a specific size
+		/// </summary>
+		/// <param name="tex">the texture used as source</param>
+		/// <param name="xOffset">offset on x axis</param>
+		/// <param name="yOffset">offset on y axis</param>
+		/// <param name="width">width to take into account</param>
+		/// <param name="height">height to take into account</param>
 		public void DrawTexture(Texture tex, int xOffset, int yOffset, int width, int height)
 		{
 			float deltaW = 1f / tex.Width;
@@ -212,13 +240,14 @@ void main(){
 			float right = (xOffset + width) * deltaW;
 			float top = yOffset * deltaH;
 			float bottom = (yOffset + height) * deltaH;
+
 			if (tex.flipped)
 			{
 				float tmp = bottom;
 				bottom = top;
 				top = tmp;
 			}
-
+			
 			if (flipX)
 			{
 				float tmp = left;
@@ -251,15 +280,7 @@ void main(){
 			base.DrawTexture(tex);
 		}
 
-		public void DrawTexture(Texture tex, int xOffset, int yOffset)
-		{
-			this.DrawTexture(tex, xOffset, yOffset, tex.Width, tex.Height);
-		}
 
-		public override void DrawTexture(Texture tex)
-		{
-			this.DrawTexture(tex, 0, 0, tex.Width, tex.Height);
-		}
 	}
 }
 
