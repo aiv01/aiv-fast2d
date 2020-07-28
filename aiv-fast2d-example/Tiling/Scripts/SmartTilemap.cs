@@ -39,11 +39,8 @@ namespace Aiv.Fast2D.Example.TLE
             // use nearest mode for sampling
             this.tileSheet.SetNearest();
             this.tileSize = tileSize;
-            /* 
-             * extra border on right and bottom side of each tile.
-             * The extra border is useful so when Texture Filtering with GL_NEAREST
-             * is applyied, there is more chance the right texel is selected (avoiding "lines" in between tiles)
-             */
+            
+            //Eventual extra border on right and bottom side of each tile. This is just a scenario of how spritesheet can be stored on a texture.
             this.tileSizeIncludingExtraBorder = tileSize;
             if (extraRightBottomBorderPerTile) tileSizeIncludingExtraBorder += 1;
 
@@ -53,7 +50,7 @@ namespace Aiv.Fast2D.Example.TLE
             if (tilesPerCol * tileSizeIncludingExtraBorder != tileSheet.Height) throw new Exception("Invalid tilesheet Height! Should include extra 1px border (right and bottom) for each tile");
 
 
-            //TILE CONFIGURATION
+            //PARSE TILE SCENE
             string mapBody = File.ReadAllText(csvFile);
             mapBody = mapBody.TrimEnd(new char[] { '\n', '\r' }).TrimEnd();
             mapBody = mapBody.Replace("\r\n", "\n");
@@ -67,7 +64,7 @@ namespace Aiv.Fast2D.Example.TLE
                 width = cols.Length;
                 if (this.map == null)
                 {
-                    this.map = new int[cols.Length * rows.Length];
+                    this.map = new int[width * height];
                 }
                 foreach (string col in cols)
                 {
@@ -76,7 +73,14 @@ namespace Aiv.Fast2D.Example.TLE
                 }
             }
 
-            this.mapMesh = new Mesh();
+            mapMesh = new Mesh();
+            mapMesh.v = ComputeVertices();
+            mapMesh.uv = ComputeUvs();
+            mapMesh.Update();
+        }
+
+        private float[] ComputeVertices()
+        {
             List<float> vertices = new List<float>();
             for (int y = 0; y < height; y++)
             {
@@ -102,27 +106,13 @@ namespace Aiv.Fast2D.Example.TLE
                 }
             }
 
-            this.mapMesh.v = vertices.ToArray();
-            this.mapMesh.uv = new float[this.mapMesh.v.Length];
-            this.mapMesh.Update();
+            return vertices.ToArray();
         }
 
-        private int GetTile(int x, int y)
+        private float[] ComputeUvs()
         {
-            int index = (y * this.width) + x;
-            return this.map[index];
-        }
+            float[] uvs = new float[height * width * 12]; // h * w * 12 = num of vertices
 
-        private Vector2 GetTileXY(int index)
-        {
-            int x = (index % tilesPerRow) * tileSizeIncludingExtraBorder;
-            int y = (index / tilesPerRow) * tileSizeIncludingExtraBorder;
-
-            return new Vector2(x, y);
-        }
-
-        public void Draw()
-        {
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -148,29 +138,44 @@ namespace Aiv.Fast2D.Example.TLE
 
                     int index = (y * width * 12) + (x * 12); //12 is stride (6 vertices x 2 coordinates)
 
-                    this.mapMesh.uv[index + 0] = left;
-                    this.mapMesh.uv[index + 1] = top;
+                    uvs[index + 0] = left;
+                    uvs[index + 1] = top;
 
-                    this.mapMesh.uv[index + 2] = left;
-                    this.mapMesh.uv[index + 3] = bottom;
+                    uvs[index + 2] = left;
+                    uvs[index + 3] = bottom;
 
-                    this.mapMesh.uv[index + 4] = right;
-                    this.mapMesh.uv[index + 5] = top;
+                    uvs[index + 4] = right;
+                    uvs[index + 5] = top;
 
-                    this.mapMesh.uv[index + 6] = right;
-                    this.mapMesh.uv[index + 7] = top;
+                    uvs[index + 6] = right;
+                    uvs[index + 7] = top;
 
-                    this.mapMesh.uv[index + 8] = right;
-                    this.mapMesh.uv[index + 9] = bottom;
+                    uvs[index + 8] = right;
+                    uvs[index + 9] = bottom;
 
-                    this.mapMesh.uv[index + 10] = left;
-                    this.mapMesh.uv[index + 11] = bottom;
+                    uvs[index + 10] = left;
+                    uvs[index + 11] = bottom;
                 }
             }
+            return uvs;
+        }
 
-            
-            this.mapMesh.UpdateUV();
+        private int GetTile(int x, int y)
+        {
+            int index = (y * this.width) + x;
+            return this.map[index];
+        }
 
+        private Vector2 GetTileXY(int index)
+        {
+            int x = (index % tilesPerRow) * tileSizeIncludingExtraBorder;
+            int y = (index / tilesPerRow) * tileSizeIncludingExtraBorder;
+
+            return new Vector2(x, y);
+        }
+
+        public void Draw()
+        {
             this.mapMesh.DrawTexture(this.tileSheet);
         }
 
