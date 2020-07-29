@@ -3,6 +3,11 @@ Hardware accelerated 2D library, used by the first year students of AIV ("Accade
 
 It is the base for aiv-fast3d too, that adds support for 2.5d and 3d games.
 
+# Examples
+Below a very basic usage example.
+
+> More examples are available in [Example project](./aiv-fast2d-example).
+
 ```cs
 // open a window and get a OpenGL context
 Window window = new Window(1024, 576, "Title");
@@ -38,3 +43,20 @@ sprite.DrawTexture(texture);
 // draw only a part of the the texture in the sprite/mesh
 sprite.DrawTexture(texture, xOffset, yOffset, width, height);
 ```
+
+
+# Documentation
+API documentation related to the last version of the library is published [here](http://aiv01.github.io/aiv-fast2d/).
+
+Futhermore some in-depth guides are available for the following topics:
+- [Handling Joystick input](./docs/Joysticks.md).
+- [Creating Post-Processing effects](./docs/Postprocessing.md).
+
+# Compliance
+Library tested on:
+* Visual Studio 2019 v16.6.4
+* .NET Framework 4.8
+* Any Cpu architecture
+
+# Contribution
+If you want to contribute to the project, please follow the [guidelines](CONTRIBUTING.md).
