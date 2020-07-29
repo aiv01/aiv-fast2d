@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Aiv.Fast2D;
 using OpenTK;
 
-namespace Aiv.Fast2D.Example
+namespace Aiv.Fast2D.Example.PRE
 {
-    public class ParticleSystem
+    public class Particles
     {
         private struct Particle
         {
@@ -43,7 +43,7 @@ namespace Aiv.Fast2D.Example
             return (float)(random.NextDouble() * (max - min) + min);
         }
 
-        public ParticleSystem(float width, float height, int numberOfParticles)
+        public Particles(float width, float height, int numberOfParticles)
         {
             this.random = new Random();
             this.instancedSprite = new InstancedSprite(width, height, numberOfParticles);
@@ -58,11 +58,24 @@ namespace Aiv.Fast2D.Example
             this.instancedSprite.UpdateScaleForAllInstances();
         }
 
-        public void Update(Window window)
+        public void DrawColor(int r, int g, int b, int a, float deltaTime)
+        {
+            Update(deltaTime);
+            //this.instancedSprite.DrawColor(r, g, b, a);
+            this.instancedSprite.DrawWireframe(r, g, b, a, 1);
+        }
+
+        public void DrawTexture(Texture texture, float deltaTime)
+        {
+            Update(deltaTime);
+            this.instancedSprite.DrawTexture(texture);
+        }
+
+        private void Update(float deltaTime)
         {
             for (int i = 0; i < this.instancedSprite.Instances; i++)
             {
-                this.particles[i].life -= window.DeltaTime;
+                this.particles[i].life -= deltaTime;
                 if (this.particles[i].life <= 0)
                 {
                     this.particles[i].velocity = new Vector2(RandomFloat(-1, 1), RandomFloat(-1, 0)) * 60f;
@@ -73,11 +86,12 @@ namespace Aiv.Fast2D.Example
                     continue;
                 }
                 Vector2 position = this.instancedSprite.GetPositionPerInstance(i);
-                this.particles[i].gravity += gravity * window.DeltaTime;
-                this.instancedSprite.SetPositionPerInstance(i, position + (this.particles[i].velocity + this.particles[i].gravity) * window.DeltaTime);
+                this.particles[i].gravity += gravity * deltaTime;
+                this.instancedSprite.SetPositionPerInstance(i, position + (this.particles[i].velocity + this.particles[i].gravity) * deltaTime);
+                if (i % 2 == 0) instancedSprite.SetAdditiveTintPerInstance(i, new Vector4(0, 1, 1, 1));
             }
             this.instancedSprite.UpdatePositionForAllInstances();
-            this.instancedSprite.DrawColor(0, 1, 0, 0.8f);
+            this.instancedSprite.UpdateAdditiveTintForAllInstances();
         }
     }
 }

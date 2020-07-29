@@ -94,9 +94,9 @@ namespace Aiv.Fast2D.Example.Alien
                 square = new Sprite(100, 100);
 
                 tiles = new InstancedSprite(100, 100, 3);
-                tiles.SetPosition(0, new Vector2(150, 100));
-                tiles.SetPosition(1, new Vector2(200, 200));
-                tiles.SetPosition(2, new Vector2(500, 500));
+                tiles.SetPositionPerInstance(0, new Vector2(150, 100));
+                tiles.SetPositionPerInstance(1, new Vector2(200, 200));
+                tiles.SetPositionPerInstance(2, new Vector2(500, 500));
 
                 tiles.SetScale(0, new Vector2(0.5f, 0.5f));
                 tiles.SetScale(1, new Vector2(1.5f, 1.5f));
@@ -236,14 +236,14 @@ namespace Aiv.Fast2D.Example.Alien
 
                 for (int i = 0; i < tiles2.Instances; i++)
                 {
-                    tiles2.SetPosition(i, new Vector2(20 * i, 20 * i), true);
+                    tiles2.SetPositionPerInstance(i, new Vector2(20 * i, 20 * i));
                     if (i % 2 == 0)
                     {
-                        tiles2.SetAdditiveColor(i, new Vector4(1, -1, -1, 1), true);
+                        tiles2.SetAdditiveTintPerInstance(i, new Vector4(1, -1, -1, 1));
                     }
                 }
-                tiles2.UpdatePositions();
-                tiles2.UpdateAdditiveColors();
+                tiles2.UpdatePositionForAllInstances();
+                tiles2.UpdateAdditiveTintForAllInstances();
 
 
 
@@ -313,8 +313,8 @@ namespace Aiv.Fast2D.Example.Alien
 
 
 
-                Vector2 newPosition = tiles.GetPosition(2) - Vector2.One * 20f * window.DeltaTime;
-                tiles.SetPosition(2, newPosition);
+                Vector2 newPosition = tiles.GetPositionPerInstance(2) - Vector2.One * 20f * window.DeltaTime;
+                tiles.SetPositionPerInstance(2, newPosition);
 
                 tiles.DrawColor(0, 1, 1, 1);
 
