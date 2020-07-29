@@ -94,9 +94,9 @@ namespace Aiv.Fast2D.Example.Alien
                 square = new Sprite(100, 100);
 
                 tiles = new InstancedSprite(100, 100, 3);
-                tiles.SetPosition(0, new Vector2(150, 100));
-                tiles.SetPosition(1, new Vector2(200, 200));
-                tiles.SetPosition(2, new Vector2(500, 500));
+                tiles.SetPositionPerInstance(0, new Vector2(150, 100));
+                tiles.SetPositionPerInstance(1, new Vector2(200, 200));
+                tiles.SetPositionPerInstance(2, new Vector2(500, 500));
 
                 tiles.SetScale(0, new Vector2(0.5f, 0.5f));
                 tiles.SetScale(1, new Vector2(1.5f, 1.5f));
@@ -236,14 +236,14 @@ namespace Aiv.Fast2D.Example.Alien
 
                 for (int i = 0; i < tiles2.Instances; i++)
                 {
-                    tiles2.SetPosition(i, new Vector2(20 * i, 20 * i), true);
+                    tiles2.SetPositionPerInstance(i, new Vector2(20 * i, 20 * i));
                     if (i % 2 == 0)
                     {
-                        tiles2.SetAdditiveColor(i, new Vector4(1, -1, -1, 1), true);
+                        tiles2.SetAdditiveTintPerInstance(i, new Vector4(1, -1, -1, 1));
                     }
                 }
-                tiles2.UpdatePositions();
-                tiles2.UpdateAdditiveColors();
+                tiles2.UpdatePositionForAllInstances();
+                tiles2.UpdateAdditiveTintForAllInstances();
 
 
 
@@ -267,7 +267,7 @@ namespace Aiv.Fast2D.Example.Alien
                 ship.DrawTexture(alien, x, y, alien.Width / 10, height);
 
 
-                square.DrawSolidColor(1f, 0, 0, 0.5f);
+                square.DrawColor(1f, 0, 0, 0.5f);
 
                 window.SetClearColor(255, 0, 0);
                 window.RenderTo(screen);
@@ -313,19 +313,19 @@ namespace Aiv.Fast2D.Example.Alien
 
 
 
-                Vector2 newPosition = tiles.GetPosition(2) - Vector2.One * 20f * window.DeltaTime;
-                tiles.SetPosition(2, newPosition);
+                Vector2 newPosition = tiles.GetPositionPerInstance(2) - Vector2.One * 20f * window.DeltaTime;
+                tiles.SetPositionPerInstance(2, newPosition);
 
-                tiles.DrawSolidColor(0, 1, 1, 1);
+                tiles.DrawColor(0, 1, 1, 1);
 
                 tiles2.position.X += 30 * window.DeltaTime;
-                tiles2.DrawSolidColor(1, 1, 0, 1);
+                tiles2.DrawColor(1, 1, 0, 1);
 
                 particleSystem.Update(window);
 
                 //rope.SetDestination(window.mousePosition);
                 rope.UpdatePhysics(window);
-                rope.DrawSolidColor(1f, 0f, 1f, 1f);
+                rope.DrawColor(1f, 0f, 1f, 1f);
 
                 ship2.position = rope.position + rope.Point2;
                 ship2.SetAdditiveTint(-1f, 1f, -1f, 0);
