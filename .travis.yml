@@ -48,7 +48,6 @@ deploy:
     script: nuget push ./*.nupkg -Verbosity detailed -ApiKey $NUGET_API_KEY -Source $NUGET_SOURCE
     on:
       tags: true
-      condition: $TRAVIS_TAG =~ ^\d+(\.\d+){2,3}$
     skip_cleanup: true
     
   - provider: pages
@@ -56,7 +55,6 @@ deploy:
     local_dir: $AUTO_PATH_DOCS
     on:
       tags: true
-      condition: $TRAVIS_TAG =~ ^\d+(\.\d+){2,3}$
     skip_cleanup: true
     
   - provider: releases
@@ -65,5 +63,4 @@ deploy:
     file: $AUTO_PATH_ARTIFACTS/*
     on:
       tags: true
-      condition: $TRAVIS_TAG =~ ^\d+(\.\d+){2,3}$
     skip_cleanup: true
