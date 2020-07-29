@@ -125,7 +125,7 @@ out vec4 out_color;
 
 void main(){
     if (use_texture > 0.0) {
-        out_color = texture(tex, uvout);
+		out_color = texture(tex, uvout);
         out_color += vec4(vertex_color.xyz * out_color.a, vertex_color.a);
     }
     else if (use_wireframe > 0.0) {
@@ -188,7 +188,7 @@ void main(){
     }
     gl_FragColor += color;
 }";
-		private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete, new string[] { "vertex", "uv", "vc" });
+		internal static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete, new string[] { "vertex", "uv", "vc" });
 
 
 
@@ -412,28 +412,55 @@ void main(){
 		}
 
 
-		// simply set the 'color' uniform of the shader
+		/// <summary>
+		/// Draw the sprite filling it with this color
+		/// </summary>
+		/// <param name="r">red channel in space [0.0, 1.0]</param>
+		/// <param name="g">green channel in space [0.0, 1.0]</param>
+		/// <param name="b">blue channelin space [0.0, 1.0]</param>
+		/// <param name="a">alpha channel in space [0.0, 1.0]</param>
 		public virtual void DrawColor(float r, float g, float b, float a = 1)
 		{
+			DrawColor(new Vector4(r, g, b, a));
+		}
+
+		/// <summary>
+		/// Draw the sprite filling it with this color
+		/// </summary>
+		/// <param name="r">red channel in space [0, 255]</param>
+		/// <param name="g">green channel in space [0, 255]</param>
+		/// <param name="b">blue channelin space [0, 255]</param>
+		/// <param name="a">alpha channel in space [0, 255]</param>
+		public void DrawColor(int r, int g, int b, int a = 255)
+		{
+			DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
+		}
+
+		/// <summary>
+		/// Draw the sprite filling it with this color
+		/// </summary>
+		/// <param name="color">color channel as vector of 4 float</param>
+		public virtual void DrawColor(Vector4 color)
+		{
 			this.Bind();
-			this.shader.SetUniform("color", new Vector4(r, g, b, a));
+			this.shader.SetUniform("color", color);
 			this.Draw();
 			// always reset the color
 			this.shader.SetUniform("color", Vector4.Zero);
 		}
 
-		public virtual void DrawColor(int r, int g, int b, int a = 255)
-		{
-			DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
-		}
-
-		public virtual void DrawColor(Vector4 color)
-		{
-			DrawColor(color.X, color.Y, color.Z, color.W);
-		}
-
 		private float[] wireframceCache;
-		public virtual void DrawWireframe(float r, float g, float b, float a = 1, float tickness = 0.02f)
+		public void DrawWireframe(float r, float g, float b, float a = 1, float tickness = 0.02f)
+		{
+			DrawWireframe(new Vector4(r, g, b, a), tickness);
+		}
+
+		public void DrawWireframe(int r, int g, int b, int a = 255, float tickness = 0.02f)
+		{
+			DrawWireframe(r / 255f, g / 255f, b / 255f, a / 255f, tickness);
+		}
+
+		public virtual void DrawWireframe(Vector4 color, float tickness = 0.02f)
 		{
 			if (this.v == null)
 				return;
@@ -472,22 +499,12 @@ void main(){
 				this.UpdateVertexColor();
 			}
 
-			this.shader.SetUniform("color", new Vector4(r, g, b, a));
+			this.shader.SetUniform("color", color);
 			this.shader.SetUniform("use_wireframe", tickness);
 			this.Draw();
 			this.shader.SetUniform("use_wireframe", -1f);
 			// always reset the color
 			this.shader.SetUniform("color", Vector4.Zero);
-		}
-
-		public virtual void DrawWireframe(int r, int g, int b, int a = 255, float tickness = 0.02f)
-		{
-			DrawWireframe(r / 255f, g / 255f, b / 255f, a / 255f, tickness);
-		}
-
-		public virtual void DrawWireframe(Vector4 color, float tickness = 0.02f)
-		{
-			DrawWireframe(color.X, color.Y, color.Z, color.W, tickness);
 		}
 
 		// simple draw without textures (useful for subclasses)

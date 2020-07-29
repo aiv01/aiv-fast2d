@@ -21,12 +21,17 @@ namespace Aiv.Fast2D.Example.DSE
             greenLine.position.X = 80;
             greenLine.position.Y = 51;
 
+            Sprite wireFrame = new Sprite(100, 100);
+            wireFrame.position.X = 100;
+            wireFrame.position.Y = 100;
+
+
             while (window.IsOpened)
             {
-                //redLine.DrawColor(255, 0, 0);
-                //blueLine.DrawColor(0, 0, 255);
-                redLine.DrawSolidColor(255, 0, 0);
-                greenLine.DrawSolidColor(0, 255, 0);
+                redLine.DrawColor(255, 0, 0);
+                greenLine.DrawColor(0, 255, 0);
+
+                wireFrame.DrawWireframe(255, 0, 0, 1);
                 window.Update();
             }
         }

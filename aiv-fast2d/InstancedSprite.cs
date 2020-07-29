@@ -37,21 +37,24 @@ in vec2 uvout;
 in vec4 additive_tint_out;
 in vec4 multiply_tint_out;
 
+uniform vec4 color;
 uniform vec4 mul_tint;
 uniform vec4 add_tint;
 uniform sampler2D tex;
 uniform float use_texture;
 
-out vec4 color;
+out vec4 fragColor;
 
-void main(){
+void main() {
         if (use_texture > 0.0) {
-            color = texture(tex, uvout) * mul_tint * multiply_tint_out;
-            color += vec4((add_tint.xyz + additive_tint_out.xyz) * color.a, add_tint.a + additive_tint_out.a);
+            fragColor = texture(tex, uvout);
         }
         else {
-            color = add_tint + additive_tint_out;
+            fragColor = color;
         }
+
+        fragColor *= mul_tint * multiply_tint_out;
+        fragColor += vec4((add_tint.xyz + additive_tint_out.xyz) * fragColor.a, add_tint.a + additive_tint_out.a);
 }";
 
         private static Shader instancedSpriteShader = new Shader(instancedSpriteVertexShader,

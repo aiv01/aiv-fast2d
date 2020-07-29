@@ -77,7 +77,7 @@ namespace Aiv.Fast2D.Example
                 this.instancedSprite.SetPosition(i, position + (this.particles[i].velocity + this.particles[i].gravity) * window.DeltaTime, noUpload: true);
             }
             this.instancedSprite.UpdatePositions();
-            this.instancedSprite.DrawSolidColor(0, 1, 0, 0.8f);
+            this.instancedSprite.DrawColor(0, 1, 0, 0.8f);
         }
     }
 }

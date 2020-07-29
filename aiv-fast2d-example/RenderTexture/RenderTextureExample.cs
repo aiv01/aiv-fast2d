@@ -118,7 +118,7 @@ void main() {
                 sprite.EulerRotation += 30 * window.DeltaTime;
 
                 window.RenderTo(screen);
-                sprite.DrawSolidColor(255, 0, 0);
+                sprite.DrawColor(255, 0, 0);
                 if (random.Next() % 2 == 0)
                     screen.ApplyPostProcessingEffect(effect);
                 if (random.Next() % 2 == 0)

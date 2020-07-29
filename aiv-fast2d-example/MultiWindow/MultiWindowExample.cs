@@ -136,7 +136,7 @@ namespace Aiv.Fast2D.Example.MW
                     movingCamera.position.X -= window.DeltaTime;
 
                 pointer.position = window.MousePosition;
-                pointer.DrawSolidColor(1f, 0, 0, 1f);
+                pointer.DrawColor(1f, 0, 0, 1f);
 
                 window.Update();
 
