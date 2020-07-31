@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
-#if __SHARPDX__
-using SharpDX;
-using Matrix4 = SharpDX.Matrix;
-#else
 using OpenTK;
-#endif
 
 namespace Aiv.Fast2D
 {
@@ -131,7 +125,7 @@ out vec4 out_color;
 
 void main(){
     if (use_texture > 0.0) {
-        out_color = texture(tex, uvout);
+		out_color = texture(tex, uvout);
         out_color += vec4(vertex_color.xyz * out_color.a, vertex_color.a);
     }
     else if (use_wireframe > 0.0) {
@@ -194,56 +188,7 @@ void main(){
     }
     gl_FragColor += color;
 }";
-
-		private static string simpleVertexShaderDirectX = @"
-
-cbuffer b0 : register (b0) {
-    float4x4 mvp;
-}
-
-struct vs_out {
-    float4 position : SV_POSITION;
-    float2 uvout : TEXCOORD;
-    float4 vertex_color : COLOR;
-};
-
-vs_out main(float2 position : VERTEX, float2 uv : UV, float4 vc : VC)
-{
-    vs_out o;
-    o.position = mul(float4(position.x, position.y, 0.0, 1.0), mvp);
-    o.uvout = uv;
-    o.vertex_color = vc;
-	return o;
-}";
-		private static string simpleFragmentShaderDirectX = @"
-cbuffer b1 : register (b1) {
-    float use_texture;
-}
-
-cbuffer b2 : register (b2) {
-    float use_wireframe;
-}
-
-cbuffer b3 : register (b3) {
-    float4 color;
-}
-
-struct vs_out {
-    float4 position : SV_POSITION;
-    float2 uvout : TEXCOORD;
-    float4 vertex_color : COLOR;
-};
-
-float4 main(vs_out i) : SV_TARGET
-{
-	return i.vertex_color + color;
-}";
-
-#if __SHARPDX__
-        private static Shader simpleShader = new Shader(simpleVertexShaderDirectX, simpleFragmentShaderDirectX, null, null, new string[] { "VERTEX", "UV", "VC" }, new int[] { 2, 2, 4 }, new string[] { "mvp" }, new string[] { "use_texture", "use_wireframe", "color", "tex" });
-#else
-		private static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete, new string[] { "vertex", "uv", "vc" });
-#endif
+		internal static Shader simpleShader = new Shader(simpleVertexShader, simpleFragmentShader, simpleVertexShaderObsolete, simpleFragmentShaderObsolete, new string[] { "vertex", "uv", "vc" });
 
 
 
@@ -368,24 +313,17 @@ float4 main(vs_out i) : SV_TARGET
 		{
 			if (this.noMatrix)
 				return;
-#if __SHARPDX__
-            Matrix4 m = Matrix4.Translation(-this.pivot.X, -this.pivot.Y, 0) *
-                Matrix4.Scaling(this.scale.X, this.scale.Y, 1) *
-                Matrix4.RotationZ(this.rotation) *
-                Matrix4.Translation(this.position.X, this.position.Y, 0);
-#else
+
 			// WARNING !!! OpenTK uses row-major while OpenGL uses column-major
 			Matrix4 m =
 				Matrix4.CreateTranslation(-this.pivot.X, -this.pivot.Y, 0) *
-#if !__MOBILE__
+
 				Matrix4.CreateScale(this.scale.X, this.scale.Y, 1) *
-#else
-                Matrix4.Scale(this.scale.X, this.scale.Y, 1) *
-#endif
+
 				Matrix4.CreateRotationZ(this.rotation) *
 				// here we do not re-add the pivot, so translation is pivot based too
 				Matrix4.CreateTranslation(this.position.X, this.position.Y, 0);
-#endif
+
 
 			Matrix4 projectionMatrix = Window.Current.ProjectionMatrix;
 
@@ -407,10 +345,6 @@ float4 main(vs_out i) : SV_TARGET
 			}
 
 			Matrix4 mvp = m * projectionMatrix;
-#if __SHARPDX__
-            // transpose the matrix for DirectX
-            mvp.Transpose();
-#endif
 
 			// pass the matrix to the shader
 			this.shader.SetUniform("mvp", mvp);
@@ -478,28 +412,55 @@ float4 main(vs_out i) : SV_TARGET
 		}
 
 
-		// simply set the 'color' uniform of the shader
+		/// <summary>
+		/// Draw the sprite filling it with this color
+		/// </summary>
+		/// <param name="r">red channel in space [0.0, 1.0]</param>
+		/// <param name="g">green channel in space [0.0, 1.0]</param>
+		/// <param name="b">blue channelin space [0.0, 1.0]</param>
+		/// <param name="a">alpha channel in space [0.0, 1.0]</param>
 		public virtual void DrawColor(float r, float g, float b, float a = 1)
 		{
+			DrawColor(new Vector4(r, g, b, a));
+		}
+
+		/// <summary>
+		/// Draw the sprite filling it with this color
+		/// </summary>
+		/// <param name="r">red channel in space [0, 255]</param>
+		/// <param name="g">green channel in space [0, 255]</param>
+		/// <param name="b">blue channelin space [0, 255]</param>
+		/// <param name="a">alpha channel in space [0, 255]</param>
+		public void DrawColor(int r, int g, int b, int a = 255)
+		{
+			DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
+		}
+
+		/// <summary>
+		/// Draw the sprite filling it with this color
+		/// </summary>
+		/// <param name="color">color channel as vector of 4 float</param>
+		public virtual void DrawColor(Vector4 color)
+		{
 			this.Bind();
-			this.shader.SetUniform("color", new Vector4(r, g, b, a));
+			this.shader.SetUniform("color", color);
 			this.Draw();
 			// always reset the color
 			this.shader.SetUniform("color", Vector4.Zero);
 		}
 
-		public virtual void DrawColor(int r, int g, int b, int a = 255)
-		{
-			DrawColor(r / 255f, g / 255f, b / 255f, a / 255f);
-		}
-
-		public virtual void DrawColor(Vector4 color)
-		{
-			DrawColor(color.X, color.Y, color.Z, color.W);
-		}
-
 		private float[] wireframceCache;
-		public virtual void DrawWireframe(float r, float g, float b, float a = 1, float tickness = 0.02f)
+		public void DrawWireframe(float r, float g, float b, float a = 1, float tickness = 0.02f)
+		{
+			DrawWireframe(new Vector4(r, g, b, a), tickness);
+		}
+
+		public void DrawWireframe(int r, int g, int b, int a = 255, float tickness = 0.02f)
+		{
+			DrawWireframe(r / 255f, g / 255f, b / 255f, a / 255f, tickness);
+		}
+
+		public virtual void DrawWireframe(Vector4 color, float tickness = 0.02f)
 		{
 			if (this.v == null)
 				return;
@@ -538,22 +499,12 @@ float4 main(vs_out i) : SV_TARGET
 				this.UpdateVertexColor();
 			}
 
-			this.shader.SetUniform("color", new Vector4(r, g, b, a));
+			this.shader.SetUniform("color", color);
 			this.shader.SetUniform("use_wireframe", tickness);
 			this.Draw();
 			this.shader.SetUniform("use_wireframe", -1f);
 			// always reset the color
 			this.shader.SetUniform("color", Vector4.Zero);
-		}
-
-		public virtual void DrawWireframe(int r, int g, int b, int a = 255, float tickness = 0.02f)
-		{
-			DrawWireframe(r / 255f, g / 255f, b / 255f, a / 255f, tickness);
-		}
-
-		public virtual void DrawWireframe(Vector4 color, float tickness = 0.02f)
-		{
-			DrawWireframe(color.X, color.Y, color.Z, color.W, tickness);
 		}
 
 		// simple draw without textures (useful for subclasses)
@@ -600,10 +551,45 @@ float4 main(vs_out i) : SV_TARGET
 			}
 		}
 
+
+
+		private Texture workaroundForRenderTexture;
+		/// <summary>
+		/// Allow to draw a <see cref="RenderTexture"/> object.
+		/// </summary>
+		/// <param name="rt">the render texture to draw</param>
+		public void DrawRenderTexture(RenderTexture rt)
+		{
+			/* This is a WORKAROUND to address the issue:
+			 * https://github.com/aiv01/aiv-fast2d/issues/53
+			 * 
+			 * It's a workaround because the only way found to avoid the "artifacts" problem
+			 * is to download from GPU the RenderTexture data and then utilize a temporary
+			 * Texture to upload data and draw them properly.
+			 * During this data migration, data need to be flipped, otherwise will be shown upside down
+			 * 
+			 * In order to avoid to create multiple temporary texture during each Draw pass,
+			 * we make sure to create just one.
+			 */
+			if (workaroundForRenderTexture == null)
+			{
+				workaroundForRenderTexture = new Texture(rt.Width, rt.Height);
+				workaroundForRenderTexture.flipped = true;
+			}
+
+			byte[] data = rt.Download();
+			workaroundForRenderTexture.Update(data);
+
+			DrawTexture(workaroundForRenderTexture);
+		}
+
 		public void Dispose()
 		{
 			if (disposed)
 				return;
+
+			if (workaroundForRenderTexture != null)
+				workaroundForRenderTexture.Dispose();
 
 			Graphics.DeleteBuffer(this.vBufferId);
 			Graphics.DeleteBuffer(this.uvBufferId);

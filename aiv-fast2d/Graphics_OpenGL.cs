@@ -1,10 +1,6 @@
 ﻿using System;
 using OpenTK;
-#if !__MOBILE__
 using OpenTK.Graphics.OpenGL;
-#else
-using OpenTK.Graphics.ES30;
-#endif
 
 namespace Aiv.Fast2D
 {
@@ -15,31 +11,23 @@ namespace Aiv.Fast2D
 	{
 		public static void SetContext(Window window)
 		{
-			// on mobile devices, multiple contexts are not available
-#if !__MOBILE__
-			window.context.MakeCurrent();
-#endif
+			window.Context.MakeCurrent();
 		}
 
 		public static void BindFrameBuffer(int frameBufferId)
 		{
-#if !__MOBILE__
 			if (Window.IsObsolete)
 			{
 				GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, frameBufferId);
 				return;
 			}
-#endif
+
 			GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBufferId);
 		}
 
 		public static string GetError()
 		{
-#if !__MOBILE__
 			return GL.GetError().ToString();
-#else
-			return GL.GetErrorCode().ToString();
-#endif
 		}
 
 		public static void SetAlphaBlending()
@@ -66,11 +54,7 @@ namespace Aiv.Fast2D
 
 			GL.Disable(EnableCap.CullFace);
 			GL.Disable(EnableCap.ScissorTest);
-
-#if !__MOBILE__
 			GL.Disable(EnableCap.Multisample);
-#endif
-
 			GL.Disable(EnableCap.DepthTest);
 		}
 
@@ -114,9 +98,7 @@ namespace Aiv.Fast2D
 
 		public static void EnableMultisampling()
 		{
-#if !__MOBILE__
 			GL.Enable(EnableCap.Multisample);
-#endif
 		}
 
 		public static void CullFacesDisable()
@@ -138,11 +120,7 @@ namespace Aiv.Fast2D
 
 		public static void DeleteBuffer(int id)
 		{
-#if !__MOBILE__
 			GL.DeleteBuffer(id);
-#else
-			GL.DeleteBuffers(1, new int[] { id });
-#endif
 		}
 
 		public static void DeleteTexture(int id)
@@ -157,11 +135,7 @@ namespace Aiv.Fast2D
 
 		public static void DeleteArray(int id)
 		{
-#if !__MOBILE__
 			GL.DeleteVertexArray(id);
-#else
-			GL.DeleteVertexArrays(1, new int[] { id });
-#endif
 		}
 
 		public static void Viewport(int x, int y, int width, int height)
@@ -179,7 +153,7 @@ namespace Aiv.Fast2D
 			GL.Disable(EnableCap.ScissorTest);
 		}
 
-		public static void Scissor(int x, int y, int width, int height)
+        public static void Scissor(int x, int y, int width, int height)
 		{
 			GL.Scissor(x, y, width, height);
 		}
@@ -205,13 +179,7 @@ namespace Aiv.Fast2D
 
 		public static int NewBuffer()
 		{
-#if __MOBILE__
-			int[] tmpStore = new int[1];
-			GL.GenBuffers(1, tmpStore);
-			return tmpStore[0];
-#else
 			return GL.GenBuffer();
-#endif
 		}
 
 		public static int NewArray()
@@ -220,13 +188,7 @@ namespace Aiv.Fast2D
 			// use VAO on modern OpenGL
 			if (!Window.IsObsolete)
 			{
-#if !__MOBILE__
 				vao = GL.GenVertexArray();
-#else
-				int[] tmpStore = new int[1];
-				GL.GenVertexArrays(1, tmpStore);
-				vao = tmpStore[0];
-#endif
 			}
 			return vao;
 		}
@@ -234,11 +196,7 @@ namespace Aiv.Fast2D
 
 		public static void DrawArrays(int amount)
 		{
-#if !__MOBILE__
 			GL.DrawArrays(PrimitiveType.Triangles, 0, amount);
-#else
-			GL.DrawArrays(BeginMode.Triangles, 0, amount);
-#endif
 		}
 
 		public static void MapBufferToArray(int bufferId, int index, int elementSize)
@@ -257,20 +215,12 @@ namespace Aiv.Fast2D
 
         public static void BufferData(float[] data)
 		{
-#if !__MOBILE__
 			GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsageHint.DynamicDraw);
-#else
-			GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(float)), data, BufferUsage.DynamicDraw);
-#endif
 		}
 
         public static void BufferData(int[] data)
         {
-#if !__MOBILE__
             GL.BufferData<int>(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(int)), data, BufferUsageHint.DynamicDraw);
-#else
-			GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * sizeof(int)), data, BufferUsage.DynamicDraw);
-#endif
         }
 
         public static void BufferData(int bufferId, float[] data)
@@ -287,20 +237,12 @@ namespace Aiv.Fast2D
 
         public static void BufferSubData(float[] data, int offset = 0)
 		{
-#if !__MOBILE__
 			GL.BufferSubData<float>(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)), data.Length * sizeof(float), data);
-#else
-			GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(float)), (IntPtr)(data.Length * sizeof(float)), data);
-#endif
 		}
 
         public static void BufferSubData(int[] data, int offset = 0)
         {
-#if !__MOBILE__
             GL.BufferSubData<int>(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(int)), data.Length * sizeof(int), data);
-#else
-			GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)(offset * sizeof(int)), (IntPtr)(data.Length * sizeof(int)), data);
-#endif
         }
 
         public static void BufferSubData(int bufferId, float[] data, int offset = 0)
@@ -367,19 +309,12 @@ namespace Aiv.Fast2D
 
 		public static int NewFrameBuffer()
 		{
-#if !__MOBILE__
 			return GL.GenFramebuffer();
-#else
-			int[] tmp_values = new int[1];
-			GL.GenFramebuffers(1, tmp_values);
-			return tmp_values[0];
-#endif
 		}
 
 
 		public static void FrameBufferTexture(int id)
 		{
-#if !__MOBILE__
 			if (Window.IsObsolete)
 			{
 				GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, id, 0);
@@ -388,14 +323,10 @@ namespace Aiv.Fast2D
 			{
 				GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, id, 0);
 			}
-#else
-			GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferSlot.ColorAttachment0, TextureTarget.Texture2D, id, 0);
-#endif
 		}
 
 		public static void FrameBufferDepthTexture(int id)
 		{
-#if !__MOBILE__
 			if (Window.IsObsolete)
 			{
 				GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, id, 0);
@@ -404,16 +335,11 @@ namespace Aiv.Fast2D
 			{
 				GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, id, 0);
 			}
-#else
-			GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferSlot.DepthAttachment, TextureTarget.Texture2D, id, 0);
-#endif
 		}
 
 		public static void FrameBufferDisableDraw()
 		{
-#if !__MOBILE__
 			GL.DrawBuffer(DrawBufferMode.None);
-#endif
 			GL.ReadBuffer(ReadBufferMode.None);
 		}
 
@@ -434,16 +360,11 @@ namespace Aiv.Fast2D
 
 		public static void TextureBitmap(int width, int height, byte[] bitmap, int mipMap = 0)
 		{
-#if !__MOBILE__
 			GL.TexImage2D<byte>(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba8, width / (int)Math.Pow(2, mipMap), height / (int)Math.Pow(2, mipMap), 0, PixelFormat.Rgba, PixelType.UnsignedByte, bitmap);
-#else
-			GL.TexImage2D(TextureTarget.Texture2D, mipMap, PixelInternalFormat.Rgba, width / (int)Math.Pow(2, mipMap), height / (int)Math.Pow(2, mipMap), 0, OpenTK.Graphics.ES30.PixelFormat.Rgba, PixelType.UnsignedByte, bitmap);
-#endif
 		}
 
 		public static void DepthTexture(int width, int height, int depthSize = 16)
 		{
-#if !__MOBILE__
 			PixelInternalFormat format = PixelInternalFormat.DepthComponent16;
 			if (depthSize == 24)
 			{
@@ -454,7 +375,6 @@ namespace Aiv.Fast2D
 				format = PixelInternalFormat.DepthComponent32;
 			}
 			GL.TexImage2D(TextureTarget.Texture2D, 0, format, width, height, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
-#endif
 		}
 
 		public static void TextureSetRepeatX(bool repeat = true)
@@ -469,18 +389,14 @@ namespace Aiv.Fast2D
 
 		public static void TextureClampToBorderX(float r, float g, float b, float a = 1)
 		{
-#if !__MOBILE__
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new float[] { r, g, b, a });
-#endif
 		}
 
 		public static void TextureClampToBorderY(float r, float g, float b, float a = 1)
 		{
-#if !__MOBILE__
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new float[] { r, g, b, a });
-#endif
 		}
 
 		public static void TextureSetLinear(bool mipMap = false)
@@ -522,15 +438,11 @@ namespace Aiv.Fast2D
 				}
 				vertex = vertexObsolete;
 				fragment = fragmentObsolete;
-#if !__MOBILE__
+
 				// obsolete Desktop OpenGL does not have medium precision
 				fragment = fragment.Replace("precision mediump float;", "");
-#endif
 			}
-#if __MOBILE__
-			vertex = vertex.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
-			fragment = fragment.Trim(new char[] { '\r', '\n' }).Replace("330 core", "300 es");
-#endif
+
 			int vertexShaderId = GL.CreateShader(ShaderType.VertexShader);
 			int fragmentShaderId = GL.CreateShader(ShaderType.FragmentShader);
 

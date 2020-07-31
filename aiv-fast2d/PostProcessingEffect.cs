@@ -122,14 +122,14 @@ void main(){
 
             if (!this.useDepth)
             {
-                screenMesh.DrawTexture(inRenderTexture);
+                screenMesh.DrawRenderTexture(inRenderTexture);
             }
             else
             {
                 screenMesh.Draw((m) =>
                 {
-                    Graphics.BindTextureToUnit(inRenderTexture.Id, 0);
-                    Graphics.BindTextureToUnit(inRenderTexture.DepthId, 1);
+                    Graphics.BindTextureToUnit(inRenderTexture.TextureId, 0);
+                    Graphics.BindTextureToUnit(inRenderTexture.DepthBufferId, 1);
                     m.shader.SetUniform("tex", 0);
                     m.shader.SetUniform("depth_tex", 1);
                 });

@@ -1,6 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="Aiv.Fast2D.Android.Example.Obsolete.Aiv.Fast2D.Android.Example.Obsolete" android:versionCode="1" android:versionName="1.0">
-	<uses-sdk android:minSdkVersion="16" android:targetSdkVersion="27" />
-	<application android:label="Aiv.Fast2D.Android.Example.Obsolete" android:theme="@android:style/Theme.Black.NoTitleBar"></application>
-	<uses-permission android:name="android.permission.VIBRATE" />
-</manifest>

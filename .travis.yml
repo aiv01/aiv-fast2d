@@ -1,0 +1,66 @@
+language: csharp
+solution: aiv-fast2d.sln
+notifications:
+  #email: false
+  email:
+    if: branch = master
+    on_success: true
+    on_failure: true
+before_script:
+  - export AUTO_PATH_SLN=aiv-fast2d.sln
+  - export AUTO_PATH_LIBR_REL=aiv-fast2d/bin/Release
+  - export AUTO_PATH_LIBR_DLL=$AUTO_PATH_LIBR_REL/aiv-fast2d.dll
+  ##### - export AUTO_PATH_TEST_DLL=Tests/bin/Release/Tests.dll
+  - export AUTO_PATH_NUSPEC=aiv-fast2d.nuspec
+  - export AUTO_PATH_DOCS=auto-docs/html
+  - export AUTO_PATH_ARTIFACTS=artifacts
+  - export AUTO_YEAR=$(date +%Y)
+  - export AUTO_TAG=$(if [ -z "$TRAVIS_TAG" ]; then echo "0.0.0"; else echo $TRAVIS_TAG; fi) 
+  # Need to stop build if TAG is not like X.Y.Z(.A)
+  # Workaround becase doesn't exists TAG EXCLUSION mechanism for build
+  # https://docs.travis-ci.com/user/customizing-the-build#using-regular-expressions
+  - export AUTO_TAG_REGEX="^[0-9]+(\.[0-9]+){2,3}$"
+  - if [[ ! $AUTO_TAG =~ $AUTO_TAG_REGEX ]]; then echo "Tag '$AUTO_TAG' is not valid. Build will be terminated" && travis_terminate 1; fi
+script:
+  - echo "=== INSTALL ==="
+    && nuget restore $AUTO_PATH_SLN
+    && sudo apt-get install doxygen
+  - echo "=== BUILD ===" 
+    && msbuild /p:Configuration=Release $AUTO_PATH_SLN
+    && ls -l $AUTO_PATH_LIBR_DLL
+  ##### - echo "=== TEST ==="
+  ##### && packages/NUnit.ConsoleRunner.3.*/tools/nunit3-console.exe $AUTO_PATH_TEST_DLL
+  - echo "=== PACKAGE ===" 
+    && sed -i "s/@AUTO_TAG/$AUTO_TAG/" $AUTO_PATH_NUSPEC
+    && sed -i "s/@AUTO_YEAR/$AUTO_YEAR/" $AUTO_PATH_NUSPEC
+    && cat $AUTO_PATH_NUSPEC
+    && nuget pack $AUTO_PATH_NUSPEC -Verbosity detailed
+  - echo "=== DOCUMENTATION ===" 
+    && doxygen
+    && zip -r docs.zip $AUTO_PATH_DOCS
+  - echo "=== ARTIFACTS ==="
+    && mkdir $AUTO_PATH_ARTIFACTS
+    && cp *.nupkg             $AUTO_PATH_ARTIFACTS
+    && mv docs.zip            $AUTO_PATH_ARTIFACTS
+    && ls -l $AUTO_PATH_ARTIFACTS 
+deploy:
+  - provider: script
+    script: nuget push ./*.nupkg -Verbosity detailed -ApiKey $NUGET_API_KEY -Source $NUGET_SOURCE
+    on:
+      tags: true
+    skip_cleanup: true
+    
+  - provider: pages
+    github_token: $GITHUB_API_KEY
+    local_dir: $AUTO_PATH_DOCS
+    on:
+      tags: true
+    skip_cleanup: true
+    
+  - provider: releases
+    api_key: $GITHUB_API_KEY
+    file_glob: true
+    file: $AUTO_PATH_ARTIFACTS/*
+    on:
+      tags: true
+    skip_cleanup: true

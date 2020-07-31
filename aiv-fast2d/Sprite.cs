@@ -1,9 +1,5 @@
 ﻿using System;
-#if __SHARPDX__
-using SharpDX;
-#else
 using OpenTK;
-#endif
 
 namespace Aiv.Fast2D
 {
@@ -26,26 +22,26 @@ void main(){
 }";
 		private static string spriteFragmentShader = @"
 #version 330 core
-
 precision highp float;
 
-in vec2 uvout;
-
+uniform float use_texture;
+uniform sampler2D tex;
+uniform vec4 color;
 uniform vec4 mul_tint;
 uniform vec4 add_tint;
-uniform sampler2D tex;
-uniform float use_texture;
 
-out vec4 color;
+in vec2 uvout;
+out vec4 frag_color;
 
 void main(){
         if (use_texture > 0.0) {
-            color = texture(tex, uvout) * mul_tint;
-            color += vec4(add_tint.xyz * color.a, add_tint.a);
+            frag_color = texture(tex, uvout);
         }
         else {
-            color = add_tint;
+			frag_color = color;
         }
+		frag_color *= mul_tint;
+        frag_color += vec4(add_tint.xyz * frag_color.a, add_tint.a);
 }";
 
 		private static string spriteVertexShaderObsolete = @"
@@ -81,61 +77,37 @@ void main(){
 
 		private static Shader spriteShader = new Shader(spriteVertexShader, spriteFragmentShader, spriteVertexShaderObsolete, spriteFragmentShaderObsolete, new string[] { "vertex", "uv" });
 
+		/// <summary>
+		/// Get the Width of this sprite
+		/// </summary>
+        public float Width { get; }
+		/// <summary>
+		/// Get the Height of this sprite
+		/// </summary>
+		public float Height { get; }
 
-		private float width;
-		private float height;
+		/// <summary>
+		/// Get / Set the orizontal orientation of this Sprite
+		/// </summary>
+		public bool FlipX { get; set; }
+		/// <summary>
+		/// Get / Set the verical orientation of this Sprite
+		/// </summary>
+		public bool FlipY { get; set; }
 
-		public float Width
-		{
-			get
-			{
-				return this.width;
-			}
-		}
+		private Vector4 multiplyTint;
+		private Vector4 additiveTint;
 
-		public float Height
-		{
-			get
-			{
-				return this.height;
-			}
-		}
-
-		private Vector4 multiplyTint = Vector4.One;
-		private Vector4 additiveTint = Vector4.Zero;
-
-		private bool flipX;
-		private bool flipY;
-
-		public bool FlipX
-		{
-			get
-			{
-				return flipX;
-			}
-			set
-			{
-				flipX = value;
-			}
-		}
-
-		public bool FlipY
-		{
-			get
-			{
-				return flipY;
-			}
-			set
-			{
-				flipY = value;
-			}
-		}
-
-		public Sprite(float width, float height) : base(spriteShader)
+		/// <summary>
+		/// Sprite class is a Quad (mesh made by two triangles)
+		/// </summary>
+		/// <param name="width">the width of the sprite</param>
+		/// <param name="height">the height of the sprite</param>
+        public Sprite(float width, float height) : base(spriteShader)
 		{
 			this.hasVertexColors = false;
-			this.width = width;
-			this.height = height;
+			this.Width = width;
+			this.Height = height;
 			this.v = new float[] {
 				0, 0,
 				0, height,
@@ -152,62 +124,132 @@ void main(){
 				0, 0,
 				1, 0
 			};
-			this.Update();
+			base.Update();
 
-			this.shaderSetupHook = (mesh) =>
+			multiplyTint = Vector4.One;
+			additiveTint = Vector4.Zero;
+			
+			//By default Sprite is configured for DrawTexture
+			base.shaderSetupHook = (mesh) =>
 			{
 				mesh.shader.SetUniform("tex", 0);
 				mesh.shader.SetUniform("use_texture", 1f);
 				mesh.shader.SetUniform("mul_tint", multiplyTint);
 				mesh.shader.SetUniform("add_tint", additiveTint);
 			};
-
+			
 		}
 
+		/// <summary>
+		/// Color tint added during Draw phase, after base color (or texture) and multiply tint.
+		/// </summary>
+		/// <param name="r">red channel in space [0, 255]</param>
+		/// <param name="g">green channel in space [0, 255]</param>
+		/// <param name="b">blue channelin space [0, 255]</param>
+		/// <param name="a">alpha channel in space [0, 255]</param>
 		public void SetAdditiveTint(int r, int g, int b, int a)
 		{
-			this.additiveTint = new Vector4(r / 255, g / 255, b / 255, a / 255);
+			SetAdditiveTint(r / 255f, g / 255f, b / 255f, a / 255f);
 		}
 
+		/// <summary>
+		/// Color tint added during Draw phase, after base color (or texture) and multiply tint.
+		/// </summary>
+		/// <param name="r">red channel in space [0.0, 1.0]</param>
+		/// <param name="g">green channel in space [0.0, 1.0]</param>
+		/// <param name="b">blue channelin space [0.0, 1.0]</param>
+		/// <param name="a">alpha channel in space [0.0, 1.0]</param>
 		public void SetAdditiveTint(float r, float g, float b, float a)
 		{
-			this.additiveTint = new Vector4(r, g, b, a);
+			SetAdditiveTint(new Vector4(r, g, b, a));
 		}
 
+		/// <summary>
+		/// Color tint added during Draw phase, after base color (or texture) and multiply tint.
+		/// </summary>
+		/// <param name="color">color channel as vector of 4 float</param>
 		public void SetAdditiveTint(Vector4 color)
 		{
 			this.additiveTint = color;
 		}
 
+		/// <summary>
+		/// Color tint used as multiplier during Draw phase, after base color (or texture).
+		/// </summary>
+		/// <param name="r">red channel in space [0.0, 1.0]</param>
+		/// <param name="g">green channel in space [0.0, 1.0]</param>
+		/// <param name="b">blue channelin space [0.0, 1.0]</param>
+		/// <param name="a">alpha channel in space [0.0, 1.0]</param>
 		public void SetMultiplyTint(float r, float g, float b, float a)
 		{
-			this.multiplyTint = new Vector4(r, g, b, a);
+			SetMultiplyTint(new Vector4(r, g, b, a));
 		}
 
+		/// <summary>
+		/// Color tint used as multiplier during Draw phase, after base color (or texture).
+		/// </summary>
+		/// <param name="r">red channel in space [0, 255]</param>
+		/// <param name="g">green channel in space [0, 255]</param>
+		/// <param name="b">blue channelin space [0, 255]</param>
+		/// <param name="a">alpha channel in space [0, 255]</param>
+		public void SetMultiplyTint(int r, int g, int b, int a)
+		{
+			SetMultiplyTint(r / 255, g / 255, b / 255, a / 255);
+		}
+
+		/// <summary>
+		/// Color tint added during Draw phase, after base color (or texture).
+		/// </summary>
+		/// <param name="color">color channel as vector of 4 float</param>
 		public void SetMultiplyTint(Vector4 color)
 		{
 			this.multiplyTint = color;
 		}
 
-		public void DrawSolidColor(float r, float g, float b, float a = 1)
+		/// <summary>
+		/// Draw the sprite filling it with this color
+		/// </summary>
+		/// <param name="color">color channel as vector of 4 float</param>
+		override public void DrawColor(Vector4 color)
 		{
+			//Shader shaderSetupHook is overridden by this configuration
 			this.Draw((mesh) =>
 			{
 				mesh.shader.SetUniform("use_texture", -1f);
-				mesh.shader.SetUniform("add_tint", new Vector4(r, g, b, a));
+				mesh.shader.SetUniform("color", color);
+				mesh.shader.SetUniform("mul_tint", multiplyTint);
+				mesh.shader.SetUniform("add_tint", additiveTint);
 			});
 		}
 
-		public void DrawSolidColor(int r, int g, int b, int a = 255)
+		/// <summary>
+		/// Draw the whole texture
+		/// </summary>
+		/// <param name="tex">the texture used as source</param>
+		public override void DrawTexture(Texture tex)
 		{
-			DrawSolidColor(r / 255f, g / 255f, b / 255f, a / 255f);
+			this.DrawTexture(tex, 0, 0, tex.Width, tex.Height);
 		}
 
-		public void DrawSolidColor(Vector4 color)
+		/// <summary>
+		/// Draw a texture starting at specific offset to the full size of the texture
+		/// </summary>
+		/// <param name="tex">the texture used as source</param>
+		/// <param name="xOffset">offset on x axis</param>
+		/// <param name="yOffset">offset on y axis</param>
+		public void DrawTexture(Texture tex, int xOffset, int yOffset)
 		{
-			DrawSolidColor(color.X, color.Y, color.Z, color.W);
+			this.DrawTexture(tex, xOffset, yOffset, tex.Width, tex.Height);
 		}
 
+		/// <summary>
+		/// Draw a texture starting at specific offset to a specific size
+		/// </summary>
+		/// <param name="tex">the texture used as source</param>
+		/// <param name="xOffset">offset on x axis</param>
+		/// <param name="yOffset">offset on y axis</param>
+		/// <param name="width">width to take into account</param>
+		/// <param name="height">height to take into account</param>
 		public void DrawTexture(Texture tex, int xOffset, int yOffset, int width, int height)
 		{
 			float deltaW = 1f / tex.Width;
@@ -216,21 +258,22 @@ void main(){
 			float right = (xOffset + width) * deltaW;
 			float top = yOffset * deltaH;
 			float bottom = (yOffset + height) * deltaH;
+
 			if (tex.flipped)
 			{
 				float tmp = bottom;
 				bottom = top;
 				top = tmp;
 			}
-
-			if (flipX)
+			
+			if (FlipX)
 			{
 				float tmp = left;
 				left = right;
 				right = tmp;
 			}
 
-			if (flipY)
+			if (FlipY)
 			{
 				float tmp = bottom;
 				bottom = top;
@@ -255,15 +298,38 @@ void main(){
 			base.DrawTexture(tex);
 		}
 
-		public void DrawTexture(Texture tex, int xOffset, int yOffset)
-		{
-			this.DrawTexture(tex, xOffset, yOffset, tex.Width, tex.Height);
+        
+        public override void DrawWireframe(Vector4 color, float tickness = 0.02F)
+        {
+			//Mesh / Sprite design is a little "spaghetti" dish
+			//In order to make DrawWireframe compliant with Sprite 
+			//has been applied the following workaround:
+			//1. Make a backup of Sprite specific configuration
+			//2. Apply Mesh configuration 
+			//3. Execute DrawWireframe call
+			//4. Restore Sprite configuration
+
+			//1. Sprite Backup
+			Shader shaderBkp = shader;
+			ShaderSetupHook hookBkp = shaderSetupHook;
+
+			//2. Set Mesh configuration
+			shader = Mesh.simpleShader;
+			shader.Use();
+			hasVertexColors = true;
+			shaderSetupHook = null;
+
+			//3. Call 
+			base.DrawWireframe(color, tickness);
+
+			//4. Restore backup
+			hasVertexColors = false;
+			shader = shaderBkp;
+			shader.Use();
+			shaderSetupHook = hookBkp;
 		}
 
-		public override void DrawTexture(Texture tex)
-		{
-			this.DrawTexture(tex, 0, 0, tex.Width, tex.Height);
-		}
-	}
+
+    }
 }
 

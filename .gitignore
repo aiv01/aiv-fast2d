@@ -1,3 +1,7 @@
+# Custom
+auto-docs/
+*.nupkg
+
 #Autosave files
 *~
 
@@ -8,6 +12,7 @@ packages/
 TestResults/
 
 # globs
+.vs/
 Makefile.in
 *.DS_Store
 *.sln.cache
@@ -38,7 +43,3 @@ Thumbs.db
 
 #dotCover
 *.dotCover
-
-*.nupkg
-*.bak
-.vs/
