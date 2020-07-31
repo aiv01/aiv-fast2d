@@ -51,7 +51,7 @@ namespace Aiv.Fast2D.Example.RTE
                     grayFx.Apply(renderTxt);
 
                 win.RenderTo(null);
-                    renderSpr.DrawTexture(renderTxt);
+                    renderSpr.DrawRenderTexture(renderTxt);
 
                 /*
                 byte[] data = renderTxt.Download();
@@ -110,7 +110,7 @@ namespace Aiv.Fast2D.Example.RTE
                 
 
                 Win.RenderTo(null);
-                    renderSprite.DrawTexture(renderT);
+                    renderSprite.DrawRenderTexture(renderT);
                     tv.DrawTexture(tvTexture);
 
                 Win.Update();

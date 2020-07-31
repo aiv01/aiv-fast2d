@@ -309,7 +309,7 @@ namespace Aiv.Fast2D.Example.Alien
                 window.RenderTo(null);
 
 
-                monitor.DrawTexture(screen);
+                monitor.DrawRenderTexture(screen);
 
 
 
@@ -371,7 +371,7 @@ namespace Aiv.Fast2D.Example.Alien
                 window.SetClearColor(0.5f, 0.5f, 0.5f);
                 window.RenderTo(null);
 
-                maskedObject.DrawTexture(maskedAlien);
+                maskedObject.DrawRenderTexture(maskedAlien);
 
                 if (window.GetKey(KeyCode.Space))
                 {

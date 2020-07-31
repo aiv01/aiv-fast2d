@@ -125,7 +125,7 @@ void main() {
                     screen.ApplyPostProcessingEffect(yellowizer);
                 window.RenderTo(null);
 
-                final.DrawTexture(screen);
+                final.DrawRenderTexture(screen);
 
                 byte[] data = screen.Download();
                 dumbTexture.Update(data);
