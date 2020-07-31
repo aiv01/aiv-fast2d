@@ -53,8 +53,8 @@ void main() {
             fragColor = color;
         }
 
-        fragColor *= mul_tint * multiply_tint_out;
-        fragColor += vec4((add_tint.xyz + additive_tint_out.xyz) * fragColor.a, add_tint.a + additive_tint_out.a);
+        fragColor *= ( mul_tint * multiply_tint_out );
+        fragColor +=  ( vec4((add_tint.xyz + additive_tint_out.xyz) * fragColor.a, add_tint.a + additive_tint_out.a) );
 }";
 
         private static Shader instancedSpriteShader = new Shader(instancedSpriteVertexShader,
@@ -197,7 +197,7 @@ void main() {
         /// </summary>
         /// <param name="instanceId">the instance id</param>
         /// <param name="color">the color to be added</param>
-        /// <param name="uploadImmediatly">if data has to be immediatly uploaded to the GPU. if <c>false</c> rember to call <seealso cref="UpdateMultiplyTintForAllInstance"/></param>
+        /// <param name="uploadImmediatly">if data has to be immediatly uploaded to the GPU. if <c>false</c> rember to call <seealso cref="UpdateMultiplyTintForAllInstances"/></param>
         public void SetMultiplyTintPerInstance(int instanceId, Vector4 color, bool uploadImmediatly = false)
         {
             multiplyColorData[instanceId * 4] = color.X;
@@ -226,7 +226,7 @@ void main() {
         /// <summary>
         /// Upload all the instance multiply tint data to the GPU.
         /// </summary>
-        public void UpdateMultiplyTintForAllInstance()
+        public void UpdateMultiplyTintForAllInstances()
         {
             UpdateFloatBuffer(multiplyColorBuffer, multiplyColorData);
         }

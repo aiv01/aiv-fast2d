@@ -9,56 +9,43 @@ namespace Aiv.Fast2D
 {
     public class Texture : IDisposable
     {
-
-        protected int textureId;
-        private int width;
-        private int height;
-        private byte[] bitmap;
-        protected bool premultiplied;
+        private bool premultiplied;
 
         public bool flipped = false;
 
-        public int Id
-        {
-            get
-            {
-                return textureId;
-            }
-        }
+
+        /// <summary>
+        /// The Id associated to this texture on the GPU
+        /// </summary>
+        public int Id { get; }
 
         private bool disposed;
 
-        public int Width
-        {
-            get
-            {
-                return this.width;
-            }
-        }
-
-        public int Height
-        {
-            get
-            {
-                return this.height;
-            }
-        }
-
+        /// <summary>
+        /// The width of this texture
+        /// </summary>
+        public int Width { get; internal set; }
+        
+        /// <summary>
+        /// The Height of this texture
+        /// </summary>
+        public int Height { get; internal set; }
+       
+        /// <summary>
+        /// The ratio of the size of this texture (width / height)
+        /// </summary>
         public float Ratio
         {
             get
             {
-                return (float)this.Width / (float)this.Height;
+                return (float)Width / (float)Height;
             }
         }
 
-        public byte[] Bitmap
-        {
-            get
-            {
-                return this.bitmap;
-            }
-        }
+        /// <summary>
+        /// Data in bytes representing pixels
+        /// </summary>
+        public byte[] Bitmap { get; private set; }
 
         public bool IsPremultiplied
         {
@@ -70,7 +57,7 @@ namespace Aiv.Fast2D
 
         public Texture(bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false)
         {
-            this.textureId = Graphics.NewTexture();
+            this.Id = Graphics.NewTexture();
 
             this.Bind();
 
@@ -90,24 +77,31 @@ namespace Aiv.Fast2D
 
         public Texture(int width, int height, bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this(nearest, repeatX, repeatY, mipMap)
         {
-            this.width = width;
-            this.height = height;
-            this.bitmap = new byte[this.width * this.height * 4];
+            Width = width;
+            Height = height;
+            this.Bitmap = new byte[Width * Height * 4];
             this.Update();
         }
 
 
         public Texture(string fileName, bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this(nearest, repeatX, repeatY, mipMap)
         {
+
             this.premultiplied = true;
-            this.bitmap = LoadImage(fileName, premultiplied, out this.width, out this.height);
+            this.Bitmap = LoadImage(fileName, premultiplied, out int width, out int height);
+
+            Width = width;
+            Height = height;
             this.Update();
         }
 
         public Texture(Stream stream, bool nearest = false, bool repeatX = false, bool repeatY = false, bool mipMap = false) : this(nearest, repeatX, repeatY, mipMap)
         {
             this.premultiplied = true;
-            this.bitmap = LoadImage(stream, premultiplied, out this.width, out this.height);
+            this.Bitmap = LoadImage(stream, premultiplied, out int width, out int height);
+
+            Width = width;
+            Height = height;
             this.Update();
         }
 
@@ -115,13 +109,13 @@ namespace Aiv.Fast2D
         {
             this.Bind();
             if (mipMap == 0)
-                this.bitmap = bitmap;
-            Graphics.TextureBitmap(width, height, bitmap, mipMap);
+                this.Bitmap = bitmap;
+            Graphics.TextureBitmap(Width, Height, bitmap, mipMap);
         }
 
         public void Update(int mipMap = 0)
         {
-            this.Update(this.bitmap, mipMap);
+            this.Update(this.Bitmap, mipMap);
         }
 
         public void AddMipMap(int mipMap, string fileName)
@@ -130,10 +124,10 @@ namespace Aiv.Fast2D
             int mipMapHeight;
             this.premultiplied = true;
             byte[] mipMapBitmap = LoadImage(fileName, premultiplied, out mipMapWidth, out mipMapHeight);
-            int expectedWidth = this.width / (int)Math.Pow(2, mipMap);
-            int expectedHeight = this.height / (int)Math.Pow(2, mipMap);
+            int expectedWidth = Width / (int)Math.Pow(2, mipMap);
+            int expectedHeight = Height / (int)Math.Pow(2, mipMap);
 
-            if (width != expectedWidth || height != expectedHeight)
+            if (Width != expectedWidth || Height != expectedHeight)
                 throw new Exception("invalid mipmap size");
 
             this.Update(mipMapBitmap, mipMap);
@@ -141,15 +135,15 @@ namespace Aiv.Fast2D
 
         public void Bind(int unit = 0)
         {
-            Graphics.BindTextureToUnit(this.textureId, unit);
+            Graphics.BindTextureToUnit(this.Id, unit);
         }
 
         public void Dispose()
         {
             if (disposed)
                 return;
-            Graphics.DeleteTexture(this.textureId);
-            Window.Current.Log(string.Format("texture {0} deleted", this.textureId));
+            Graphics.DeleteTexture(this.Id);
+            Window.Current.Log(string.Format("texture {0} deleted", this.Id));
             disposed = true;
         }
 
@@ -179,7 +173,7 @@ namespace Aiv.Fast2D
 
         public virtual byte[] Download(int mipMap = 0)
         {
-            byte[] data = new byte[this.Width * this.Height * 4];
+            byte[] data = new byte[Width * Height * 4];
             this.Bind();
             Graphics.TextureGetPixels(mipMap, data);
             return data;
@@ -189,7 +183,7 @@ namespace Aiv.Fast2D
         {
             if (disposed)
                 return;
-            Window.Current.textureGC.Add(this.textureId);
+            Window.Current.textureGC.Add(this.Id);
             disposed = true;
         }
 

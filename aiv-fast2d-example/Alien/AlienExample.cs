@@ -239,7 +239,7 @@ namespace Aiv.Fast2D.Example.Alien
                     tiles2.SetPositionPerInstance(i, new Vector2(20 * i, 20 * i));
                     if (i % 2 == 0)
                     {
-                        tiles2.SetAdditiveTintPerInstance(i, new Vector4(1, -1, -1, 1));
+                        tiles2.SetAdditiveTintPerInstance(i, new Vector4(0f, 0f, 1f, 1f));
                     }
                 }
                 tiles2.UpdatePositionForAllInstances();
@@ -309,17 +309,17 @@ namespace Aiv.Fast2D.Example.Alien
                 window.RenderTo(null);
 
 
-                monitor.DrawTexture(screen);
+                monitor.DrawRenderTexture(screen);
 
 
 
                 Vector2 newPosition = tiles.GetPositionPerInstance(2) - Vector2.One * 20f * window.DeltaTime;
                 tiles.SetPositionPerInstance(2, newPosition);
 
-                tiles.DrawColor(0, 1, 1, 1);
+                tiles.DrawColor(0f, 1f, 1f, 1f);
 
                 tiles2.position.X += 30 * window.DeltaTime;
-                tiles2.DrawColor(1, 1, 0, 1);
+                tiles2.DrawColor(1f, 1f, 0f, 1f);
 
                 particleSystem.Update(window);
 
@@ -371,7 +371,7 @@ namespace Aiv.Fast2D.Example.Alien
                 window.SetClearColor(0.5f, 0.5f, 0.5f);
                 window.RenderTo(null);
 
-                maskedObject.DrawTexture(maskedAlien);
+                maskedObject.DrawRenderTexture(maskedAlien);
 
                 if (window.GetKey(KeyCode.Space))
                 {

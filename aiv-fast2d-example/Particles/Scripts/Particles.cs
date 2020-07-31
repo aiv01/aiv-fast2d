@@ -61,8 +61,7 @@ namespace Aiv.Fast2D.Example.PRE
         public void DrawColor(int r, int g, int b, int a, float deltaTime)
         {
             Update(deltaTime);
-            //this.instancedSprite.DrawColor(r, g, b, a);
-            this.instancedSprite.DrawWireframe(r, g, b, a, 1);
+            this.instancedSprite.DrawColor(r, g, b, a);
         }
 
         public void DrawTexture(Texture texture, float deltaTime)

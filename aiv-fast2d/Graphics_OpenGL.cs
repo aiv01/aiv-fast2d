@@ -153,7 +153,7 @@ namespace Aiv.Fast2D
 			GL.Disable(EnableCap.ScissorTest);
 		}
 
-		public static void Scissor(int x, int y, int width, int height)
+        public static void Scissor(int x, int y, int width, int height)
 		{
 			GL.Scissor(x, y, width, height);
 		}

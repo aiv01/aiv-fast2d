@@ -551,10 +551,45 @@ void main(){
 			}
 		}
 
+
+
+		private Texture workaroundForRenderTexture;
+		/// <summary>
+		/// Allow to draw a <see cref="RenderTexture"/> object.
+		/// </summary>
+		/// <param name="rt">the render texture to draw</param>
+		public void DrawRenderTexture(RenderTexture rt)
+		{
+			/* This is a WORKAROUND to address the issue:
+			 * https://github.com/aiv01/aiv-fast2d/issues/53
+			 * 
+			 * It's a workaround because the only way found to avoid the "artifacts" problem
+			 * is to download from GPU the RenderTexture data and then utilize a temporary
+			 * Texture to upload data and draw them properly.
+			 * During this data migration, data need to be flipped, otherwise will be shown upside down
+			 * 
+			 * In order to avoid to create multiple temporary texture during each Draw pass,
+			 * we make sure to create just one.
+			 */
+			if (workaroundForRenderTexture == null)
+			{
+				workaroundForRenderTexture = new Texture(rt.Width, rt.Height);
+				workaroundForRenderTexture.flipped = true;
+			}
+
+			byte[] data = rt.Download();
+			workaroundForRenderTexture.Update(data);
+
+			DrawTexture(workaroundForRenderTexture);
+		}
+
 		public void Dispose()
 		{
 			if (disposed)
 				return;
+
+			if (workaroundForRenderTexture != null)
+				workaroundForRenderTexture.Dispose();
 
 			Graphics.DeleteBuffer(this.vBufferId);
 			Graphics.DeleteBuffer(this.uvBufferId);

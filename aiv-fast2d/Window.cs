@@ -396,7 +396,7 @@ namespace Aiv.Fast2D
 			{
 				if (postProcessingEffects[i] != null && postProcessingEffects[i].enabled)
 				{
-					return postProcessingEffects[i].RenderTexture.FrameBuffer;
+					return postProcessingEffects[i].RenderTexture.FrameBufferId;
 				}
 
 			}
@@ -478,7 +478,7 @@ namespace Aiv.Fast2D
 			foreach (PostProcessingEffect effect in postProcessingEffects)
 			{
 				if (effect != null && effect.enabled)
-					return effect.RenderTexture.FrameBuffer;
+					return effect.RenderTexture.FrameBufferId;
 			}
 			if (!collectedDefaultFrameBuffer)
 			{
@@ -557,7 +557,7 @@ namespace Aiv.Fast2D
 			}
 			else
 			{
-				Graphics.BindFrameBuffer(renderTexture.FrameBuffer);
+				Graphics.BindFrameBuffer(renderTexture.FrameBufferId);
 				// unscaled,virtual viewport
 				SetViewport(0, 0, renderTexture.Width, renderTexture.Height, orthoSize, true);
 			}
