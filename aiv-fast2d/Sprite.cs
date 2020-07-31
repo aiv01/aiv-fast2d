@@ -222,6 +222,22 @@ void main(){
 			});
 		}
 
+		private Texture workaroundForRenderTexture;
+		public void DrawTexture(RenderTexture text)
+        {
+			//WORKAROUND
+			if (workaroundForRenderTexture == null) { 
+				workaroundForRenderTexture = new Texture(text.Width, text.Height);
+				workaroundForRenderTexture.flipped = true;
+			}
+
+			byte[] data = text.Download();
+			workaroundForRenderTexture.Update(data);
+
+			DrawTexture(workaroundForRenderTexture);
+        }
+
+
 		/// <summary>
 		/// Draw the whole texture
 		/// </summary>

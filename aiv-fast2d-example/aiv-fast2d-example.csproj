@@ -63,6 +63,9 @@
     <Compile Include="Alien\Scripts\Rope.cs" />
     <Compile Include="Alien\Scripts\Segment.cs" />
     <Compile Include="RenderTexture\RenderTextureExample.cs" />
+    <Compile Include="RenderTV\RenderTvExample.cs" />
+    <Compile Include="RenderTV\Scripts\GrayScaleFX.cs" />
+    <Compile Include="RenderTV\Scripts\WobbleFX.cs" />
     <Compile Include="Tiling\Scripts\SmartTilemap.cs" />
     <Compile Include="Tiling\TilingExample.cs" />
   </ItemGroup>
@@ -113,6 +116,18 @@
     </Content>
     <Content Include="Particles\Assets\smile.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="RenderTV\Assets\futurama_ship.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="RenderTV\Assets\tv.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="RenderTV\Assets\vaporBg.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="RenderTV\Assets\vaporBg-red.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Tiling\Assets\simple-sheet-33x33.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

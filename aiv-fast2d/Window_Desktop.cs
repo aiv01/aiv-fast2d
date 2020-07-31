@@ -64,7 +64,7 @@ namespace Aiv.Fast2D
             }
         }
 
-        internal GameWindow Context { get; set; }
+        public GameWindow Context { get; set; }
         private readonly Stopwatch timer;
 
 

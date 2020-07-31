@@ -4,29 +4,20 @@ namespace Aiv.Fast2D
 {
 	public class RenderTexture : Texture
 	{
-		protected int frameBuffer;
-		protected int depthTexture;
+		/// <summary>
+		/// Frame Buffer Id associated to this render texture
+		/// </summary>
+        public int FrameBufferId { get; }
 
-		public int FrameBuffer
-		{
-			get
-			{
-				return frameBuffer;
-			}
-		}
+		/// <summary>
+		/// Depth Buffer Id associated to this render texture
+		/// </summary>
+        public int DepthBufferId { get; }
 
-		public int DepthId
+        public RenderTexture(int width, int height, bool withDepth = false, int depthSize = 16, bool depthOnly = false) : base(width, height)
 		{
-			get
-			{
-				return depthTexture;
-			}
-		}
-
-		public RenderTexture(int width, int height, bool withDepth = false, int depthSize = 16, bool depthOnly = false) : base(width, height)
-		{
-			frameBuffer = Graphics.NewFrameBuffer();
-			Graphics.BindFrameBuffer(frameBuffer);
+			FrameBufferId = Graphics.NewFrameBuffer();
+			Graphics.BindFrameBuffer(FrameBufferId);
 			if (depthOnly)
 			{
 				Graphics.DepthTexture(width, height, depthSize);
@@ -38,15 +29,15 @@ namespace Aiv.Fast2D
 			{
 				Graphics.FrameBufferTexture(this.Id);
 			}
-			depthTexture = -1;
+			DepthBufferId = -1;
 			if (withDepth)
 			{
 				// attach a depth texture
-				depthTexture = Graphics.NewTexture();
-				Graphics.BindTextureToUnit(depthTexture, 0);
+				DepthBufferId = Graphics.NewTexture();
+				Graphics.BindTextureToUnit(DepthBufferId, 0);
 				Graphics.TextureSetNearest();
 				Graphics.DepthTexture(width, height, depthSize);
-				Graphics.FrameBufferDepthTexture(depthTexture);
+				Graphics.FrameBufferDepthTexture(DepthBufferId);
 			}
 			Graphics.BindFrameBuffer(Graphics.GetDefaultFrameBuffer());
 			this.flipped = true;
