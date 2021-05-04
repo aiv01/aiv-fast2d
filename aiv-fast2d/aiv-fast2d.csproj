@@ -46,7 +46,9 @@
     <Compile Include="Texture.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="Shader.cs" />
-    <Compile Include="Sprite.cs" />
+    <Compile Include="Sprite.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Camera.cs" />
     <Compile Include="Graphics_OpenGL.cs" />
     <Compile Include="Window_Desktop.cs" />
