@@ -80,7 +80,7 @@ void main(){
 		/// <summary>
 		/// Get the Width of this sprite
 		/// </summary>
-        public float Width { get; }
+		public float Width { get; }
 		/// <summary>
 		/// Get the Height of this sprite
 		/// </summary>
@@ -95,40 +95,40 @@ void main(){
 		/// </summary>
 		public bool FlipY { get; set; }
 
+
 		private Vector4 multiplyTint;
 		private Vector4 additiveTint;
+
+		private void SetArrayData(float[] data, float left, float right, float top, float bottom)
+		{
+			data[0] = left; data[1] = top;      //top-left
+			data[2] = left; data[3] = bottom;   //bottom-left
+			data[4] = right; data[5] = top;      //top-right
+			data[6] = right; data[7] = top;      //top-right
+			data[8] = left; data[9] = bottom;   //bottom-left
+			data[10] = right; data[11] = bottom;  //bottom-right
+		}
 
 		/// <summary>
 		/// Sprite class is a Quad (mesh made by two triangles)
 		/// </summary>
 		/// <param name="width">the width of the sprite</param>
 		/// <param name="height">the height of the sprite</param>
-        public Sprite(float width, float height) : base(spriteShader)
+		public Sprite(float width, float height) : base(spriteShader)
 		{
 			this.hasVertexColors = false;
 			this.Width = width;
 			this.Height = height;
-			this.v = new float[] {
-				0, 0,
-				0, height,
-				width, 0,
-				width, 0,
-				0, height,
-				width, height
-			};
-			this.uv = new float[] {
-				0, 1,
-				0, 0,
-				1, 1,
-				1, 1,
-				0, 0,
-				1, 0
-			};
+			this.v = new float[12];
+			this.uv = new float[12];
+			//Vertices and Uvs default set to Pixel Coordinate (0,0 is top-left)  
+			SetArrayData(this.v, 0, width, 0, height);
+			SetArrayData(uv, 0, 1, 0, 1);
 			base.Update();
 
 			multiplyTint = Vector4.One;
 			additiveTint = Vector4.Zero;
-			
+
 			//By default Sprite is configured for DrawTexture
 			base.shaderSetupHook = (mesh) =>
 			{
@@ -137,7 +137,6 @@ void main(){
 				mesh.shader.SetUniform("mul_tint", multiplyTint);
 				mesh.shader.SetUniform("add_tint", additiveTint);
 			};
-			
 		}
 
 		/// <summary>
@@ -245,6 +244,10 @@ void main(){
 		/// <summary>
 		/// Draw a texture starting at specific offset to a specific size
 		/// </summary>
+		/// <remarks>
+		/// Passing width and height exceeding Texture.Width and Texture.Height will produce
+		/// effects based on Texture filter adopted (repeat or clamp)
+		/// </remarks>
 		/// <param name="tex">the texture used as source</param>
 		/// <param name="xOffset">offset on x axis</param>
 		/// <param name="yOffset">offset on y axis</param>
@@ -265,7 +268,7 @@ void main(){
 				bottom = top;
 				top = tmp;
 			}
-			
+
 			if (FlipX)
 			{
 				float tmp = left;
@@ -283,24 +286,15 @@ void main(){
 			// OPTIMIZATION: re-upload uv's only if they are different from previous run
 			if (top != this.uv[1] || bottom != this.uv[3] || left != this.uv[0] || right != this.uv[4])
 			{
-				this.uv = new float[] {
-					left, top,
-					left, bottom,
-					right, top,
-
-					right, top,
-					left, bottom,
-					right, bottom
-					};
-
+				SetArrayData(uv, left, right, top, bottom);
 				this.UpdateUV();
 			}
 			base.DrawTexture(tex);
 		}
 
-        
-        public override void DrawWireframe(Vector4 color, float tickness = 0.02F)
-        {
+
+		public override void DrawWireframe(Vector4 color, float tickness = 0.02F)
+		{
 			//Mesh / Sprite design is a little "spaghetti" dish
 			//In order to make DrawWireframe compliant with Sprite 
 			//has been applied the following workaround:
@@ -328,8 +322,6 @@ void main(){
 			shader.Use();
 			shaderSetupHook = hookBkp;
 		}
-
-
-    }
+	}
 }
 
