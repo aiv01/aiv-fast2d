@@ -7,12 +7,6 @@ namespace Aiv.Fast2D
 {
 	public partial class Window
 	{
-
-		#region INTERNALS
-		internal Matrix4 ProjectionMatrix { get; set; }
-
-		#endregion
-
 		/// <summary>
 		/// Return the position of the last activated viewport by <see cref="SetViewport(int, int, int, int, float, bool)"/> method.
 		/// </summary>
@@ -314,6 +308,7 @@ namespace Aiv.Fast2D
 				return this.currentCamera;
 			}
 		}
+		public Matrix4 ProjectionMatrix { get; internal set; }
 		#endregion
 
 		#region obsoleteMode

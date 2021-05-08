@@ -129,7 +129,7 @@ void main(){
                 screenMesh.Draw((m) =>
                 {
                     Graphics.BindTextureToUnit(inRenderTexture.TextureId, 0);
-                    Graphics.BindTextureToUnit(inRenderTexture.DepthBufferId, 1);
+                    Graphics.BindTextureToUnit(inRenderTexture.DepthTextureId, 1);
                     m.shader.SetUniform("tex", 0);
                     m.shader.SetUniform("depth_tex", 1);
                 });

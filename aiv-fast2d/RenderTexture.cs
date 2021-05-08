@@ -2,8 +2,9 @@
 
 namespace Aiv.Fast2D
 {
-	public class RenderTexture : IDisposable //: Texture
+	public class RenderTexture : Texture //IDisposable 
 	{
+/*
 		/// <summary>
 		/// The Width of this render texture
 		/// </summary>
@@ -13,7 +14,7 @@ namespace Aiv.Fast2D
 		/// The Height of this render texture
 		/// </summary>
 		public int Height { get { return texture.Height; } }
-
+*/
         /// <summary>
         /// Frame Buffer Id associated to this render texture
         /// </summary>
@@ -22,7 +23,7 @@ namespace Aiv.Fast2D
 		/// <summary>
 		/// Depth Buffer Id associated to this render texture
 		/// </summary>
-        public int DepthBufferId { get; }
+        public int DepthTextureId { get; }
 
 		/// <summary>
 		/// Texture Id associated to this render texture
@@ -32,9 +33,10 @@ namespace Aiv.Fast2D
 		private Texture texture;
 
 		public RenderTexture(int width, int height, bool withDepth = false, int depthSize = 16, bool depthOnly = false)
-			//: base(width, height)
+			: base(width, height)
 		{
-			texture = new Texture(width, height);		
+			//texture = new Texture(width, height);		
+			texture = this;
 
 			FrameBufferId = Graphics.NewFrameBuffer();
 			Graphics.BindFrameBuffer(FrameBufferId);
@@ -49,15 +51,15 @@ namespace Aiv.Fast2D
 			{
 				Graphics.FrameBufferTexture(this.texture.Id);
 			}
-			DepthBufferId = -1;
+			DepthTextureId = -1;
 			if (withDepth)
 			{
 				// attach a depth texture
-				DepthBufferId = Graphics.NewTexture();
-				Graphics.BindTextureToUnit(DepthBufferId, 0);
+				DepthTextureId = Graphics.NewTexture();
+				Graphics.BindTextureToUnit(DepthTextureId, 0);
 				Graphics.TextureSetNearest();
 				Graphics.DepthTexture(width, height, depthSize);
-				Graphics.FrameBufferDepthTexture(DepthBufferId);
+				Graphics.FrameBufferDepthTexture(DepthTextureId);
 			}
 			Graphics.BindFrameBuffer(Graphics.GetDefaultFrameBuffer());
 			
@@ -86,9 +88,13 @@ namespace Aiv.Fast2D
 		/// <summary>
 		/// Destroy the render texture and resources associated
 		/// </summary>
-		public void Dispose()
+		public new void Dispose()
 		{
 			texture.Dispose();
+			if (DepthTextureId != -1)
+            {
+				Graphics.DeleteTexture(DepthTextureId);
+            }
 		}
 
 	}
