@@ -133,7 +133,8 @@ void main(){
             out_color = color;
         }
         else {
-            out_color = vec4(0, 0, 0, 0);    
+            //out_color = vec4(0, 0, 0, 0);
+			discard;
         }
         return;
     }
@@ -179,7 +180,8 @@ void main(){
             gl_FragColor = color;
         }
         else {
-            gl_FragColor = vec4(0, 0, 0, 0);    
+           //gl_FragColor = vec4(0, 0, 0, 0);    
+		   discard;
         }
         return;
     }
