@@ -5,10 +5,8 @@ namespace Aiv.Fast2D
 {
     public class PostProcessingEffect
     {
-
         public bool enabled;
-
-        protected Mesh screenMesh = new Mesh();
+        protected Mesh screenMesh;
         protected bool useDepth;
         protected int depthSize;
 
@@ -101,7 +99,11 @@ void main(){
 
         public void Setup(Window window)
         {
-            renderTexture = new RenderTexture(window.ScaledWidth, window.ScaledHeight, this.useDepth, this.depthSize);
+            if (renderTexture == null || 
+                renderTexture.Height != window.ScaledWidth ||
+                renderTexture.Width != window.ScaledWidth
+                )
+                renderTexture = new RenderTexture(window.ScaledWidth, window.ScaledHeight, this.useDepth, this.depthSize);
         }
 
         public void Apply(RenderTexture inRenderTexture = null)
