@@ -47,6 +47,8 @@ namespace Aiv.Fast2D
         /// </summary>
         public byte[] Bitmap { get; private set; }
 
+        private byte[] _downloadableData; //Works as byte array "instance" cache (to avoid to call "new" every time
+
         public bool IsPremultiplied
         {
             get
@@ -89,6 +91,7 @@ namespace Aiv.Fast2D
 
             this.premultiplied = true;
             this.Bitmap = LoadImage(fileName, premultiplied, out int width, out int height);
+
 
             Width = width;
             Height = height;
@@ -172,11 +175,17 @@ namespace Aiv.Fast2D
         }
 
         public virtual byte[] Download(int mipMap = 0)
-        {
-            byte[] data = new byte[Width * Height * 4];
+        {   
+            //Avoid reinstantiating every time Download is called.
+            //For some reason byte array is not garbage collected in time
+            //and with many call to Download application throws OutOfMemoryException
+            //byte[] data = new byte[Width * Height * 4];
+            if (_downloadableData == null) 
+                _downloadableData = new byte[Width * Height * 4];
+
             this.Bind();
-            Graphics.TextureGetPixels(mipMap, data);
-            return data;
+            Graphics.TextureGetPixels(mipMap, _downloadableData);
+            return _downloadableData;
         }
 
         ~Texture()
