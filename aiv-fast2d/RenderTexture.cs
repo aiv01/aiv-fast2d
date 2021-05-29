@@ -32,7 +32,7 @@ namespace Aiv.Fast2D
 
 		private Texture texture;
 
-		public RenderTexture(int width, int height, bool withDepth = false, int depthSize = 16, bool depthOnly = false)
+        public RenderTexture(int width, int height, bool withDepth = false, int depthSize = 16, bool depthOnly = false)
 			: base(width, height)
 		{
 			//texture = new Texture(width, height);		
@@ -75,19 +75,8 @@ namespace Aiv.Fast2D
             effect.Apply(this);
         }
 
-
-		/// <summary>
-		/// Download texture data from the GPU
-		/// </summary>
-		/// <returns></returns>
-        public byte[] Download()
-        {
-			return this.texture.Download();
-        }
-
-		/// <summary>
-		/// Destroy the render texture and resources associated
-		/// </summary>
+/*     NOTE: RenderTexture need a Dispose because of DepthTextureId
+             Understand how to manage this thing in case of Inheritance (from Texture)
 		public new void Dispose()
 		{
 			texture.Dispose();
@@ -96,6 +85,6 @@ namespace Aiv.Fast2D
 				Graphics.DeleteTexture(DepthTextureId);
             }
 		}
-
+*/		
 	}
 }
