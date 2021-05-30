@@ -450,7 +450,6 @@ namespace Aiv.Fast2D
 			GL.CompileShader(vertexShaderId);
 
 			int shaderSuccess = 0;
-
 			GL.GetShader(vertexShaderId, ShaderParameter.CompileStatus, out shaderSuccess);
 
 			if (shaderSuccess == 0)
@@ -466,7 +465,8 @@ namespace Aiv.Fast2D
 			GL.ShaderSource(fragmentShaderId, fragment);
 			GL.CompileShader(fragmentShaderId);
 
-			GL.GetShader(vertexShaderId, ShaderParameter.CompileStatus, out shaderSuccess);
+			shaderSuccess = 0;
+			GL.GetShader(fragmentShaderId, ShaderParameter.CompileStatus, out shaderSuccess);
 
 			if (shaderSuccess == 0)
 			{
