@@ -193,7 +193,7 @@ void main(){
 		/// <param name="a">alpha channel in space [0, 255]</param>
 		public void SetMultiplyTint(int r, int g, int b, int a)
 		{
-			SetMultiplyTint(r / 255, g / 255, b / 255, a / 255);
+			SetMultiplyTint(r / 255f, g / 255f, b / 255f, a / 255f);
 		}
 
 		/// <summary>
