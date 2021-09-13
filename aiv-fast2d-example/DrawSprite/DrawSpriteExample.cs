@@ -25,8 +25,6 @@ namespace Aiv.Fast2D.Example.DSE
             wireFrame.position.X = 100;
             wireFrame.position.Y = 100;
 
-            redLine.SetMultiplyTint(255, 0, 0, 255);
-
 
             while (window.IsOpened)
             {
