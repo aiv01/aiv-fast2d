@@ -36,6 +36,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Circle.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="InstancedSprite.cs" />
     <Compile Include="KeyCode.cs" />
