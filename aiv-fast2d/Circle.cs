@@ -78,9 +78,12 @@ void main(){
 
         public Circle(float radius)
         {
-            // make this as big as the radius on both axis
-            spriteInternal = new Sprite(radius, radius);
+            Radius = radius;
+
+            // With radius 100 our sprite canvas needs to be 200 pixels on both axis. Otherwise we'll have 100 diameter.
+            spriteInternal = new Sprite(radius * 2f, radius * 2f);
             spriteInternal.shader = new Shader(circleVertexShader, circleFragmentShader, null, null, new string[] { "vertex", "uv" });
+            spriteInternal.pivot = new Vector2(radius, radius);
 
             // set a default thickness of 1 for a filled circle
             Thickness = 1f;
@@ -90,6 +93,8 @@ void main(){
         }
 
         // User-Exposed properties
+        public float Radius { get; private set; }
+
         public Vector2 Position
         {
             get => spriteInternal.position;

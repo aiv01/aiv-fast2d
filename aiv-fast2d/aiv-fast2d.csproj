@@ -37,6 +37,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Circle.cs" />
+    <Compile Include="Collision\CircleCollider.cs" />
+    <Compile Include="Collision\SquareCollider.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="InstancedSprite.cs" />
     <Compile Include="KeyCode.cs" />
