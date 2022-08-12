@@ -52,6 +52,7 @@
     <Compile Include="Alien\Scripts\GrayscaleEffect.cs" />
     <Compile Include="Alien\Scripts\ParticleSystem.cs" />
     <Compile Include="Alien\AlienExample.cs" />
+    <Compile Include="DrawCircle\DrawCircleExample.cs" />
     <Compile Include="DrawSprite\DrawSpriteExample.cs" />
     <Compile Include="CloseWindow\CloseWindowExample.cs" />
     <Compile Include="DrawTexture\DrawTextureExample.cs" />

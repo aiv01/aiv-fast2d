@@ -6,6 +6,7 @@ using Aiv.Fast2D.Example.PRE;
 using Aiv.Fast2D.Example.RenderTextureSample;
 using Aiv.Fast2D.Example.RTE;
 using Aiv.Fast2D.Example.TLE;
+using Aiv.Fast2D.Example.DCE;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,10 +30,11 @@ namespace Aiv.Fast2D.Example
             Console.WriteLine("[7] RenderTV");
             Console.WriteLine("[8] Multi Window");
             Console.WriteLine("[9] Close/Exit Window");
+            Console.WriteLine("[10] Draw Circle");
             Console.WriteLine();
 
             int minChoice = 0;
-            int maxChoice = 9;
+            int maxChoice = 10;
             int choice;
             do
             {
@@ -58,6 +60,7 @@ namespace Aiv.Fast2D.Example
                         case 7: RenderTvExample.Run(); break;
                         case 8: MultiWindowExample.Run(); break;
                         case 9: CloseWindowExample.Run(); break;
+                        case 10: DrawCircleExample.Run(); break;
                     }
 
                     if (choice == 0) break;
