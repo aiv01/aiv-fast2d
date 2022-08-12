@@ -49,10 +49,9 @@ namespace Aiv.Fast2D.Collision
                 return false;
             }
 
-            // todo this needs to be the center of the circle, it's pivot by default is the center
-            float squaredDist = (Position - other.Position).Length;
+            float dist = (Position - other.Position).Length;
             float minDistToCollide = radius + other.radius;
-            return squaredDist <= minDistToCollide;
+            return dist <= minDistToCollide;
         }
 
         /// <summary>
